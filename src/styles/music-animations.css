@@ -1,0 +1,412 @@
+/* 🎵 TypeMate 音楽的アニメーション・UX
+ * しげちゃん専用Context Engineering適用
+ * 天野達也・tuki.・Ash island・YOASOBI影響の音楽的表現
+ */
+
+/* ==================== 🎶 基本音楽的原則 ==================== */
+
+:root {
+  /* 🎵 音楽的タイミング（BPM120基準） */
+  --rhythm-fast: 0.125s;    /* 32分音符 */
+  --rhythm-quick: 0.25s;    /* 16分音符 */
+  --rhythm-normal: 0.5s;    /* 8分音符 */
+  --rhythm-slow: 1s;        /* 4分音符 */
+  --rhythm-breath: 2s;      /* 2分音符（息継ぎ） */
+
+  /* 🌈 感情カラーパレット */
+  --emotion-happiness: #ffd700;
+  --emotion-sadness: #6eb5ff;
+  --emotion-excitement: #ff6b47;
+  --emotion-calm: #98d8c8;
+  --emotion-affection: #ffb3ba;
+  --emotion-gratitude: #bae1ff;
+
+  /* ✨ 音質感表現 */
+  --crisp-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --crisp-border: 1px solid rgba(255, 255, 255, 0.2);
+  --natural-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+/* ==================== 💬 メッセージアニメーション ==================== */
+
+/* 🎵 メッセージ出現（音楽的フェードイン） */
+@keyframes message-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+    filter: blur(2px);
+  }
+  30% {
+    opacity: 0.3;
+    transform: translateY(15px) scale(0.97);
+    filter: blur(1px);
+  }
+  60% {
+    opacity: 0.7;
+    transform: translateY(8px) scale(0.99);
+    filter: blur(0.5px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.message-appear {
+  animation: message-fade-in var(--rhythm-normal) cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* 🎼 タイピングインジケーター（音楽的リズム） */
+@keyframes typing-pulse {
+  0%, 60% {
+    transform: scale(0.8);
+    opacity: 0.4;
+  }
+  20% {
+    transform: scale(1.0);
+    opacity: 0.8;
+  }
+  40% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+}
+
+.typing-indicator {
+  animation: typing-pulse 1.5s infinite ease-in-out;
+}
+
+.typing-indicator .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--emotion-calm);
+  display: inline-block;
+  margin: 0 2px;
+}
+
+.typing-indicator .dot:nth-child(1) { animation-delay: 0s; }
+.typing-indicator .dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator .dot:nth-child(3) { animation-delay: 0.4s; }
+
+/* ==================== 🌟 感情的反応アニメーション ==================== */
+
+/* 💖 愛情表現エフェクト */
+@keyframes affection-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px var(--emotion-affection);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 20px var(--emotion-affection), 0 0 30px var(--emotion-affection);
+    transform: scale(1.02);
+  }
+}
+
+.message-affection {
+  animation: affection-glow var(--rhythm-breath) ease-in-out infinite;
+  border-left: 3px solid var(--emotion-affection);
+}
+
+/* ⚡ 興奮エフェクト（Ash island風エネルギー） */
+@keyframes excitement-bounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  25% { transform: translateY(-3px) scale(1.02); }
+  50% { transform: translateY(-1px) scale(1.01); }
+  75% { transform: translateY(-2px) scale(1.015); }
+}
+
+.message-excitement {
+  animation: excitement-bounce var(--rhythm-quick) ease-out 3;
+  border-left: 3px solid var(--emotion-excitement);
+  background: linear-gradient(90deg, var(--emotion-excitement), transparent);
+}
+
+/* 😢 悲しみサポート（tuki.風感性） */
+@keyframes sadness-comfort {
+  0%, 100% {
+    filter: brightness(0.95);
+    transform: scale(1);
+  }
+  50% {
+    filter: brightness(1.05);
+    transform: scale(1.01);
+  }
+}
+
+.message-sadness {
+  animation: sadness-comfort var(--rhythm-breath) ease-in-out infinite;
+  border-left: 3px solid var(--emotion-sadness);
+  background: linear-gradient(90deg, rgba(110, 181, 255, 0.1), transparent);
+}
+
+/* 🌈 幸福エフェクト（YOASOBI風親しみやすさ） */
+@keyframes happiness-shimmer {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 100% 0;
+  }
+}
+
+.message-happiness {
+  border-left: 3px solid var(--emotion-happiness);
+  background: linear-gradient(
+    90deg,
+    transparent 30%,
+    rgba(255, 215, 0, 0.1) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: happiness-shimmer 3s ease-in-out infinite;
+}
+
+/* ==================== 🎭 人格切り替えアニメーション ==================== */
+
+/* 🎪 人格スイッチ（スムーズトランジション） */
+.personality-switch {
+  transition: all var(--rhythm-slow) cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.personality-switch-enter {
+  opacity: 0;
+  transform: translateX(30px) rotateY(90deg);
+}
+
+.personality-switch-enter-active {
+  opacity: 1;
+  transform: translateX(0) rotateY(0deg);
+  transition: all var(--rhythm-slow) cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.personality-switch-exit {
+  opacity: 1;
+  transform: translateX(0) rotateY(0deg);
+}
+
+.personality-switch-exit-active {
+  opacity: 0;
+  transform: translateX(-30px) rotateY(-90deg);
+  transition: all var(--rhythm-slow) cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* ==================== 🎉 成長・達成アニメーション ==================== */
+
+/* 💫 関係性進展エフェクト */
+@keyframes relationship-growth {
+  0% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  25% {
+    transform: scale(1.1) rotate(90deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.2) rotate(180deg);
+    opacity: 0.9;
+  }
+  75% {
+    transform: scale(1.1) rotate(270deg);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+    opacity: 1;
+  }
+}
+
+.relationship-growth {
+  animation: relationship-growth var(--rhythm-slow) ease-out;
+}
+
+/* ✨ 達成感セレブレーション（ENFPサポート） */
+@keyframes celebration-sparkle {
+  0% {
+    transform: scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2) rotate(180deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+    opacity: 0.8;
+  }
+}
+
+.celebration-effect {
+  animation: celebration-sparkle var(--rhythm-normal) ease-out;
+  filter: drop-shadow(0 0 10px var(--emotion-happiness));
+}
+
+/* 🏆 30秒達成感フィードバック */
+@keyframes quick-success {
+  0%, 100% {
+    transform: scale(1);
+    background-color: transparent;
+  }
+  50% {
+    transform: scale(1.05);
+    background-color: var(--emotion-happiness);
+  }
+}
+
+.quick-feedback {
+  animation: quick-success var(--rhythm-quick) ease-out;
+  border-radius: 4px;
+  transition: all var(--rhythm-quick);
+}
+
+/* ==================== 🌊 UI要素の音楽的動作 ==================== */
+
+/* 🎹 ボタンのクリスプな反応 */
+.crisp-button {
+  background: var(--natural-gradient);
+  border: var(--crisp-border);
+  box-shadow: var(--crisp-shadow);
+  transition: all var(--rhythm-quick);
+  border-radius: 8px;
+}
+
+.crisp-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.crisp-button:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 🌊 フルイドモーション */
+@keyframes fluid-flow {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  33% {
+    transform: translateY(-2px) scale(1.01);
+  }
+  66% {
+    transform: translateY(1px) scale(0.99);
+  }
+}
+
+.fluid-motion {
+  animation: fluid-flow 4s ease-in-out infinite;
+}
+
+/* ==================== 🎤 入力フィールドの音楽的反応 ==================== */
+
+/* 🎙️ 音声入力的フィードバック */
+.input-focus {
+  border: 2px solid var(--emotion-calm);
+  box-shadow: 0 0 0 3px rgba(152, 216, 200, 0.2);
+  transition: all var(--rhythm-quick);
+}
+
+.input-typing {
+  border-color: var(--emotion-excitement);
+  animation: typing-rhythm var(--rhythm-quick) ease-in-out infinite alternate;
+}
+
+@keyframes typing-rhythm {
+  from { border-color: var(--emotion-excitement); }
+  to { border-color: var(--emotion-happiness); }
+}
+
+/* ==================== 📱 レスポンシブ音楽的調整 ==================== */
+
+/* 🎵 モバイル用リズム調整 */
+@media (max-width: 768px) {
+  :root {
+    --rhythm-fast: 0.1s;
+    --rhythm-quick: 0.2s;
+    --rhythm-normal: 0.4s;
+    --rhythm-slow: 0.8s;
+    --rhythm-breath: 1.5s;
+  }
+}
+
+/* 🎶 高性能デバイス用追加エフェクト */
+@media (prefers-reduced-motion: no-preference) {
+  .enhanced-animations {
+    animation-duration: calc(var(--rhythm-normal) * 1.2);
+    animation-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+}
+
+/* ==================== 💎 特別エフェクト ==================== */
+
+/* 🌟 特別な瞬間のエフェクト */
+@keyframes magical-moment {
+  0% {
+    filter: hue-rotate(0deg) brightness(1);
+    transform: scale(1);
+  }
+  25% {
+    filter: hue-rotate(90deg) brightness(1.1);
+    transform: scale(1.02);
+  }
+  50% {
+    filter: hue-rotate(180deg) brightness(1.2);
+    transform: scale(1.05);
+  }
+  75% {
+    filter: hue-rotate(270deg) brightness(1.1);
+    transform: scale(1.02);
+  }
+  100% {
+    filter: hue-rotate(360deg) brightness(1);
+    transform: scale(1);
+  }
+}
+
+.magical-moment {
+  animation: magical-moment var(--rhythm-breath) ease-in-out;
+}
+
+/* 🎊 記念日・特別イベント用 */
+.special-celebration {
+  position: relative;
+  overflow: hidden;
+}
+
+.special-celebration::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(255, 215, 0, 0.1) 50%,
+    transparent 70%
+  );
+  animation: celebration-sweep var(--rhythm-breath) ease-in-out infinite;
+}
+
+@keyframes celebration-sweep {
+  0% {
+    transform: translateX(-100%) translateY(-100%) rotate(45deg);
+  }
+  100% {
+    transform: translateX(100%) translateY(100%) rotate(45deg);
+  }
+}
+
+/* ==================== 🎵 使用例クラス ==================== */
+
+/*
+使用例:
+<div className="message-appear message-happiness">幸せメッセージ</div>
+<div className="message-appear message-excitement">興奮メッセージ</div>
+<div className="typing-indicator"><span className="dot"></span><span className="dot"></span><span className="dot"></span></div>
+<button className="crisp-button">クリスプボタン</button>
+<div className="quick-feedback">30秒達成感</div>
+*/

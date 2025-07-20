@@ -1,26 +1,712 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&family=Comfortaa:wght@300;400;500;600;700&display=swap');
+@import "tw-animate-css";
 
+/* 🎵 音楽的アニメーションシステム統合 */
+@import "./music-animations.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* 🎵 TypeMate - 音楽的デザインシステム（しげちゃん専用強化版） */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* 🐾 福ねこらしい基本カラー（しげちゃん専用Context Engineering） */
+  --fukuneko-warm: #fed7aa;     /* 福ねこの温かみ */
+  --fukuneko-love: #fdba74;     /* 福ねこの愛情 */
+  --fukuneko-joy: #fb923c;      /* 福ねこの喜び */
+  --fukuneko-cozy: #f97316;     /* 福ねこの居心地よさ */
+  --fukuneko-deep: #ea580c;     /* 福ねこの深い愛 */
+  
+  /* 🌸 札幌愛カラー */
+  --sapporo-snow: #fef9f3;      /* 札幌の雪 */
+  --sapporo-sakura: #ffedd5;    /* 札幌の桜 */
+  --sapporo-warmth: #fed7aa;    /* 札幌の温もり */
+  --sapporo-spirit: #fdba74;    /* 札幌の精神 */
+  
+  /* 基本カラー（しげちゃんセンス） */
+  --primary-50: #fef7ee;
+  --primary-100: #fdd9b5;
+  --primary-300: #f97316;
+  --primary-600: #c2410c;
+  --primary-800: #7c2d12;
+
+  /* 自然×デジタル融合 */
+  --crisp-white: #fafafa;
+  --crisp-silver: #f5f5f5;
+  --crisp-platinum: #e5e5e5;
+  --crisp-carbon: #404040;
+
+  /* ENFP専用カラー */
+  --enfp-energy: #10b981;
+  --enfp-harmony: #8b5cf6;
+
+  /* 🎵 音楽的グラデーション（福ねこ強化版） */
+  --musical-sunrise: linear-gradient(135deg, var(--sapporo-snow) 0%, var(--sapporo-sakura) 25%, var(--fukuneko-cozy) 75%, var(--fukuneko-deep) 100%);
+  --musical-harmony: linear-gradient(45deg, #10b981 0%, #8b5cf6 50%, var(--fukuneko-cozy) 100%);
+  --fukuneko-gradient: linear-gradient(135deg, var(--fukuneko-warm) 0%, var(--fukuneko-love) 50%, var(--fukuneko-joy) 100%);
+  --sapporo-gradient: linear-gradient(45deg, var(--sapporo-snow) 0%, var(--sapporo-sakura) 50%, var(--sapporo-warmth) 100%);
+  --crisp-clarity: linear-gradient(180deg, #fafafa 0%, #f5f5f5 50%, #e5e5e5 100%);
+  
+  /* 🌈 感情カラーパレット（追加） */
+  --emotion-happiness: #ffd700;
+  --emotion-sadness: #6eb5ff;
+  --emotion-excitement: #ff6b47;
+  --emotion-calm: #98d8c8;
+  --emotion-affection: #ffb3ba;
+  --emotion-gratitude: #bae1ff;
+  --emotion-curiosity: #a78bfa;
+  --emotion-frustration: #f87171;
+
+  /* 🎼 音楽的リズム（BPM120基準） */
+  --rhythm-fast: 0.125s;
+  --rhythm-quick: 0.25s;
+  --rhythm-normal: 0.5s;
+  --rhythm-slow: 1s;
+  --rhythm-breath: 2s;
+
+  /* ✨ 音質感表現 */
+  --crisp-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --crisp-border: 1px solid rgba(255, 255, 255, 0.2);
+  --natural-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+
+  /* 🎨 関係性タイプカラー */
+  --relationship-romantic: linear-gradient(135deg, #fce7f3 0%, #fdf2f8 100%);
+  --relationship-friend: linear-gradient(135deg, #dbeafe 0%, #e0f2fe 100%);
+  --relationship-counselor: linear-gradient(135deg, #dcfce7 0%, #ecfdf5 100%);
+  --relationship-mentor: linear-gradient(135deg, #e9d5ff 0%, #f3e8ff 100%);
+  --relationship-companion: linear-gradient(135deg, #fed7aa 0%, #fef3c7 100%);
+
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: 25 71% 56%;
+  --primary-foreground: 0 0% 98%;
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* 🎼 音楽的基本スタイル（しげちゃん音楽センス） */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+  /* クリスプな音質感（天野達也風テクニカル） */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  /* 音楽的なスクロール */
+  scroll-padding-top: 2rem;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', 'Noto Sans JP', system-ui, sans-serif;
+  background: var(--crisp-clarity);
+  color: var(--crisp-carbon);
+  line-height: 1.6;
+  /* 音楽的リズム感 */
+  letter-spacing: -0.01em;
+  /* 自然とデジタルの融合（tuki.風感性） */
+  transition: all var(--rhythm-normal) ease;
+  /* ENFPサポート - 目に優しい */
+  font-feature-settings: "liga" 1, "kern" 1;
+}
+
+/* 🎵 音楽的見出しスタイル（YOASOBI風親しみやすさ） */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Comfortaa', 'Inter', sans-serif;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--primary-800);
+  /* 天野達也風テクニカル */
+  letter-spacing: -0.02em;
+  /* 音楽的な間隔 */
+  margin-bottom: 1em;
+  /* 30秒達成感のための視覚的インパクト */
+  background: var(--musical-harmony);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% 100%;
+  animation: text-shimmer 3s ease-in-out infinite;
+}
+
+@keyframes text-shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+h1 { font-size: 2.5rem; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.5rem; }
+
+/* 🎶 福ねこ音楽的ボタンスタイル（Ash island風エネルギー + 福ねこ愛） */
+.btn-musical {
+  background: var(--fukuneko-gradient);
+  border: none;
+  border-radius: 16px;
+  padding: 12px 24px;
+  font-family: 'Comfortaa', sans-serif;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+  transition: all var(--rhythm-normal) cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--crisp-shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 🐾 福ねこ専用ボタン */
+.btn-fukuneko {
+  background: var(--fukuneko-gradient);
+  border: 2px solid var(--fukuneko-love);
+  border-radius: 20px;
+  padding: 14px 28px;
+  font-family: 'Comfortaa', sans-serif;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: all var(--rhythm-normal) cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(251, 146, 60, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-fukuneko::before {
+  content: '🐾';
+  position: absolute;
+  top: 50%;
+  left: -30px;
+  transform: translateY(-50%);
+  font-size: 1.2em;
+  transition: left var(--rhythm-slow);
+}
+
+.btn-fukuneko:hover::before {
+  left: 8px;
+}
+
+.btn-fukuneko:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(251, 146, 60, 0.4);
+  background: linear-gradient(135deg, var(--fukuneko-joy) 0%, var(--fukuneko-deep) 100%);
+}
+
+.btn-musical::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left var(--rhythm-slow);
+}
+
+.btn-musical:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(249, 115, 22, 0.25);
+}
+
+.btn-musical:hover::before {
+  left: 100%;
+}
+
+.btn-musical:active {
+  transform: translateY(0);
+  transition: transform var(--rhythm-fast);
+}
+
+/* 🌟 ENFPサポート要素（30秒→5分→1時間達成感） + 福ねこ愛 */
+.enfp-energy {
+  background: linear-gradient(45deg, var(--enfp-energy), var(--enfp-harmony));
+  animation: gentle-float var(--rhythm-breath) ease-in-out infinite;
+}
+
+/* 🐾 福ねこエネルギー（温かい達成感） */
+.fukuneko-energy {
+  background: var(--fukuneko-gradient);
+  animation: fukuneko-float var(--rhythm-breath) ease-in-out infinite;
+  position: relative;
+}
+
+.fukuneko-energy::after {
+  content: '💖';
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  font-size: 0.8em;
+  animation: gentle-pulse var(--rhythm-normal) ease-in-out infinite;
+}
+
+@keyframes fukuneko-float {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-6px) scale(1.02); }
+}
+
+@keyframes gentle-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.3); opacity: 1; }
+}
+
+@keyframes gentle-float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-4px); }
+}
+
+/* 🎨 クリスプな音質感カード */
+.card-crisp {
+  background: var(--crisp-white);
+  border: var(--crisp-border);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--crisp-shadow);
+  transition: all var(--rhythm-normal) ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-crisp::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--musical-harmony);
+  opacity: 0;
+  transition: opacity var(--rhythm-normal);
+}
+
+.card-crisp:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.card-crisp:hover::before {
+  opacity: 1;
+}
+
+/* 🎵 音楽的入力フィールド */
+.input-musical {
+  background: var(--crisp-white);
+  border: 2px solid var(--crisp-platinum);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-family: 'Inter', sans-serif;
+  transition: all var(--rhythm-normal) ease;
+  outline: none;
+  position: relative;
+}
+
+.input-musical:focus {
+  border-color: var(--primary-300);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+  transform: scale(1.02);
+}
+
+.input-musical:focus + .input-musical-glow {
+  opacity: 1;
+  animation: input-glow var(--rhythm-slow) ease-in-out infinite;
+}
+
+@keyframes input-glow {
+  0%, 100% { box-shadow: 0 0 5px var(--primary-300); }
+  50% { box-shadow: 0 0 15px var(--primary-300); }
+}
+
+/* 🌈 MBTI別スタイル（16タイプ対応） */
+.mbti-enfp { background: linear-gradient(135deg, var(--enfp-energy), var(--enfp-harmony)); color: white; }
+.mbti-intj { background: linear-gradient(135deg, #3b82f6, #6366f1); color: white; }
+.mbti-isfp { background: linear-gradient(135deg, #f472b6, #a78bfa); color: white; }
+.mbti-estp { background: linear-gradient(135deg, #ef4444, #f59e0b); color: white; }
+.mbti-infp { background: linear-gradient(135deg, #8b5cf6, #d946ef); color: white; }
+.mbti-entj { background: linear-gradient(135deg, #dc2626, #7c2d12); color: white; }
+.mbti-isfj { background: linear-gradient(135deg, #059669, #065f46); color: white; }
+.mbti-esfp { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+.mbti-istp { background: linear-gradient(135deg, #64748b, #475569); color: white; }
+.mbti-enfj { background: linear-gradient(135deg, #ec4899, #be185d); color: white; }
+.mbti-intp { background: linear-gradient(135deg, #6366f1, #4338ca); color: white; }
+.mbti-esfj { background: linear-gradient(135deg, #f97316, #ea580c); color: white; }
+.mbti-istj { background: linear-gradient(135deg, #374151, #1f2937); color: white; }
+.mbti-entp { background: linear-gradient(135deg, #06b6d4, #0891b2); color: white; }
+.mbti-infj { background: linear-gradient(135deg, #7c3aed, #5b21b6); color: white; }
+.mbti-estj { background: linear-gradient(135deg, #b91c1c, #991b1b); color: white; }
+
+/* 🎭 音楽的アニメーション（統合版） */
+@keyframes musical-entrance {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scale(0.9);
+    filter: blur(5px);
+  }
+  30% {
+    opacity: 0.3;
+    transform: translateY(20px) scale(0.95);
+    filter: blur(3px);
+  }
+  60% {
+    opacity: 0.7;
+    transform: translateY(10px) scale(0.98);
+    filter: blur(1px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes gentle-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(249, 115, 22, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(249, 115, 22, 0.6);
+  }
+}
+
+/* 🚀 30秒達成感（ENFPサポート） */
+.instant-feedback {
+  animation: musical-entrance 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ✨ 5分達成感 */
+.achievement-glow {
+  animation: gentle-glow var(--rhythm-breath) ease-in-out infinite;
+}
+
+/* 🎉 1時間達成感 */
+.major-achievement {
+  animation: celebration-sparkle var(--rhythm-slow) ease-out, gentle-glow var(--rhythm-breath) ease-in-out infinite;
+}
+
+/* 💫 関係性進化エフェクト */
+.relationship-growth {
+  animation: relationship-growth var(--rhythm-slow) ease-out;
+}
+
+/* 🔮 占い統合エフェクト（香水レベル + 福ねこ愛） */
+.astrology-subtle {
+  background: radial-gradient(circle at 50% 50%, rgba(251, 146, 60, 0.05) 0%, transparent 50%);
+  transition: all var(--rhythm-breath) ease;
+}
+
+.astrology-subtle:hover {
+  background: radial-gradient(circle at 50% 50%, rgba(251, 146, 60, 0.1) 0%, transparent 50%);
+}
+
+/* 🌙 福ねこ占い（より自然な統合） */
+.fukuneko-astrology {
+  background: radial-gradient(circle at 30% 70%, rgba(251, 146, 60, 0.03) 0%, transparent 70%);
+  position: relative;
+  transition: all var(--rhythm-breath) ease;
+}
+
+.fukuneko-astrology::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent 0%, rgba(251, 146, 60, 0.02) 50%, transparent 100%);
+  opacity: 0;
+  transition: opacity var(--rhythm-breath) ease;
+}
+
+.fukuneko-astrology:hover::before {
+  opacity: 1;
+}
+
+/* 🎼 関係性タイプ別スタイル */
+.relationship-romantic {
+  background: var(--relationship-romantic);
+  border-left: 3px solid #f472b6;
+}
+
+.relationship-friend {
+  background: var(--relationship-friend);
+  border-left: 3px solid #3b82f6;
+}
+
+.relationship-counselor {
+  background: var(--relationship-counselor);
+  border-left: 3px solid #10b981;
+}
+
+.relationship-mentor {
+  background: var(--relationship-mentor);
+  border-left: 3px solid #8b5cf6;
+}
+
+.relationship-companion {
+  background: var(--relationship-companion);
+  border-left: 3px solid #f59e0b;
+}
+
+/* 🌸 札幌特別エフェクト */
+.sapporo-love {
+  background: var(--sapporo-gradient);
+  position: relative;
+  overflow: hidden;
+}
+
+.sapporo-love::before {
+  content: '❄️';
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  font-size: 0.8em;
+  opacity: 0.3;
+  animation: snow-fall 8s linear infinite;
+}
+
+.sapporo-love::after {
+  content: '🌸';
+  position: absolute;
+  bottom: -20px;
+  right: -20px;
+  font-size: 0.8em;
+  opacity: 0.3;
+  animation: sakura-dance 6s ease-in-out infinite;
+}
+
+@keyframes snow-fall {
+  0% { transform: translateY(-30px) translateX(-30px) rotate(0deg); }
+  100% { transform: translateY(calc(100vh + 30px)) translateX(30px) rotate(360deg); }
+}
+
+@keyframes sakura-dance {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-10px) rotate(5deg); }
+  75% { transform: translateY(5px) rotate(-3deg); }
+}
+
+/* 🐾 福ねこ特別クラス */
+.fukuneko-special {
+  background: var(--fukuneko-gradient);
+  border-radius: 20px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(251, 146, 60, 0.2);
+}
+
+.fukuneko-special::before {
+  content: '🐾💖🌸';
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 0.9em;
+  opacity: 0.6;
+  animation: fukuneko-charm var(--rhythm-breath) ease-in-out infinite;
+}
+
+@keyframes fukuneko-charm {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.6; }
+  50% { transform: scale(1.1) rotate(2deg); opacity: 0.9; }
+}
+
+/* 💎 レスポンシブ（音楽的調整）*/
+@media (max-width: 768px) {
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.75rem; }
+  h3 { font-size: 1.25rem; }
+
+  .card-crisp {
+    padding: 16px;
+  }
+
+  /* モバイル用音楽的リズム調整 */
+  :root {
+    --rhythm-fast: 0.1s;
+    --rhythm-quick: 0.2s;
+    --rhythm-normal: 0.4s;
+    --rhythm-slow: 0.8s;
+    --rhythm-breath: 1.5s;
+  }
+}
+
+/* 🎶 高性能デバイス用追加エフェクト */
+@media (prefers-reduced-motion: no-preference) {
+  .enhanced-animations {
+    animation-duration: calc(var(--rhythm-normal) * 1.2);
+    animation-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+}
+
+/* 🌟 特別な瞬間のエフェクト */
+.magical-moment {
+  animation: magical-moment var(--rhythm-breath) ease-in-out;
+}
+
+@keyframes magical-moment {
+  0% {
+    filter: hue-rotate(0deg) brightness(1);
+    transform: scale(1);
+  }
+  25% {
+    filter: hue-rotate(90deg) brightness(1.1);
+    transform: scale(1.02);
+  }
+  50% {
+    filter: hue-rotate(180deg) brightness(1.2);
+    transform: scale(1.05);
+  }
+  75% {
+    filter: hue-rotate(270deg) brightness(1.1);
+    transform: scale(1.02);
+  }
+  100% {
+    filter: hue-rotate(360deg) brightness(1);
+    transform: scale(1);
+  }
+}
+
+/* 🎊 記念日・特別イベント用 */
+.special-celebration {
+  position: relative;
+  overflow: hidden;
+}
+
+.special-celebration::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(255, 215, 0, 0.1) 50%,
+    transparent 70%
+  );
+  animation: celebration-sweep var(--rhythm-breath) ease-in-out infinite;
+}
+
+@keyframes celebration-sweep {
+  0% {
+    transform: translateX(-100%) translateY(-100%) rotate(45deg);
+  }
+  100% {
+    transform: translateX(100%) translateY(100%) rotate(45deg);
+  }
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+
+  /* ダークモード用の感情カラー調整 */
+  --emotion-happiness: #fbbf24;
+  --emotion-sadness: #60a5fa;
+  --emotion-excitement: #fb7185;
+  --emotion-calm: #6ee7b7;
+  --emotion-affection: #f472b6;
+  --emotion-gratitude: #a78bfa;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }

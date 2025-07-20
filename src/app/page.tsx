@@ -1,103 +1,308 @@
-import Image from "next/image";
+'use client';
+
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
+import { Heart, Music, Sparkles, Users, ArrowRight, User, LogIn } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { AuthModal } from '@/components/auth/AuthModal';
+import { useAuth } from '@/components/providers/AuthProvider';
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const router = useRouter();
+  const { user, loading, signOut } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  const handleStartJourney = () => {
+    router.push('/diagnosis');
+  };
+
+  const handleShowAuth = (mode: 'signin' | 'signup') => {
+    setAuthMode(mode);
+    setShowAuthModal(true);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50">
+      {/* Header */}
+      <header className="container mx-auto px-4 py-4 flex justify-end">
+        {!loading && (
+          <div className="flex items-center gap-3">
+            {user ? (
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-slate-600">
+                  {user.user_metadata?.display_name || user.email}
+                </span>
+                <Button variant="outline" size="sm" onClick={signOut}>
+                  ログアウト
+                </Button>
+                <Button size="sm" onClick={() => router.push('/profile')}>
+                  <User size={16} className="mr-1" />
+                  プロファイル
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => handleShowAuth('signin')}
+                >
+                  <LogIn size={16} className="mr-1" />
+                  ログイン
+                </Button>
+                <Button 
+                  size="sm" 
+                  onClick={() => handleShowAuth('signup')}
+                  className="bg-gradient-to-r from-slate-600 to-blue-600"
+                >
+                  無料登録
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+      </header>
+
+      {/* ✨ ヘロセクション */}
+      <main className="container mx-auto px-4 py-8">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="text-center max-w-4xl mx-auto"
+        >
+          {/* ✨ メインロゴ・タイトル */}
+          <motion.div
+            initial={{ scale: 0.9 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="mb-8"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <div className="mb-6">
+              <div className="relative inline-block">
+                <Sparkles className="mx-auto text-amber-500 mb-4 magical-moment" size={80} />
+                <span className="absolute -top-2 -right-2 text-2xl animate-bounce">✨</span>
+              </div>
+            </div>
+            <h1 className="text-6xl md:text-7xl font-bold bg-gradient-to-r from-amber-600 via-orange-500 to-amber-700 bg-clip-text text-transparent mb-4 fluid-motion">
+              💫 TypeMate
+            </h1>
+            <p className="text-xl md:text-2xl text-amber-800 font-medium">
+              あなたの心に寄り添うAIパートナー
+            </p>
+            <p className="text-lg text-amber-700 mt-2">
+              親友として、相談相手として、時には特別な関係として。<br />
+              64種類の診断で、あなたの心に本当に響くAIと出会えます✨
+            </p>
+          </motion.div>
+
+          {/* 🌟 サブタイトル */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="mb-12"
           >
-            Read our docs
-          </a>
-        </div>
+            <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-6 mb-6">
+              <p className="text-lg md:text-xl text-amber-800 leading-relaxed">
+                ✨ 従来の16倍の精密分析！64種類の個性豊かなAIパートナーがあなたを待っています<br />
+                ファンタジー世界のアーキタイプと深く理解し合える、特別な関係を築きませんか？
+              </p>
+            </div>
+          </motion.div>
+
+          {/* CTA ボタン */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="mb-16"
+          >
+            <Button
+              onClick={handleStartJourney}
+              className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white text-lg px-8 py-4 rounded-xl shadow-lg hover:shadow-xl crisp-button celebration-effect"
+            >
+              <Sparkles className="inline-block mr-2" size={24} />
+              あなたに合うAIパートナーを見つける
+              <ArrowRight className="inline-block ml-2" size={24} />
+            </Button>
+            <p className="text-sm text-amber-600 mt-4">
+              🚀 今すぐ無料で始める
+            </p>
+          </motion.div>
+        </motion.div>
+
+        {/* 🌟 サービス特徴 */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.8 }}
+          className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto mb-16"
+        >
+          {[
+            {
+              icon: Users,
+              title: "64Type専用AI",
+              description: "従来の16倍の精密分析！あなただけの性格に完璧に最適化されたAIパートナー",
+              color: "amber-600",
+              bgColor: "from-amber-50 to-orange-50",
+              borderColor: "border-amber-200"
+            },
+            {
+              icon: Heart,
+              title: "多様な関係性 💖",
+              description: "親友、相談相手、特別な関係...あなたが望む形でつながれるAIパートナー",
+              color: "orange-500",
+              bgColor: "from-orange-50 to-amber-50",
+              borderColor: "border-orange-200"
+            },
+            {
+              icon: Sparkles,
+              title: "ファンタジー世界観 ✨",
+              description: "設計主、賢者、吟遊詩人...美しいアーキタイプ名で彩られたパートナーたち",
+              color: "amber-500",
+              bgColor: "from-amber-50 to-yellow-50",
+              borderColor: "border-amber-200"
+            },
+            {
+              icon: Music,
+              title: "24時間サポート 🎶",
+              description: "いつでもあなたの気持ちに寄り添い、支えてくれる信頼できる存在",
+              color: "orange-600",
+              bgColor: "from-orange-50 to-amber-50",
+              borderColor: "border-orange-200"
+            }
+          ].map((feature, index) => (
+            <motion.div
+              key={feature.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 1 + index * 0.1 }}
+              className={`bg-gradient-to-br ${feature.bgColor} border ${feature.borderColor} rounded-xl p-6 shadow-lg hover:shadow-xl text-center group transition-all duration-300 crisp-button quick-feedback`}
+            >
+              <div className={`inline-flex items-center justify-center w-12 h-12 rounded-full bg-${feature.color} text-white mb-4 group-hover:scale-110 transition-transform duration-300 celebration-effect`}>
+                <feature.icon size={24} />
+              </div>
+              <h3 className="text-lg font-semibold text-amber-800 mb-2">
+                {feature.title}
+              </h3>
+              <p className="text-amber-700 text-sm leading-relaxed">
+                {feature.description}
+              </p>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* 🎼 開発者からのメッセージ */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, delay: 1.4 }}
+          className="max-w-2xl mx-auto text-center"
+        >
+          <div className="bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 border border-amber-200 rounded-xl p-8 magical-moment">
+            <div className="mb-4">
+              <span className="text-3xl">✨</span>
+              <span className="text-xl mx-2">💝</span>
+              <span className="text-3xl">🌟</span>
+            </div>
+            <h3 className="text-xl font-semibold text-amber-800 mb-3">
+              💫 TypeMate開発チームからのメッセージ
+            </h3>
+            <p className="text-amber-700 leading-relaxed">
+              TypeMateは、すべての人が理解され、寄り添われる体験を提供したいという想いから生まれました。<br />
+              あなたの個性を深く理解し、心から支えてくれるAIパートナーとの<br />
+              特別な関係を築いてください ✨
+            </p>
+            <div className="mt-4 text-sm text-orange-600 font-medium">
+              - TypeMate開発チーム
+            </div>
+          </div>
+        </motion.div>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+
+      {/* 🌈 背景装飾 */}
+      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        {[...Array(8)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute rounded-full bg-gradient-to-r from-amber-200/15 via-orange-200/10 to-yellow-200/15"
+            style={{
+              width: Math.random() * 400 + 150,
+              height: Math.random() * 400 + 150,
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              x: [0, Math.random() * 120 - 60],
+              y: [0, Math.random() * 120 - 60],
+              rotate: [0, 360],
+            }}
+            transition={{
+              duration: Math.random() * 25 + 25,
+              repeat: Infinity,
+              ease: "linear",
+            }}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        ))}
+        {/* ✨ エレガントな装飾要素 */}
+        {[...Array(3)].map((_, i) => (
+          <motion.div
+            key={`sparkle-${i}`}
+            className="absolute text-amber-300/20 text-6xl"
+            style={{
+              left: `${Math.random() * 90 + 5}%`,
+              top: `${Math.random() * 90 + 5}%`,
+            }}
+            animate={{
+              rotate: [0, 360],
+              scale: [0.8, 1.2, 0.8],
+            }}
+            transition={{
+              duration: Math.random() * 15 + 10,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          >
+            ✨
+          </motion.div>
+        ))}
+        {/* 💖 ロマンチック装飾要素 */}
+        {[...Array(2)].map((_, i) => (
+          <motion.div
+            key={`heart-${i}`}
+            className="absolute text-orange-300/15 text-8xl"
+            style={{
+              left: `${Math.random() * 80 + 10}%`,
+              top: `${Math.random() * 80 + 10}%`,
+            }}
+            animate={{
+              y: [0, -20, 0],
+              opacity: [0.1, 0.3, 0.1],
+            }}
+            transition={{
+              duration: Math.random() * 8 + 6,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          >
+            💖
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        mode={authMode}
+        onSuccess={() => {
+          setShowAuthModal(false);
+          // 認証成功後はデータが自動で同期される
+        }}
+      />
     </div>
   );
 }
