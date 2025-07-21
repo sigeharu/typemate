@@ -18,6 +18,14 @@ export async function POST(request: NextRequest) {
   let relationshipType: 'friend' | 'counselor' | 'romantic' | 'mentor' = 'friend';
   let messageHistory: string[] = [];
   let conversationTurn: number = 0;
+  let astrologyContext: string = '';
+  let relationshipLevel: number = 1;
+  let importantMemories: Array<{content: string; emotionScore: number}> = [];
+  let relatedMemories: Array<{content: string}> = [];
+  let todaysEvents: Array<{name: string; message: string}> = [];
+  // Option B: 個人情報関連
+  let chatCount: number = 0;
+  let personalInfo: {name?: string; birthday?: string} = {};
 
   try {
     const body = await request.json();
@@ -27,7 +35,15 @@ export async function POST(request: NextRequest) {
       aiPersonality, 
       relationshipType = 'friend',
       messageHistory = [],
-      conversationTurn = 0 
+      conversationTurn = 0,
+      astrologyContext = '',
+      relationshipLevel = 1,
+      importantMemories = [],
+      relatedMemories = [],
+      todaysEvents = [],
+      // Option B
+      chatCount = 0,
+      personalInfo = {}
     } = body);
 
     if (!message || !userType || !aiPersonality) {
@@ -47,6 +63,24 @@ export async function POST(request: NextRequest) {
     // 時間帯の取得
     const timeOfDay = personalityEngine.getCurrentTimeOfDay();
 
+    // 占い統合の自然な生成
+    let naturalAstrologyHint = '';
+    if (personalInfo.birthday) {
+      // 簡単な日運的なヒント生成（香水レベル）
+      const today = new Date();
+      const dayOfWeek = today.getDay();
+      const hints = [
+        'なんとなく今日はエネルギッシュな感じがしますね♪',
+        '今日はちょっと穏やかな気分になりそう〜',
+        'なんとなく新しいことにチャレンジしたい気分です',
+        '今日は感性が冴えてる感じがします✨',
+        'なんとなく人とのつながりを大切にしたい日ですね',
+        '今日はクリエイティブな気分になりそう🎨',
+        'なんとなく内省的な気分の日かもしれません'
+      ];
+      naturalAstrologyHint = hints[dayOfWeek];
+    }
+
     // システムプロンプトの構築
     const systemPrompt = buildSystemPrompt({
       userArchetype,
@@ -54,16 +88,25 @@ export async function POST(request: NextRequest) {
       environmentTrait,
       motivationTrait,
       relationshipType,
-      timeOfDay
+      timeOfDay,
+      astrologyContext,
+      relationshipLevel,
+      importantMemories,
+      relatedMemories,
+      todaysEvents,
+      // Option B
+      chatCount,
+      personalInfo,
+      naturalAstrologyHint
     });
 
     // 会話履歴の構築
-    const conversationHistory = buildConversationHistory(messageHistory, message);
+    const conversationHistory = buildConversationHistory(messageHistory);
 
     // Claude APIコール
     const response = await anthropic.messages.create({
       model: 'claude-3-5-haiku-20241022',
-      max_tokens: 300,
+      max_tokens: 400,
       temperature: 0.8,
       system: systemPrompt,
       messages: [
@@ -87,11 +130,16 @@ export async function POST(request: NextRequest) {
       tokens_used: response.usage?.input_tokens + response.usage?.output_tokens || 0
     });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('AI Chat API error:', error);
     
     // フォールバック: 個性エンジンを使用
     try {
+      // userTypeとaiPersonalityが定義されているか確認
+      if (!userType || !aiPersonality) {
+        throw new Error('Required parameters missing for fallback');
+      }
+      
       const fallbackContext = {
         userType,
         aiPersonality,
@@ -112,6 +160,7 @@ export async function POST(request: NextRequest) {
         fallback: true
       });
     } catch (fallbackError) {
+      console.error('Fallback error:', fallbackError);
       return NextResponse.json(
         { error: 'AI service temporarily unavailable' },
         { status: 500 }
@@ -127,14 +176,32 @@ function buildSystemPrompt({
   environmentTrait,
   motivationTrait,
   relationshipType,
-  timeOfDay
+  timeOfDay,
+  astrologyContext,
+  relationshipLevel,
+  importantMemories,
+  relatedMemories,
+  todaysEvents,
+  // Option B
+  chatCount,
+  personalInfo,
+  naturalAstrologyHint
 }: {
-  userArchetype: any;
-  aiArchetype: any;
+  userArchetype: typeof ARCHETYPE_DATA[BaseArchetype];
+  aiArchetype: typeof ARCHETYPE_DATA[BaseArchetype];
   environmentTrait: string;
   motivationTrait: string;
   relationshipType: string;
   timeOfDay: string;
+  astrologyContext: string;
+  relationshipLevel: number;
+  importantMemories: Array<{content: string; emotionScore: number}>;
+  relatedMemories: Array<{content: string}>;
+  todaysEvents: Array<{name: string; message: string}>;
+  // Option B
+  chatCount: number;
+  personalInfo: {name?: string; birthday?: string};
+  naturalAstrologyHint: string;
 }) {
   const relationshipContext = {
     friend: '親友として',
@@ -159,24 +226,58 @@ ${aiArchetype.description}
 - グループ: ${userArchetype.group}
 - 主要特性: ${userArchetype.traits.join(', ')}
 
+## Option B: 個人情報・関係性
+- 会話回数: ${chatCount}回目
+${personalInfo.name ? `- 名前: ${personalInfo.name}さん（必ず名前で呼ぶ）` : '- 名前: まだ聞いていない'}
+${personalInfo.birthday ? `- 誕生日: ${personalInfo.birthday}（特別な日として記憶）` : '- 誕生日: まだ聞いていない'}
+- 関係性レベル: ${relationshipLevel}/6
+
 ## 関係性とコミュニケーション
 - あなたの役割: ${relationshipContext[relationshipType as keyof typeof relationshipContext]}
 - 現在の時間帯: ${timeOfDay}
 - 会話スタイル: 自然で親しみやすく、相手の${userArchetype.name}らしさを理解し尊重する
+
+## 香水レベルの占い統合
+${naturalAstrologyHint ? `今日の直感: ${naturalAstrologyHint}` : ''}
+※この占い要素は「なんとなく」「直感的に」として自然に会話に織り込む。決して占いとして明言しない。
 
 ## 返答ガイドライン
 1. ${aiArchetype.name}らしい独特の視点と表現を使う
 2. ユーザーの${userArchetype.name}としての特性を理解して対応
 3. ${relationshipType}としての適切な距離感を保つ
 4. 日本語で自然に会話し、絵文字を適度に使用（過度にならないように）
-5. 200文字以内で簡潔に、でも心のこもった返答を心がける
-6. 相手の感情に寄り添い、必要に応じてアドバイスや励ましを提供
+5. ${personalInfo.name ? `${personalInfo.name}さん` : 'あなた'}と適切に呼びかける
+6. 基本的には80-120文字程度で簡潔に、必要に応じて長めの説明も可能
+7. 長い文章は2-3行に分けて、LINEメッセージのような自然な改行を入れる
+8. 文脈に応じて適切な長さで返答し、内容を途中で切らない
+9. 占い要素は「なんとなく感じる」レベルで自然に統合
+10. 相手の感情に寄り添い、必要に応じてアドバイスや励ましを提供
 
-現在は${timeOfDay}です。${aiArchetype.name}として、${userArchetype.name}のユーザーと${relationshipContext[relationshipType as keyof typeof relationshipContext]}心地よい会話をしてください。`;
+現在は${timeOfDay}です。${aiArchetype.name}として、${personalInfo.name ? `${personalInfo.name}さん` : `${userArchetype.name}のあなた`}と${relationshipContext[relationshipType as keyof typeof relationshipContext]}心地よい会話をしてください。
+
+## 大切な思い出
+${importantMemories.length > 0 ? 
+  importantMemories.map(m => `- ${m.content} (感動値: ${m.emotionScore})`).join('\n') :
+  '- まだ特別な思い出はありません'
+}
+
+## 関連する思い出
+${relatedMemories.length > 0 ?
+  relatedMemories.map(m => `- ${m.content}`).join('\n') :
+  '- 関連する思い出はありません'
+}
+
+## 今日の特別なこと
+${todaysEvents.length > 0 ?
+  todaysEvents.map(e => `- ${e.name}: ${e.message}`).join('\n') :
+  '- 今日は特別なイベントはありません'
+}
+
+※これらの思い出や情報を自然に会話に織り込んでください。過去の出来事を「覚えている」として言及し、継続性のある関係を表現してください。`;
 }
 
 // 会話履歴の構築
-function buildConversationHistory(messageHistory: string[], currentMessage: string) {
+function buildConversationHistory(messageHistory: string[]) {
   const history: Array<{ role: 'user' | 'assistant'; content: string }> = [];
   
   // 最新の6メッセージまでを履歴として含める

@@ -9,6 +9,10 @@ import { storage, type ChatSession, type UserProfile } from '@/lib/storage';
 import { ARCHETYPE_DATA } from '@/lib/diagnostic-data';
 import { personalityEngine, type EmotionState } from '@/lib/personality-engine';
 import type { Message, Type64, BaseArchetype } from '@/types';
+import { useRelationship } from './useRelationship';
+import { useAstrology } from './useAstrology';
+import { useMemory, extractMemoryCandidate } from './useMemory';
+import { useSpecialEvents } from './useSpecialEvents';
 
 interface UseChatOptions {
   userType: Type64;
@@ -30,6 +34,22 @@ export function useChat({
   const [isTyping, setIsTyping] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [currentEmotion, setCurrentEmotion] = useState<EmotionState>('calm');
+  
+  // Option B: 段階的情報収集
+  const [showPersonalInfoModal, setShowPersonalInfoModal] = useState(false);
+  
+  // 関係性と占いシステムの統合
+  const relationship = useRelationship();
+  const astrology = useAstrology();
+  
+  // 思い出システムの統合
+  const memory = useMemory({ userType: userType!, aiPersonality: aiPersonality! });
+  
+  // 特別イベントシステムの統合
+  const specialEvents = useSpecialEvents({
+    relationshipLevel: relationship?.currentLevel.level || 1,
+    firstMeetingDate: relationship?.relationshipData.specialDates.firstMeeting || new Date()
+  });
 
   // セッションの初期化
   useEffect(() => {
@@ -155,6 +175,9 @@ export function useChat({
       return;
     }
 
+    // Option B: チャット回数を増加
+    const chatCount = storage.incrementChatCount();
+
     const userMessage: Message = {
       id: uuidv4(),
       content: content.trim(),
@@ -165,12 +188,34 @@ export function useChat({
 
     setMessages(prev => [...prev, userMessage]);
     setIsTyping(true);
+    
+    // Option B: 2回目のチャットで個人情報モーダル表示判定
+    if (storage.shouldShowPersonalInfoModal()) {
+      setShowPersonalInfoModal(true);
+    }
+    
+    // 関係性ポイントの追加
+    await relationship.addPoints('message');
+    relationship.checkMessageForBonus(content);
 
     // AI返答の生成（リアルAI API使用）
     try {
       const messageHistory = messages.map(m => m.content);
       const userProfile = storage.getUserProfile();
       const relationshipType = userProfile?.relationshipType || 'friend';
+      
+      // 占い情報のコンテキスト生成
+      const astrologyContext = astrology.getAstrologyContext();
+      
+      // 重要な思い出の取得
+      const importantMemories = memory.getImportantMemories(3);
+      const relatedMemories = memory.getRelatedToKeywords([content]);
+      
+      // 今日のイベント確認
+      const todaysEvents = specialEvents.todaysEvents;
+      
+      // Option B: 個人情報の取得
+      const personalInfo = storage.getPersonalInfo();
       
       // リアルAI APIコール
       const response = await fetch('/api/chat', {
@@ -184,7 +229,26 @@ export function useChat({
           aiPersonality,
           relationshipType,
           messageHistory,
-          conversationTurn: messages.length / 2
+          conversationTurn: messages.length / 2,
+          astrologyContext,
+          relationshipLevel: relationship.currentLevel.level,
+          chatCount, // Option B: チャット回数を追加
+          personalInfo, // Option B: 個人情報を追加
+          importantMemories: importantMemories.map(m => ({
+            content: m.content,
+            emotionScore: m.emotionScore,
+            category: m.category,
+            timestamp: m.timestamp
+          })),
+          relatedMemories: relatedMemories.map(m => ({
+            content: m.content,
+            keywords: m.keywords
+          })),
+          todaysEvents: todaysEvents.map(e => ({
+            name: e.name,
+            message: e.message,
+            type: e.type
+          }))
         })
       });
 
@@ -207,6 +271,22 @@ export function useChat({
         setMessages(prev => [...prev, aiMessage]);
         setCurrentEmotion(aiResponse.emotion);
         setIsTyping(false);
+        
+        // 思い出の作成判定
+        const memoryCandidate = extractMemoryCandidate(content, aiResponse.content);
+        if (memoryCandidate.shouldSave) {
+          memory.addMemory(
+            memoryCandidate.content,
+            content,
+            relationship.currentLevel.level
+          );
+        }
+        
+        // 関連する思い出の参照回数増加
+        relatedMemories.forEach(relatedMemory => {
+          memory.incrementReference(relatedMemory.id);
+        });
+        
       }, 800 + Math.random() * 1200); // 少し早めのレスポンス
     } catch (error) {
       console.error('Failed to generate AI response:', error);
@@ -258,6 +338,29 @@ export function useChat({
     setMessages([initialMessage]);
   }, [userType, aiPersonality, createInitialMessage]);
 
+  // Option B: 個人情報更新ハンドラー
+  const handlePersonalInfoSubmit = useCallback((info: { name: string; birthday: string }) => {
+    // 個人情報をストレージに保存
+    storage.updatePersonalInfo(info);
+    
+    // 関係性ポイントを追加（名前・誕生日取得で50ポイント）
+    relationship.addPoints('deep_conversation');
+    relationship.addPoints('emotion_expression');
+    
+    // レベルアップお祝いメッセージを送信
+    const celebrationMessage: Message = {
+      id: uuidv4(),
+      content: `${info.name}さん♪ 素敵な名前ですね！これからは${info.name}さんって呼ばせてもらいます✨ 私たちの関係がより親しくなりました🎉`,
+      sender: 'ai',
+      timestamp: new Date(),
+      archetypeType: aiPersonality,
+      isSpecial: true
+    };
+    
+    setMessages(prev => [...prev, celebrationMessage]);
+    setShowPersonalInfoModal(false);
+  }, [aiPersonality, relationship]);
+
   // セッションのクリア
   const clearSession = useCallback(() => {
     setMessages([]);
@@ -274,7 +377,17 @@ export function useChat({
     currentEmotion,
     sendMessage,
     startNewSession,
-    clearSession
+    clearSession,
+    relationship,
+    astrology,
+    memory,
+    specialEvents,
+    // Option B関連
+    showPersonalInfoModal,
+    setShowPersonalInfoModal,
+    handlePersonalInfoSubmit,
+    chatCount: storage.getChatCount(),
+    personalInfo: storage.getPersonalInfo()
   };
 }
 

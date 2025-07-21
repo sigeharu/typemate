@@ -10,6 +10,7 @@ import { DiagnosticQuestion } from '@/components/diagnosis/DiagnosticQuestion';
 import { DiagnosticResult } from '@/components/diagnosis/DiagnosticResult';
 import { DIAGNOSTIC_QUESTIONS } from '@/lib/diagnostic-data';
 import type { Type64, BaseArchetype } from '@/types';
+import { isDevelopmentMode, TEST_PROFILES, setTestProfile, type TestProfileKey } from '@/lib/dev-mode';
 
 // MBTIコードから新独自コードへのマッピング
 const mbtiToArchetypeMap: Record<string, BaseArchetype> = {
@@ -93,6 +94,13 @@ export default function DiagnosisPage() {
     router.push('/chat');
   }, [router]);
 
+  // 開発者モード - クイックテスト
+  const handleQuickTest = useCallback((profileKey: TestProfileKey) => {
+    const profile = setTestProfile(profileKey);
+    console.log(`🎯 テストプロファイル設定: ${profile.name}`);
+    router.push('/chat');
+  }, [router]);
+
   if (result) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 py-8">
@@ -118,6 +126,53 @@ export default function DiagnosisPage() {
           </p>
         </div>
       </motion.header>
+
+      {/* 開発者モード - クイックテスト */}
+      {isDevelopmentMode() && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="max-w-4xl mx-auto mb-8 p-6 bg-amber-50 border-2 border-amber-200 rounded-2xl shadow-lg mx-4"
+        >
+          <div className="text-center mb-4">
+            <h3 className="text-xl font-bold text-amber-800 mb-2 flex items-center justify-center gap-2">
+              🔧 開発者モード - クイックテスト
+            </h3>
+            <p className="text-amber-700 text-sm">
+              ワンクリックで診断をスキップし、即座にAIチャットを開始できます
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Object.entries(TEST_PROFILES).map(([key, profile]) => (
+              <motion.button
+                key={key}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => handleQuickTest(key as TestProfileKey)}
+                className="p-4 bg-amber-600 hover:bg-amber-700 text-white rounded-xl transition-all duration-200 shadow-md hover:shadow-lg"
+              >
+                <div className="text-left">
+                  <div className="font-semibold text-lg mb-1">{profile.name}</div>
+                  <div className="text-amber-100 text-sm mb-2">
+                    {profile.userType} ⟷ {profile.aiPersonality}
+                  </div>
+                  <div className="text-amber-50 text-xs leading-relaxed">
+                    {profile.description}
+                  </div>
+                </div>
+              </motion.button>
+            ))}
+          </div>
+          
+          <div className="mt-4 p-3 bg-amber-100 rounded-lg">
+            <p className="text-amber-800 text-sm text-center">
+              💡 <strong>使い方:</strong> 上のボタンをクリックすると診断をスキップしてチャット画面へ直接移動します
+            </p>
+          </div>
+        </motion.div>
+      )}
 
       {/* 診断質問 */}
       <motion.main

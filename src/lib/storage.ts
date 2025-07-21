@@ -24,6 +24,14 @@ export interface UserProfile {
     messageStyle: 'casual' | 'formal' | 'poetic';
     responseLength: 'short' | 'medium' | 'long';
   };
+  // Option B: 段階的情報収集
+  chatCount: number;
+  personalInfo: {
+    name?: string;
+    birthday?: string;
+    interests?: string[];
+    relationshipGoals?: string[];
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -164,6 +172,76 @@ class TypeMateStorage {
       session.messages.some(msg => 
         msg.content.toLowerCase().includes(lowerQuery)
       )
+    );
+  }
+
+  // Option B: チャット回数管理
+  incrementChatCount(): number {
+    try {
+      const profile = this.getUserProfile();
+      if (profile) {
+        profile.chatCount += 1;
+        this.saveUserProfile(profile);
+        return profile.chatCount;
+      } else {
+        // プロファイルが存在しない場合は初期プロファイルを作成
+        const userType = this.getUserType();
+        if (userType) {
+          const newProfile: UserProfile = {
+            userType,
+            relationshipType: 'friend',
+            preferences: {
+              theme: 'auto',
+              messageStyle: 'casual',
+              responseLength: 'medium'
+            },
+            chatCount: 1,
+            personalInfo: {},
+            createdAt: new Date(),
+            updatedAt: new Date()
+          };
+          this.saveUserProfile(newProfile);
+          return 1;
+        }
+        return 0;
+      }
+    } catch (error) {
+      console.error('Failed to increment chat count:', error);
+      return 0;
+    }
+  }
+
+  getChatCount(): number {
+    const profile = this.getUserProfile();
+    return profile?.chatCount || 0;
+  }
+
+  // Option B: 個人情報管理
+  updatePersonalInfo(info: Partial<UserProfile['personalInfo']>): void {
+    try {
+      const profile = this.getUserProfile();
+      if (profile) {
+        profile.personalInfo = { ...profile.personalInfo, ...info };
+        this.saveUserProfile(profile);
+      }
+    } catch (error) {
+      console.error('Failed to update personal info:', error);
+    }
+  }
+
+  getPersonalInfo(): UserProfile['personalInfo'] {
+    const profile = this.getUserProfile();
+    return profile?.personalInfo || {};
+  }
+
+  // Option B判定: 2回目のチャットで個人情報がない場合
+  shouldShowPersonalInfoModal(): boolean {
+    const profile = this.getUserProfile();
+    if (!profile) return false;
+    
+    return (
+      profile.chatCount === 2 && 
+      (!profile.personalInfo.name || !profile.personalInfo.birthday)
     );
   }
 

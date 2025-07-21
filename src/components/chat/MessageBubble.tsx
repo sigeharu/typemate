@@ -26,13 +26,13 @@ export const MessageBubble = ({ message, isUser }: MessageBubbleProps) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
       className={cn(
-        "flex gap-3 mb-4",
+        "flex gap-3 w-full",
         isUserMessage ? "justify-end" : "justify-start"
       )}
     >
       {/* AI Avatar (left side) */}
       {!isUserMessage && (
-        <Avatar className={cn("w-8 h-8 flex-shrink-0", emotionAnimation)}>
+        <Avatar className={cn("w-8 h-8 flex-shrink-0 mt-1", emotionAnimation)}>
           <div className={cn(
             "w-full h-full bg-gradient-to-br flex items-center justify-center text-white font-semibold text-sm",
             emotionColor
@@ -45,32 +45,39 @@ export const MessageBubble = ({ message, isUser }: MessageBubbleProps) => {
       {/* Message Content */}
       <div
         className={cn(
-          "max-w-[80%] px-4 py-3 rounded-2xl relative",
-          isUserMessage
-            ? "bg-gradient-to-r from-slate-600 to-blue-600 text-white"
-            : "bg-white border border-slate-200 text-slate-800 shadow-sm"
+          "max-w-[75%] min-w-[100px]",
+          isUserMessage ? "flex flex-col items-end" : "flex flex-col items-start"
         )}
       >
-        <p className="text-sm leading-relaxed">{message.content}</p>
-        
-        {/* Emotion indicator for AI messages */}
-        {!isUserMessage && message.emotion && (
-          <div className="flex items-center gap-1 mt-2">
-            <div className={cn(
-              "w-2 h-2 rounded-full bg-gradient-to-r",
-              emotionColor
-            )} />
-            <span className="text-xs text-slate-400 capitalize">
-              {getEmotionLabel(emotion)}
-            </span>
-          </div>
-        )}
+        <div
+          className={cn(
+            "px-4 py-3 rounded-lg relative",
+            isUserMessage
+              ? "bg-blue-600 text-white rounded-br-sm"
+              : "bg-gray-100 text-gray-900 rounded-bl-sm"
+          )}
+        >
+          <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+          
+          {/* Emotion indicator for AI messages */}
+          {!isUserMessage && message.emotion && (
+            <div className="flex items-center gap-1 mt-2">
+              <div className={cn(
+                "w-2 h-2 rounded-full bg-gradient-to-r",
+                emotionColor
+              )} />
+              <span className="text-xs text-gray-500 capitalize">
+                {getEmotionLabel(emotion)}
+              </span>
+            </div>
+          )}
+        </div>
         
         {/* Timestamp */}
         <div
           className={cn(
-            "text-xs mt-2 opacity-70",
-            isUserMessage ? "text-blue-100" : "text-slate-500"
+            "text-xs mt-1 px-1",
+            isUserMessage ? "text-gray-500 text-right" : "text-gray-500 text-left"
           )}
         >
           {new Date(message.timestamp).toLocaleTimeString('ja-JP', {
@@ -82,8 +89,8 @@ export const MessageBubble = ({ message, isUser }: MessageBubbleProps) => {
       
       {/* User Avatar (right side) */}
       {isUserMessage && (
-        <Avatar className="w-8 h-8 flex-shrink-0">
-          <div className="w-full h-full bg-gradient-to-br from-blue-500 to-slate-500 flex items-center justify-center text-white font-semibold text-sm">
+        <Avatar className="w-8 h-8 flex-shrink-0 mt-1">
+          <div className="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold text-sm">
             You
           </div>
         </Avatar>

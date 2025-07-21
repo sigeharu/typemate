@@ -3,31 +3,31 @@
 @import "tw-animate-css";
 
 /* 🎵 音楽的アニメーションシステム統合 */
-@import "./music-animations.css";
+@import "../styles/typemate-animations.css";
 
 @custom-variant dark (&:is(.dark *));
 
-/* 🎵 TypeMate - 音楽的デザインシステム（しげちゃん専用強化版） */
+/* 🎵 TypeMate - 音楽的デザインシステム（オリジナルTypemate専用） */
 :root {
-  /* 🐾 福ねこらしい基本カラー（しげちゃん専用Context Engineering） */
-  --fukuneko-warm: #fed7aa;     /* 福ねこの温かみ */
-  --fukuneko-love: #fdba74;     /* 福ねこの愛情 */
-  --fukuneko-joy: #fb923c;      /* 福ねこの喜び */
-  --fukuneko-cozy: #f97316;     /* 福ねこの居心地よさ */
-  --fukuneko-deep: #ea580c;     /* 福ねこの深い愛 */
+  /* 🎵 TypeMate基本カラーパレット */
+  --typemate-primary: #3b82f6;      /* TypeMateブルー */
+  --typemate-secondary: #8b5cf6;    /* TypeMateパープル */
+  --typemate-accent: #06b6d4;       /* TypeMateシアン */
+  --typemate-warm: #f59e0b;         /* TypeMateアンバー */
+  --typemate-soft: #e5e7eb;         /* TypeMateソフトグレー */
   
-  /* 🌸 札幌愛カラー */
-  --sapporo-snow: #fef9f3;      /* 札幌の雪 */
-  --sapporo-sakura: #ffedd5;    /* 札幌の桜 */
-  --sapporo-warmth: #fed7aa;    /* 札幌の温もり */
-  --sapporo-spirit: #fdba74;    /* 札幌の精神 */
+  /* 🎶 音楽的グラデーション */
+  --typemate-blue-light: #dbeafe;   /* ライトブルー */
+  --typemate-blue-deep: #1e40af;    /* ディープブルー */
+  --typemate-purple-light: #e9d5ff; /* ライトパープル */
+  --typemate-purple-deep: #5b21b6;  /* ディープパープル */
   
-  /* 基本カラー（しげちゃんセンス） */
-  --primary-50: #fef7ee;
-  --primary-100: #fdd9b5;
-  --primary-300: #f97316;
-  --primary-600: #c2410c;
-  --primary-800: #7c2d12;
+  /* 基本カラー（TypeMateオリジナル） */
+  --primary-50: #eff6ff;
+  --primary-100: #dbeafe;
+  --primary-300: #3b82f6;
+  --primary-600: #2563eb;
+  --primary-800: #1e40af;
 
   /* 自然×デジタル融合 */
   --crisp-white: #fafafa;
@@ -39,12 +39,12 @@
   --enfp-energy: #10b981;
   --enfp-harmony: #8b5cf6;
 
-  /* 🎵 音楽的グラデーション（福ねこ強化版） */
-  --musical-sunrise: linear-gradient(135deg, var(--sapporo-snow) 0%, var(--sapporo-sakura) 25%, var(--fukuneko-cozy) 75%, var(--fukuneko-deep) 100%);
-  --musical-harmony: linear-gradient(45deg, #10b981 0%, #8b5cf6 50%, var(--fukuneko-cozy) 100%);
-  --fukuneko-gradient: linear-gradient(135deg, var(--fukuneko-warm) 0%, var(--fukuneko-love) 50%, var(--fukuneko-joy) 100%);
-  --sapporo-gradient: linear-gradient(45deg, var(--sapporo-snow) 0%, var(--sapporo-sakura) 50%, var(--sapporo-warmth) 100%);
-  --crisp-clarity: linear-gradient(180deg, #fafafa 0%, #f5f5f5 50%, #e5e5e5 100%);
+  /* 🎵 音楽的グラデーション（TypeMateオリジナル） */
+  --musical-sunrise: linear-gradient(135deg, var(--typemate-blue-light) 0%, var(--typemate-primary) 50%, var(--typemate-blue-deep) 100%);
+  --musical-harmony: linear-gradient(45deg, var(--typemate-accent) 0%, var(--typemate-secondary) 50%, var(--typemate-primary) 100%);
+  --typemate-gradient: linear-gradient(135deg, var(--typemate-primary) 0%, var(--typemate-secondary) 50%, var(--typemate-accent) 100%);
+  --typemate-soft-gradient: linear-gradient(45deg, var(--typemate-blue-light) 0%, var(--typemate-purple-light) 50%, var(--typemate-soft) 100%);
+  --crisp-clarity: linear-gradient(180deg, #ffffff 0%, #fafafa 50%, #f5f5f5 100%);
   
   /* 🌈 感情カラーパレット（追加） */
   --emotion-happiness: #ffd700;
@@ -128,12 +128,12 @@ html {
 
 body {
   font-family: 'Inter', 'Noto Sans JP', system-ui, sans-serif;
-  background: var(--crisp-clarity);
+  background: #ffffff;
   color: var(--crisp-carbon);
   line-height: 1.6;
   /* 音楽的リズム感 */
   letter-spacing: -0.01em;
-  /* 自然とデジタルの融合（tuki.風感性） */
+  /* TypeMateの美しさ */
   transition: all var(--rhythm-normal) ease;
   /* ENFPサポート - 目に優しい */
   font-feature-settings: "liga" 1, "kern" 1;
@@ -167,9 +167,9 @@ h1 { font-size: 2.5rem; }
 h2 { font-size: 2rem; }
 h3 { font-size: 1.5rem; }
 
-/* 🎶 福ねこ音楽的ボタンスタイル（Ash island風エネルギー + 福ねこ愛） */
+/* 🎶 TypeMate音楽的ボタンスタイル */
 .btn-musical {
-  background: var(--fukuneko-gradient);
+  background: var(--typemate-gradient);
   border: none;
   border-radius: 16px;
   padding: 12px 24px;
@@ -183,10 +183,10 @@ h3 { font-size: 1.5rem; }
   overflow: hidden;
 }
 
-/* 🐾 福ねこ専用ボタン */
-.btn-fukuneko {
-  background: var(--fukuneko-gradient);
-  border: 2px solid var(--fukuneko-love);
+/* 🎵 TypeMate専用ボタン */
+.btn-typemate {
+  background: var(--typemate-gradient);
+  border: 2px solid var(--typemate-primary);
   border-radius: 20px;
   padding: 14px 28px;
   font-family: 'Comfortaa', sans-serif;
@@ -194,13 +194,13 @@ h3 { font-size: 1.5rem; }
   color: white;
   cursor: pointer;
   transition: all var(--rhythm-normal) cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 15px rgba(251, 146, 60, 0.3);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
   position: relative;
   overflow: hidden;
 }
 
-.btn-fukuneko::before {
-  content: '🐾';
+.btn-typemate::before {
+  content: '🎵';
   position: absolute;
   top: 50%;
   left: -30px;
@@ -209,14 +209,14 @@ h3 { font-size: 1.5rem; }
   transition: left var(--rhythm-slow);
 }
 
-.btn-fukuneko:hover::before {
+.btn-typemate:hover::before {
   left: 8px;
 }
 
-.btn-fukuneko:hover {
+.btn-typemate:hover {
   transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 8px 25px rgba(251, 146, 60, 0.4);
-  background: linear-gradient(135deg, var(--fukuneko-joy) 0%, var(--fukuneko-deep) 100%);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+  background: linear-gradient(135deg, var(--typemate-secondary) 0%, var(--typemate-blue-deep) 100%);
 }
 
 .btn-musical::before {
@@ -250,15 +250,15 @@ h3 { font-size: 1.5rem; }
   animation: gentle-float var(--rhythm-breath) ease-in-out infinite;
 }
 
-/* 🐾 福ねこエネルギー（温かい達成感） */
-.fukuneko-energy {
-  background: var(--fukuneko-gradient);
-  animation: fukuneko-float var(--rhythm-breath) ease-in-out infinite;
+/* 🎵 TypeMateエネルギー（音楽的な達成感） */
+.typemate-energy {
+  background: var(--typemate-gradient);
+  animation: typemate-float var(--rhythm-breath) ease-in-out infinite;
   position: relative;
 }
 
-.fukuneko-energy::after {
-  content: '💖';
+.typemate-energy::after {
+  content: '🎵';
   position: absolute;
   top: -5px;
   right: -5px;
@@ -266,7 +266,7 @@ h3 { font-size: 1.5rem; }
   animation: gentle-pulse var(--rhythm-normal) ease-in-out infinite;
 }
 
-@keyframes fukuneko-float {
+@keyframes typemate-float {
   0%, 100% { transform: translateY(0px) scale(1); }
   50% { transform: translateY(-6px) scale(1.02); }
 }
@@ -413,36 +413,36 @@ h3 { font-size: 1.5rem; }
   animation: relationship-growth var(--rhythm-slow) ease-out;
 }
 
-/* 🔮 占い統合エフェクト（香水レベル + 福ねこ愛） */
+/* 🔮 占い統合エフェクト（香水レベル + TypeMate） */
 .astrology-subtle {
-  background: radial-gradient(circle at 50% 50%, rgba(251, 146, 60, 0.05) 0%, transparent 50%);
+  background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
   transition: all var(--rhythm-breath) ease;
 }
 
 .astrology-subtle:hover {
-  background: radial-gradient(circle at 50% 50%, rgba(251, 146, 60, 0.1) 0%, transparent 50%);
+  background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
 }
 
-/* 🌙 福ねこ占い（より自然な統合） */
-.fukuneko-astrology {
-  background: radial-gradient(circle at 30% 70%, rgba(251, 146, 60, 0.03) 0%, transparent 70%);
+/* 🌙 TypeMate占い（より自然な統合） */
+.typemate-astrology {
+  background: radial-gradient(circle at 30% 70%, rgba(59, 130, 246, 0.03) 0%, transparent 70%);
   position: relative;
   transition: all var(--rhythm-breath) ease;
 }
 
-.fukuneko-astrology::before {
+.typemate-astrology::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(45deg, transparent 0%, rgba(251, 146, 60, 0.02) 50%, transparent 100%);
+  background: linear-gradient(45deg, transparent 0%, rgba(59, 130, 246, 0.02) 50%, transparent 100%);
   opacity: 0;
   transition: opacity var(--rhythm-breath) ease;
 }
 
-.fukuneko-astrology:hover::before {
+.typemate-astrology:hover::before {
   opacity: 1;
 }
 
@@ -510,27 +510,27 @@ h3 { font-size: 1.5rem; }
   75% { transform: translateY(5px) rotate(-3deg); }
 }
 
-/* 🐾 福ねこ特別クラス */
-.fukuneko-special {
-  background: var(--fukuneko-gradient);
+/* 🎵 TypeMate特別クラス */
+.typemate-special {
+  background: var(--typemate-gradient);
   border-radius: 20px;
   padding: 20px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(251, 146, 60, 0.2);
+  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.2);
 }
 
-.fukuneko-special::before {
-  content: '🐾💖🌸';
+.typemate-special::before {
+  content: '🎵🎶✨';
   position: absolute;
   top: 10px;
   right: 15px;
   font-size: 0.9em;
   opacity: 0.6;
-  animation: fukuneko-charm var(--rhythm-breath) ease-in-out infinite;
+  animation: typemate-charm var(--rhythm-breath) ease-in-out infinite;
 }
 
-@keyframes fukuneko-charm {
+@keyframes typemate-charm {
   0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.6; }
   50% { transform: scale(1.1) rotate(2deg); opacity: 0.9; }
 }

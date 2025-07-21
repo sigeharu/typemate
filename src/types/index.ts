@@ -45,3 +45,106 @@ export interface ArchetypeData {
   personality: string;
 }
 
+// 関係性進化システム
+export interface RelationshipLevel {
+  level: number;
+  name: string;
+  points: number;
+  maxPoints: number;
+  description: string;
+  unlockMessage: string;
+  icon: string;
+  color: string;
+}
+
+export interface RelationshipData {
+  currentLevel: number;
+  totalPoints: number;
+  dailyStreak: number;
+  lastInteraction: Date;
+  milestones: string[];
+  specialDates: Record<string, Date>;
+}
+
+export interface PointEvent {
+  type: 'message' | 'deep_conversation' | 'emotion_expression' | 'daily_bonus' | 'special_day';
+  points: number;
+  description: string;
+}
+
+// 占い統合システム
+export interface AstrologyData {
+  birthDate: Date;
+  zodiacSign: string;
+  zodiacElement: string;
+  chineseZodiac: string;
+  luckyColor: string;
+  luckyNumber: number;
+  dailyFortune: {
+    overall: number;
+    love: number;
+    work: number;
+    health: number;
+    message: string;
+    advice: string;
+  };
+  compatibility: number;
+}
+
+// 思い出システム
+export interface Memory {
+  id: string;
+  content: string;
+  originalMessage: string;
+  timestamp: Date;
+  emotionScore: number;
+  weight: number;
+  category: 'first' | 'special' | 'growth' | 'emotion' | 'milestone' | 'confession' | 'support';
+  relationshipLevel: number;
+  references: number;
+  keywords: string[];
+  context: {
+    userType: string;
+    aiPersonality: string;
+    timeOfDay: string;
+    conversationTurn: number;
+  };
+  isHighlight: boolean;
+}
+
+export interface MemoryCollection {
+  memories: Memory[];
+  totalCount: number;
+  highlightMemories: Memory[];
+  categoryStats: Record<Memory['category'], number>;
+  monthlyStats: { [monthKey: string]: number };
+}
+
+// 特別イベントシステム
+export interface SpecialEvent {
+  id: string;
+  name: string;
+  date: Date;
+  type: 'birthday' | 'anniversary' | 'valentine' | 'christmas' | 'new_year' | 'white_day' | 'custom';
+  relationshipLevelRequired: number;
+  message: string;
+  isRecurring: boolean;
+  category: 'personal' | 'seasonal' | 'relationship';
+  priority: 'high' | 'medium' | 'low';
+  customData?: {
+    icon?: string;
+    color?: string;
+    description?: string;
+  };
+}
+
+export interface EventNotification {
+  id: string;
+  eventId: string;
+  title: string;
+  message: string;
+  date: Date;
+  isRead: boolean;
+  type: 'upcoming' | 'today' | 'missed';
+}
+
