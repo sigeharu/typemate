@@ -3,14 +3,14 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { Heart, Music, Sparkles, Users, ArrowRight, User, LogIn } from 'lucide-react';
+import { Heart, Music, Sparkles, Users, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AuthModal } from '@/components/auth/AuthModal';
-import { useAuth } from '@/components/providers/AuthProvider';
+import { LoginButton, UserInfo } from '@/components/auth/LoginButton';
+import { PageLayout } from '@/components/layout';
 
 export default function Home() {
   const router = useRouter();
-  const { user, loading, signOut } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
 
@@ -24,54 +24,21 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-slate-50 to-white">
-      {/* Header */}
-      <header className="container mx-auto px-4 py-4 flex justify-end">
-        {!loading && (
-          <div className="flex items-center gap-3">
-            {user ? (
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-slate-600">
-                  {user.user_metadata?.display_name || user.email}
-                </span>
-                <Button variant="outline" size="sm" onClick={signOut}>
-                  ログアウト
-                </Button>
-                <Button size="sm" onClick={() => router.push('/profile')}>
-                  <User size={16} className="mr-1" />
-                  プロファイル
-                </Button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => handleShowAuth('signin')}
-                >
-                  <LogIn size={16} className="mr-1" />
-                  ログイン
-                </Button>
-                <Button 
-                  size="sm" 
-                  onClick={() => handleShowAuth('signup')}
-                  className="bg-gradient-to-r from-slate-600 to-blue-600"
-                >
-                  無料登録
-                </Button>
-              </div>
-            )}
-          </div>
-        )}
-      </header>
-
+    <PageLayout
+      title="TypeMate"
+      description="あなたの心に寄り添うAIパートナー"
+      backgroundVariant="default"
+      maxWidth="6xl"
+      showAuth={true}
+      showSettings={true}
+      onAuthStateChange={() => setShowAuthModal(false)}
+    >
       {/* ✨ ヘロセクション */}
-      <main className="container mx-auto px-4 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="text-center max-w-4xl mx-auto"
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="text-center max-w-4xl mx-auto"
         >
           {/* ✨ メインロゴ・タイトル */}
           <motion.div
@@ -120,14 +87,31 @@ export default function Home() {
             transition={{ duration: 0.6, delay: 0.6 }}
             className="mb-16"
           >
-            <Button
-              onClick={handleStartJourney}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-lg px-8 py-4 rounded-xl shadow-lg hover:shadow-xl crisp-button celebration-effect"
-            >
-              <Sparkles className="inline-block mr-2" size={24} />
-              あなたに合うAIパートナーを見つける
-              <ArrowRight className="inline-block ml-2" size={24} />
-            </Button>
+            <div className="flex flex-col items-center gap-4">
+              <Button
+                onClick={handleStartJourney}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-lg px-8 py-4 rounded-xl shadow-lg hover:shadow-xl crisp-button celebration-effect"
+              >
+                <Sparkles className="inline-block mr-2" size={24} />
+                あなたに合うAIパートナーを見つける
+                <ArrowRight className="inline-block ml-2" size={24} />
+              </Button>
+              
+              {/* Google OAuth認証テスト */}
+              <div className="flex items-center gap-4">
+                <div className="h-px bg-gray-300 flex-1"></div>
+                <span className="text-gray-500 text-sm">または</span>
+                <div className="h-px bg-gray-300 flex-1"></div>
+              </div>
+              
+              <LoginButton 
+                variant="outline"
+                size="lg"
+                className="w-full max-w-sm"
+              />
+              
+              <UserInfo />
+            </div>
             <p className="text-sm text-blue-600 mt-4">
               🎵 今すぐ無料で始める
             </p>
@@ -221,77 +205,6 @@ export default function Home() {
             </div>
           </div>
         </motion.div>
-      </main>
-
-      {/* 🎵 TypeMate背景装飾 */}
-      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-        {[...Array(6)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute rounded-full bg-gradient-to-r from-blue-200/15 via-slate-200/10 to-purple-200/15"
-            style={{
-              width: Math.random() * 300 + 100,
-              height: Math.random() * 300 + 100,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              x: [0, Math.random() * 80 - 40],
-              y: [0, Math.random() * 80 - 40],
-              rotate: [0, 360],
-            }}
-            transition={{
-              duration: Math.random() * 30 + 20,
-              repeat: Infinity,
-              ease: "linear",
-            }}
-          />
-        ))}
-        {/* 🎵 音楽的装飾要素 */}
-        {[...Array(3)].map((_, i) => (
-          <motion.div
-            key={`musical-${i}`}
-            className="absolute text-blue-300/20 text-6xl"
-            style={{
-              left: `${Math.random() * 90 + 5}%`,
-              top: `${Math.random() * 90 + 5}%`,
-            }}
-            animate={{
-              rotate: [0, 360],
-              scale: [0.8, 1.2, 0.8],
-            }}
-            transition={{
-              duration: Math.random() * 15 + 10,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          >
-            🎵
-          </motion.div>
-        ))}
-        {/* 💖 ロマンチック装飾要素 */}
-        {[...Array(2)].map((_, i) => (
-          <motion.div
-            key={`heart-${i}`}
-            className="absolute text-purple-300/15 text-8xl"
-            style={{
-              left: `${Math.random() * 80 + 10}%`,
-              top: `${Math.random() * 80 + 10}%`,
-            }}
-            animate={{
-              y: [0, -20, 0],
-              opacity: [0.1, 0.3, 0.1],
-            }}
-            transition={{
-              duration: Math.random() * 8 + 6,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          >
-            💖
-          </motion.div>
-        ))}
-      </div>
 
       {/* Auth Modal */}
       <AuthModal
@@ -303,6 +216,6 @@ export default function Home() {
           // 認証成功後はデータが自動で同期される
         }}
       />
-    </div>
+    </PageLayout>
   );
 }
