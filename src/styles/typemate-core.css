@@ -1,0 +1,129 @@
+/* 🎵 TypeMate - コアスタイル（クリーンバージョン）*/
+/* しげちゃんの音楽的センス × モダンデザイン */
+
+/* 基本カラーパレット */
+:root {
+  /* TypeMateブランドカラー */
+  --typemate-primary: #3b82f6;      /* TypeMateブルー */
+  --typemate-secondary: #8b5cf6;    /* TypeMateパープル */
+  --typemate-accent: #06b6d4;       /* TypeMateシアン */
+  --typemate-warm: #f59e0b;         /* TypeMateアンバー */
+  --typemate-soft: #e5e7eb;         /* TypeMateソフトグレー */
+  
+  /* 音楽的リズム（BPM120基準） */
+  --rhythm-fast: 0.125s;
+  --rhythm-quick: 0.25s;
+  --rhythm-normal: 0.5s;
+  --rhythm-slow: 1s;
+  --rhythm-breath: 2s;
+
+  /* クリスプな音質感 */
+  --crisp-white: #fafafa;
+  --crisp-silver: #f5f5f5;
+  --crisp-platinum: #e5e5e5;
+  --crisp-carbon: #404040;
+  --crisp-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --crisp-border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 基本タイポグラフィ */
+body {
+  font-family: 'Inter', 'Noto Sans JP', system-ui, sans-serif;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* 音楽的見出し */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Comfortaa', 'Inter', sans-serif;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin-bottom: 1em;
+}
+
+h1 { font-size: 2.5rem; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.5rem; }
+
+/* TypeMate音楽的ボタン */
+.btn-typemate {
+  background: linear-gradient(135deg, var(--typemate-primary) 0%, var(--typemate-secondary) 100%);
+  border: 2px solid var(--typemate-primary);
+  border-radius: 20px;
+  padding: 14px 28px;
+  font-family: 'Comfortaa', sans-serif;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: all var(--rhythm-normal) cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-typemate:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+  background: linear-gradient(135deg, var(--typemate-secondary) 0%, var(--typemate-accent) 100%);
+}
+
+.btn-typemate:active {
+  transform: translateY(0);
+  transition: transform var(--rhythm-fast);
+}
+
+/* クリスプな音質感カード */
+.card-crisp {
+  background: var(--crisp-white);
+  border: var(--crisp-border);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--crisp-shadow);
+  transition: all var(--rhythm-normal) ease;
+}
+
+.card-crisp:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+/* 音楽的入力フィールド */
+.input-musical {
+  background: var(--crisp-white);
+  border: 2px solid var(--crisp-platinum);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-family: 'Inter', sans-serif;
+  transition: all var(--rhythm-normal) ease;
+  outline: none;
+}
+
+.input-musical:focus {
+  border-color: var(--typemate-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  transform: scale(1.02);
+}
+
+/* モバイル対応 */
+@media (max-width: 768px) {
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.75rem; }
+  h3 { font-size: 1.25rem; }
+
+  .card-crisp {
+    padding: 16px;
+  }
+
+  /* モバイル用リズム調整 */
+  :root {
+    --rhythm-fast: 0.1s;
+    --rhythm-quick: 0.2s;
+    --rhythm-normal: 0.4s;
+    --rhythm-slow: 0.8s;
+    --rhythm-breath: 1.5s;
+  }
+}

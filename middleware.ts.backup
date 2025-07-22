@@ -1,0 +1,21 @@
+// TypeMate Middleware
+// 認証とルーティングの制御
+
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+
+export function middleware(request: NextRequest) {
+  // パブリックパスは何もしない
+  const publicPaths = ['/api', '/_next', '/favicon.ico'];
+  
+  if (publicPaths.some(path => request.nextUrl.pathname.startsWith(path))) {
+    return NextResponse.next();
+  }
+
+  // 通常のページは何もしない（認証は後で実装）
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+};

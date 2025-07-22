@@ -116,13 +116,13 @@ export function ChatHistory({
             animate={{ x: 0 }}
             exit={{ x: -320 }}
             transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-            className="fixed left-0 top-0 h-full w-80 md:w-96 bg-white border-r border-slate-200 shadow-xl z-50"
+            className="fixed left-0 top-0 h-full w-80 md:w-96 bg-white border-r border-gray-200 shadow-xl z-50 flex flex-col"
           >
             <div className="flex flex-col h-full">
               {/* Header */}
-              <div className="p-4 border-b border-slate-200">
+              <div className="p-4 border-b border-gray-200 flex-shrink-0">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold text-slate-800">チャット履歴</h2>
+                  <h2 className="text-lg font-semibold text-gray-900">チャット履歴</h2>
                   <Button variant="ghost" size="sm" onClick={onClose}>
                     <X size={20} />
                   </Button>
@@ -136,14 +136,14 @@ export function ChatHistory({
                     placeholder="チャットを検索..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 bg-white"
                   />
                 </div>
                 
                 {/* New Chat Button */}
                 <Button 
                   onClick={onNewSession}
-                  className="w-full bg-gradient-to-r from-slate-600 to-blue-600 hover:from-slate-700 hover:to-blue-700"
+                  className="w-full bg-black hover:bg-gray-800 text-white"
                 >
                   <Plus size={16} className="mr-2" />
                   新しいチャット
@@ -151,9 +151,9 @@ export function ChatHistory({
               </div>
               
               {/* Session List */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              <div className="flex-1 overflow-y-auto p-4 space-y-2">
                 {filteredSessions.length === 0 ? (
-                  <div className="text-center text-slate-500 mt-8">
+                  <div className="text-center text-gray-500 mt-8">
                     <Clock size={32} className="mx-auto mb-2 opacity-50" />
                     <p className="text-sm">
                       {searchQuery ? 'チャットが見つかりません' : 'チャット履歴がありません'}
@@ -171,33 +171,33 @@ export function ChatHistory({
                         whileTap={{ scale: 0.98 }}
                       >
                         <Card
-                          className={`p-3 cursor-pointer transition-all group ${
+                          className={`p-3 cursor-pointer transition-all group border ${
                             isActive 
-                              ? 'border-blue-500 bg-blue-50' 
-                              : 'border-slate-200 hover:border-slate-300 hover:shadow-md'
+                              ? 'border-gray-900 bg-gray-50' 
+                              : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                           }`}
                           onClick={() => onSelectSession(session.id)}
                         >
                           <div className="flex items-start justify-between">
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-2">
-                                <div className="w-6 h-6 bg-gradient-to-br from-slate-500 to-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-xs">
+                                <div className="w-6 h-6 bg-gray-900 rounded-full flex items-center justify-center text-white font-medium text-xs">
                                   AI
                                 </div>
-                                <Badge variant="secondary" className="text-xs">
+                                <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-700">
                                   {aiArchetype.name}
                                 </Badge>
                               </div>
                               
-                              <p className="text-sm text-slate-800 font-medium mb-1 truncate">
+                              <p className="text-sm text-gray-900 font-medium mb-1 truncate">
                                 {session.title || getSessionPreview(session)}
                               </p>
                               
                               <div className="flex items-center justify-between">
-                                <span className="text-xs text-slate-500">
+                                <span className="text-xs text-gray-500">
                                   {session.messages.length}件のメッセージ
                                 </span>
-                                <span className="text-xs text-slate-500">
+                                <span className="text-xs text-gray-500">
                                   {formatDate(session.updatedAt)}
                                 </span>
                               </div>
@@ -220,8 +220,8 @@ export function ChatHistory({
               </div>
               
               {/* Footer */}
-              <div className="p-4 border-t border-slate-200 bg-slate-50">
-                <p className="text-xs text-slate-500 text-center">
+              <div className="p-4 border-t border-gray-200 bg-gray-50 flex-shrink-0">
+                <p className="text-xs text-gray-500 text-center">
                   {sessions.length}個のチャットセッション
                 </p>
               </div>

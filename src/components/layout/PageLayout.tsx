@@ -91,7 +91,7 @@ export const PageLayout = ({
 
   return (
     <div className={cn(
-      'min-h-screen',
+      'min-h-screen flex flex-col',
       backgroundVariants[backgroundVariant],
       className
     )}>
@@ -123,8 +123,9 @@ export const PageLayout = ({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
         className={cn(
-          'container mx-auto px-4 py-8',
-          maxWidthClasses[maxWidth]
+          'flex-1 flex flex-col items-center justify-start py-8 px-4',
+          maxWidthClasses[maxWidth],
+          'w-full'
         )}
       >
         {children}

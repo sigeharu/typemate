@@ -110,31 +110,32 @@ export default function DiagnosisPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100">
-      {/* ヘッダー */}
-      <motion.header
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center py-8 px-4"
-      >
-        <div className="max-w-2xl mx-auto">
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-800 mb-2">
-            💫 TypeMate 64Type診断
-          </h1>
-          <p className="text-slate-600">
-            18の質問で、あなたの本当の性格と理想のAIパートナーを見つけましょう
-          </p>
-        </div>
-      </motion.header>
-
-      {/* 開発者モード - クイックテスト */}
-      {isDevelopmentMode() && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
+    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 flex flex-col">
+      <div className="flex-1 flex flex-col items-center justify-start py-8">
+        {/* ヘッダー */}
+        <motion.header
+          initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="max-w-4xl mx-auto mb-8 p-6 bg-amber-50 border-2 border-amber-200 rounded-2xl shadow-lg mx-4"
+          className="text-center py-8"
         >
+          <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8">
+            <h1 className="text-3xl md:text-4xl font-bold text-slate-800 mb-2">
+              💫 TypeMate 64Type診断
+            </h1>
+            <p className="text-slate-600">
+              18の質問で、あなたの本当の性格と理想のAIパートナーを見つけましょう
+            </p>
+          </div>
+        </motion.header>
+
+        {/* 開発者モード - クイックテスト */}
+        {isDevelopmentMode() && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 mb-8 p-6 bg-amber-50 border-2 border-amber-200 rounded-2xl shadow-lg"
+          >
           <div className="text-center mb-4">
             <h3 className="text-xl font-bold text-amber-800 mb-2 flex items-center justify-center gap-2">
               🔧 開発者モード - クイックテスト
@@ -174,21 +175,23 @@ export default function DiagnosisPage() {
         </motion.div>
       )}
 
-      {/* 診断質問 */}
-      <motion.main
-        key={currentQuestionIndex}
-        initial={{ opacity: 0, x: 50 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: -50 }}
-        transition={{ duration: 0.3 }}
-      >
-        <DiagnosticQuestion
-          question={shuffledQuestions[currentQuestionIndex]}
-          currentIndex={currentQuestionIndex}
-          totalQuestions={shuffledQuestions.length}
-          onAnswer={handleAnswer}
-        />
-      </motion.main>
+        {/* 診断質問 */}
+        <motion.main
+          key={currentQuestionIndex}
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -50 }}
+          transition={{ duration: 0.3 }}
+          className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8"
+        >
+          <DiagnosticQuestion
+            question={shuffledQuestions[currentQuestionIndex]}
+            currentIndex={currentQuestionIndex}
+            totalQuestions={shuffledQuestions.length}
+            onAnswer={handleAnswer}
+          />
+        </motion.main>
+      </div>
 
       {/* 背景装飾 */}
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">

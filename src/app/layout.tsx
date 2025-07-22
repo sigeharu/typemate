@@ -35,8 +35,12 @@ export const metadata: Metadata = {
     type: "website",
     locale: "ja_JP",
   },
-  viewport: "width=device-width, initial-scale=1",
-  themeColor: "#f97316",
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#f97316',
 };
 
 export default function RootLayout({

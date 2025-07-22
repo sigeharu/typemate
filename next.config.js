@@ -7,12 +7,7 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // Vercelでのビルドを確実に成功させる
-  experimental: {
-    esmExternals: false,
-  },
   // その他の最適化設定
-  swcMinify: true,
   images: {
     domains: ['lh3.googleusercontent.com'], // Google OAuth用
   },

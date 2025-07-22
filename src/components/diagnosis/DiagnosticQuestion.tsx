@@ -25,7 +25,7 @@ export function DiagnosticQuestion({
   const progressValue = ((currentIndex + 1) / totalQuestions) * 100;
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-6xl mx-auto p-6">
       {/* プログレスバー */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}

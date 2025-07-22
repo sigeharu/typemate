@@ -29,8 +29,9 @@ export default function Home() {
       description="あなたの心に寄り添うAIパートナー"
       backgroundVariant="default"
       maxWidth="6xl"
-      showAuth={true}
-      showSettings={true}
+      showAuth={false}
+      showSettings={false}
+      showHeader={false}
       onAuthStateChange={() => setShowAuthModal(false)}
     >
       {/* ✨ ヘロセクション */}
@@ -38,7 +39,7 @@ export default function Home() {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="text-center max-w-4xl mx-auto"
+        className="text-center w-full"
         >
           {/* ✨ メインロゴ・タイトル */}
           <motion.div
@@ -123,7 +124,7 @@ export default function Home() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.8 }}
-          className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto mb-16"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16 w-full"
         >
           {[
             {
@@ -184,7 +185,7 @@ export default function Home() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 1.4 }}
-          className="max-w-2xl mx-auto text-center"
+          className="text-center w-full"
         >
           <div className="bg-gradient-to-r from-blue-50 via-slate-50 to-blue-50 border border-blue-200 rounded-xl p-8 magical-moment">
             <div className="mb-4">

@@ -8,6 +8,12 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      // 🌍 Context7風レスポンシブスペーシング
+      spacing: {
+        '18': '4.5rem',
+        '88': '22rem',
+        '128': '32rem',
+      },
       // 🎵 音楽的カラーパレット（しげちゃんセンス統合）
       colors: {
         primary: {
