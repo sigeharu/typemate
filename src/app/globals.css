@@ -6,48 +6,21 @@
 @import "../styles/typemate-effects.css";
 @import "../styles/typemate-animations.css";
 
-/* 🎵 TypeMateコアスタイル（インライン版）*/
+/* 🎵 TypeMate統一カラーシステム */
 :root {
-  /* TypeMateブランドカラー */
-  --typemate-primary: #3b82f6;
-  --typemate-secondary: #8b5cf6;
-  --typemate-accent: #06b6d4;
-  --typemate-warm: #f59e0b;
-  --typemate-soft: #e5e7eb;
+  /* Tailwind & shadcn/ui & TypeMate統合カラー */
+  --unified-blue: oklch(0.708 0.15 252.85);   /* Tailwind blue-500 ≈ TypeMate primary */
+  --unified-purple: oklch(0.654 0.196 286.75); /* Tailwind purple-500 ≈ TypeMate secondary */
+  --unified-cyan: oklch(0.715 0.135 192.15);   /* Tailwind cyan-500 ≈ TypeMate accent */
+  --unified-amber: oklch(0.807 0.154 85.38);   /* Tailwind amber-500 ≈ TypeMate warm */
   
-  /* 音楽的リズム */
-  --rhythm-fast: 0.125s;
-  --rhythm-quick: 0.25s;
-  --rhythm-normal: 0.5s;
-  --rhythm-slow: 1s;
-  --rhythm-breath: 2s;
-
-  /* クリスプな音質感 */
-  --crisp-white: #fafafa;
-  --crisp-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  /* モバイル最適化サイズ */
+  --mobile-touch-target: 44px; /* Apple HIG推奨 */
+  --mobile-padding: 16px;
+  --mobile-margin: 12px;
 }
 
-/* 基本タイポグラフィ */
-body {
-  font-family: 'Inter', 'Noto Sans JP', system-ui, sans-serif;
-  line-height: 1.6;
-  letter-spacing: -0.01em;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Comfortaa', 'Inter', sans-serif;
-  font-weight: 600;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-  margin-bottom: 1em;
-}
-
-h1 { font-size: 2.5rem; }
-h2 { font-size: 2rem; }
-h3 { font-size: 1.5rem; }
+/* 基本タイポグラフィ - typemate-core.cssで定義済み */
 
 /* 🔍 アクセシビリティ対応 */
 .focus-visible {
@@ -168,9 +141,4 @@ body {
   color: #1f2937;
 }
 
-/* モバイル対応 */
-@media (max-width: 768px) {
-  h1 { font-size: 2rem; }
-  h2 { font-size: 1.75rem; }
-  h3 { font-size: 1.25rem; }
-}
+/* モバイル対応 - typemate-core.cssで定義済み */

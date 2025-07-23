@@ -129,22 +129,22 @@ export const MessageBubble = ({
           </div>
         </div>
       ) : (
-        /* AIメッセージ - shadcn/ui Card使用 */
-        <div className="flex gap-2 sm:gap-3 mb-4">
-          <Avatar className="w-7 h-7 sm:w-8 sm:h-8 flex-shrink-0">
-            <AvatarFallback className="bg-blue-500 text-white text-sm font-semibold">
+        /* AIメッセージ - Mobile-First最適化 */
+        <div className="flex gap-2 sm:gap-3 mb-3 sm:mb-4">
+          <Avatar className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 mt-1">
+            <AvatarFallback className="bg-blue-500 text-white text-xs sm:text-sm font-semibold">
               AI
             </AvatarFallback>
           </Avatar>
-          <div className="flex-1 max-w-2xl">
+          <div className="flex-1 max-w-[85%] sm:max-w-2xl">
             <Card className="border border-gray-200 shadow-sm">
-              <CardContent className="p-4">
-                <p className="text-[15px] leading-6 text-gray-900 whitespace-pre-wrap m-0">
+              <CardContent className="p-3 sm:p-4">
+                <p className="text-sm sm:text-[15px] leading-relaxed text-gray-900 whitespace-pre-wrap m-0">
                   {message.content}
                 </p>
               </CardContent>
             </Card>
-            <div className="flex gap-2 items-center mt-1">
+            <div className="flex gap-2 items-center mt-1 flex-wrap">
               <time className="text-xs text-gray-500">
                 {new Date(message.timestamp).toLocaleTimeString('ja-JP', {
                   hour: '2-digit',
@@ -152,7 +152,7 @@ export const MessageBubble = ({
                 })}
               </time>
               {message.emotion && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="secondary" className="text-xs hidden sm:inline-flex">
                   {getEmotionLabel(emotion)}
                 </Badge>
               )}
