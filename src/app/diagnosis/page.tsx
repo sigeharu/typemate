@@ -119,8 +119,8 @@ export default function DiagnosisPage() {
           className="text-center py-8"
         >
           <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-slate-800 mb-2">
-              💫 TypeMate 64Type診断
+            <h1 className="text-3xl md:text-4xl font-bold text-musical mb-2">
+              ⚡ TypeMate 64Type診断
             </h1>
             <p className="text-slate-600">
               18の質問で、あなたの本当の性格と理想のAIパートナーを見つけましょう

@@ -25,12 +25,12 @@ export function DiagnosticQuestion({
   const progressValue = ((currentIndex + 1) / totalQuestions) * 100;
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
+    <div className="max-w-6xl mx-auto p-4 sm:p-6">
       {/* プログレスバー */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-8"
+        className="mb-4 sm:mb-6 lg:mb-8"
       >
         <div className="flex justify-between text-sm text-gray-600 mb-2">
           <span>質問 {currentIndex + 1} / {totalQuestions}</span>
@@ -56,12 +56,12 @@ export function DiagnosticQuestion({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        <Card className="p-8 mb-8 bg-gradient-to-br from-white to-slate-50 border-slate-200 shadow-lg">
-          <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-8 leading-relaxed text-center">
+        <Card className="p-4 sm:p-6 lg:p-8 mb-4 sm:mb-6 lg:mb-8 bg-gradient-to-br from-white to-slate-50 border-slate-200 shadow-lg">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-musical mb-4 sm:mb-6 lg:mb-8 leading-relaxed text-center">
             {question.question}
           </h2>
           
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-5 lg:space-y-6">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -69,11 +69,11 @@ export function DiagnosticQuestion({
             >
               <Button
                 variant="outline"
-                className="w-full text-left h-auto p-6 hover:bg-slate-50 hover:border-slate-300 transition-all duration-300 border-2"
+                className="w-full text-left h-auto p-4 sm:p-5 lg:p-6 hover:bg-slate-50 hover:border-slate-300 transition-all duration-300 border-2"
                 onClick={() => onAnswer(question.id, question.optionA.trait)}
               >
                 <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 border-2 border-slate-300 flex items-center justify-center text-slate-600 font-bold">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-purple-100 to-blue-100 border-2 border-purple-300 flex items-center justify-center text-musical font-bold">
                     A
                   </div>
                   <div className="text-sm leading-relaxed text-gray-700">
@@ -90,11 +90,11 @@ export function DiagnosticQuestion({
             >
               <Button
                 variant="outline"
-                className="w-full text-left h-auto p-6 hover:bg-blue-50 hover:border-blue-300 transition-all duration-300 border-2"
+                className="w-full text-left h-auto p-4 sm:p-5 lg:p-6 hover:bg-blue-50 hover:border-blue-300 transition-all duration-300 border-2"
                 onClick={() => onAnswer(question.id, question.optionB.trait)}
               >
                 <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 border-2 border-blue-300 flex items-center justify-center text-blue-600 font-bold">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 border-2 border-blue-300 flex items-center justify-center text-musical font-bold">
                     B
                   </div>
                   <div className="text-sm leading-relaxed text-gray-700">
