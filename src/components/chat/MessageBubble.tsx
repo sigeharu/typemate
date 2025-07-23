@@ -112,7 +112,7 @@ export const MessageBubble = ({
         <div className="flex justify-end mb-4">
           <div className="max-w-2xl w-full sm:w-auto">
             <Card className="bg-blue-500 border-blue-500 shadow-sm">
-              <CardContent className="p-4">
+              <CardContent className="chat-message">
                 <p className="text-[15px] leading-6 text-white whitespace-pre-wrap m-0">
                   {message.content}
                 </p>
@@ -138,7 +138,7 @@ export const MessageBubble = ({
           </Avatar>
           <div className="flex-1 max-w-[85%] sm:max-w-2xl">
             <Card className="border border-gray-200 shadow-sm">
-              <CardContent className="p-3 sm:p-4">
+              <CardContent className="chat-message">
                 <p className="text-sm sm:text-[15px] leading-relaxed text-gray-900 whitespace-pre-wrap m-0">
                   {message.content}
                 </p>

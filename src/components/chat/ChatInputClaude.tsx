@@ -57,7 +57,7 @@ export const ChatInputClaude = ({
   };
 
   return (
-    <div className={cn("w-full max-w-none", className)}>
+    <div className={cn("input-container", className)}>
       <form onSubmit={handleSubmit}>
         {/* Claude風シンプル入力エリア - 音楽的タッチ */}
         <div className="relative bg-white border border-gray-300 rounded-lg sm:rounded-xl shadow-sm hover:border-blue-400 focus-within:border-blue-500 focus-within:ring-1 sm:focus-within:ring-2 focus-within:ring-blue-500/20 transition-all duration-300 ease-out mx-0">
@@ -69,6 +69,7 @@ export const ChatInputClaude = ({
             placeholder={placeholder}
             disabled={disabled}
             className={cn(
+              "message-input",
               "resize-none border-0 bg-transparent focus:ring-0 focus-visible:ring-0",
               "text-base sm:text-[15px] leading-6 text-gray-900",
               "placeholder:text-gray-500",

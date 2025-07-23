@@ -241,18 +241,17 @@ export default function ChatPage() {
               )}
             </div>
             <div className="flex items-center gap-1">
-              <Button variant="ghost" size="sm" onClick={handleShowHistory} className="p-2">
+              <Button variant="ghost" onClick={handleShowHistory} className="touch-button">
                 <History size={16} />
               </Button>
               <Button 
                 variant="ghost" 
-                size="sm" 
                 onClick={() => setShowMemories(!showMemories)}
-                className="p-2"
+                className="touch-button"
               >
                 <Heart size={16} />
               </Button>
-              <Button variant="ghost" size="sm" onClick={handleShowProfile} className="p-2">
+              <Button variant="ghost" onClick={handleShowProfile} className="touch-button">
                 <Settings size={16} />
               </Button>
             </div>
@@ -336,7 +335,7 @@ export default function ChatPage() {
 
         {/* 固定入力欄 - sticky bottom-0 */}
         <footer className="sticky bottom-0 z-50 border-t border-gray-200 bg-white shadow-lg backdrop-blur supports-[backdrop-filter]:bg-white/95">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 py-4">
+          <div className="w-full px-4 sm:px-6 py-4">
             <ChatInputClaude
               onSendMessage={handleSendMessage}
               disabled={isTyping}
