@@ -57,10 +57,10 @@ export const ChatInputClaude = ({
   };
 
   return (
-    <div className={cn("w-full", className)}>
+    <div className={cn("w-full max-w-none", className)}>
       <form onSubmit={handleSubmit}>
         {/* Claude風シンプル入力エリア - 音楽的タッチ */}
-        <div className="relative bg-white border border-gray-300 rounded-xl shadow-sm hover:border-blue-400 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all duration-300 ease-out">
+        <div className="relative bg-white border border-gray-300 rounded-lg sm:rounded-xl shadow-sm hover:border-blue-400 focus-within:border-blue-500 focus-within:ring-1 sm:focus-within:ring-2 focus-within:ring-blue-500/20 transition-all duration-300 ease-out mx-0">
           <Textarea
             ref={textareaRef}
             value={message}
@@ -70,10 +70,10 @@ export const ChatInputClaude = ({
             disabled={disabled}
             className={cn(
               "resize-none border-0 bg-transparent focus:ring-0 focus-visible:ring-0",
-              "text-[15px] leading-6 text-gray-900",
+              "text-base sm:text-[15px] leading-6 text-gray-900",
               "placeholder:text-gray-500",
-              "px-4 py-3 pr-14",
-              "min-h-[52px] max-h-[200px] overflow-y-auto",
+              "px-3 sm:px-4 py-3 pr-12 sm:pr-14",
+              "min-h-[48px] sm:min-h-[52px] max-h-[150px] sm:max-h-[200px] overflow-y-auto",
               disabled && "opacity-50 cursor-not-allowed"
             )}
             style={{ 
@@ -88,8 +88,8 @@ export const ChatInputClaude = ({
             size="sm"
             disabled={!message.trim() || disabled}
             className={cn(
-              "absolute right-3 bottom-3",
-              "h-8 w-8 p-0",
+              "absolute right-2 sm:right-3 bottom-3",
+              "h-7 w-7 sm:h-8 sm:w-8 p-0",
               "bg-blue-500 hover:bg-blue-600",
               "text-white border-0",
               "rounded-lg shadow-sm",
@@ -103,7 +103,7 @@ export const ChatInputClaude = ({
         
         {/* ヒント表示 */}
         <div className="flex justify-center mt-2">
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-gray-500 hidden sm:inline">
             Enterで送信、Shift+Enterで改行
           </span>
         </div>
