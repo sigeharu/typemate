@@ -172,93 +172,75 @@ export default function ChatPage() {
     setIsTyping(true);
 
     try {
-      // Generate dynamic AI response
-      setTimeout(() => {
-        const aiResponse = generateAIResponse(content, aiPersonality, userType, messages.length);
-        
-        const aiMessage: Message = {
-          id: `ai-${Date.now()}`,
-          content: aiResponse,
-          isUser: false,
-          sender: 'ai',
-          timestamp: new Date(),
-          sessionId: currentSessionId
-        };
-        
-        setMessages(prev => [...prev, aiMessage]);
-        setIsTyping(false);
-        
-        // 🎵 Phase 1: 記憶システム統合 - メッセージ保存（非同期）
-        saveMessage(content, 'user', personalInfo.name).catch(error => 
-          console.warn('User message save failed:', error)
-        );
-        saveMessage(aiResponse, 'ai').catch(error => 
-          console.warn('AI message save failed:', error)
-        );
-      }, 1000 + Math.random() * 500); // Add some natural variation
+      // Generate AI response using Claude API
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: content,
+          userType: userType,
+          aiPersonality: aiPersonality?.archetype,
+          relationshipType: 'friend',
+          messageHistory: [],
+          conversationTurn: messages.length,
+          relationshipLevel: relationship?.currentLevel?.level || 1,
+          importantMemories: [],
+          relatedMemories: [],
+          todaysEvents: [],
+          chatCount: messages.length + 1,
+          personalInfo: {
+            name: personalInfo.name || undefined,
+            birthday: undefined
+          }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('API request failed');
+      }
+
+      const data = await response.json();
+      const aiResponse = data.content || 'すみません、少し考えがまとまりません。もう一度お話しいただけますか？';
+      
+      const aiMessage: Message = {
+        id: `ai-${Date.now()}`,
+        content: aiResponse,
+        isUser: false,
+        sender: 'ai',
+        timestamp: new Date(),
+        sessionId: currentSessionId
+      };
+      
+      setMessages(prev => [...prev, aiMessage]);
+      setIsTyping(false);
+      
+      // 🎵 Phase 1: 記憶システム統合 - メッセージ保存（非同期）
+      saveMessage(content, 'user', personalInfo.name).catch(error => 
+        console.warn('User message save failed:', error)
+      );
+      saveMessage(aiResponse, 'ai').catch(error => 
+        console.warn('AI message save failed:', error)
+      );
     } catch (error) {
       console.error('Error sending message:', error);
+      
+      // Fallback response
+      const fallbackMessage: Message = {
+        id: `ai-${Date.now()}`,
+        content: 'すみません、少し調子が悪いようです。もう一度お話しいただけますか？',
+        isUser: false,
+        sender: 'ai',
+        timestamp: new Date(),
+        sessionId: currentSessionId
+      };
+      
+      setMessages(prev => [...prev, fallbackMessage]);
       setIsTyping(false);
     }
   };
 
-  // Dynamic AI response generation
-  const generateAIResponse = (userInput: string, personality: any, userType: string, messageCount: number): string => {
-    const isFirstMessage = messageCount === 0;
-    const userName = personalInfo.name || 'あなた';
-    
-    // First message - introduction
-    if (isFirstMessage) {
-      return `こんにちは✨ 私は${personality.name}として、${userName}さんの${userType}型のパートナーです。${personality.personality}\n\nどんなことでもお話してください！何について語り合いましょうか？✨`;
-    }
-    
-    // Analyze user input for appropriate response
-    const input = userInput.toLowerCase();
-    
-    // Greeting responses
-    if (input.includes('こんにちは') || input.includes('はじめまして') || input.includes('よろしく')) {
-      const greetings = [
-        `${userName}さん、こんにちは！今日はどんな一日でしたか？✨`,
-        `はじめまして！${personality.name}です。お会いできて嬉しいです💫`,
-        `こちらこそよろしくお願いします！何か特別なことについて話したいことはありますか？🎵`
-      ];
-      return greetings[Math.floor(Math.random() * greetings.length)];
-    }
-    
-    // Question responses
-    if (input.includes('？') || input.includes('?') || input.includes('どう') || input.includes('なぜ')) {
-      const questionResponses = [
-        `とても良い質問ですね！${personality.name}として考えてみると...\n\n${userInput}について、私なりの視点をお伝えしますね。`,
-        `興味深いことを聞いてくださいました。独自の価値観から見ると、これは...`,
-        `${userName}さんの疑問、とても大切だと思います。一緒に考えてみましょう！`
-      ];
-      return questionResponses[Math.floor(Math.random() * questionResponses.length)];
-    }
-    
-    // Emotional responses
-    if (input.includes('嬉しい') || input.includes('楽しい') || input.includes('良い')) {
-      return `${userName}さんが嬉しそうで、私も心が温かくなります😊\n\nその気持ち、とても素敵ですね。もう少し詳しく聞かせてもらえませんか？`;
-    }
-    
-    if (input.includes('悲しい') || input.includes('つらい') || input.includes('困') || input.includes('大変')) {
-      return `${userName}さん...そんな時もありますよね。\n\n私はいつでもここにいますから、お話を聞かせてください。一緒に考えましょう💙`;
-    }
-    
-    // Creative/artistic responses
-    if (input.includes('音楽') || input.includes('アート') || input.includes('創作') || input.includes('詩') || input.includes('物語')) {
-      return `${personality.name}として、創造的なことについて語るのは本当に楽しいです✨\n\n${userInput}から感じる美しさや可能性について、もっとお聞かせください。どんな風に表現したいですか？`;
-    }
-    
-    // Default thoughtful responses
-    const thoughtfulResponses = [
-      `${userInput}について、とても深く感じました。\n\n${personality.name}として、この世界の美しさや理想を通して考えると...もう少し詳しくお話しできませんか？`,
-      `${userName}さんの言葉から、新しい視点が見えてきました。\n\n独自の価値観で捉えると、これはとても意味深いことだと思います。どう感じられますか？`,
-      `興味深いお話ですね！${personality.name}として、これを詩や物語にしたらどんな風になるでしょう...\n\n${userName}さんはどんな表現がお好きですか？✨`,
-      `${userInput}...心に響く言葉です。\n\n私たちが見過ごしがちな美しさが、そこにあるような気がします。一緒に探してみませんか？`
-    ];
-    
-    return thoughtfulResponses[Math.floor(Math.random() * thoughtfulResponses.length)];
-  };
 
   const handlePersonalInfoSubmit = (info: PersonalInfo) => {
     setPersonalInfo(info);
