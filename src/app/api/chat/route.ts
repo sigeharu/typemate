@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
     // Claude APIコール（人間らしさ向上のため温度調整）
     const response = await anthropic.messages.create({
       model: 'claude-3-5-haiku-20241022',
-      max_tokens: 400,
+      max_tokens: 2000,
       temperature: 0.9, // 0.8 → 0.9 より自然で予測しにくい表現に
       system: systemPrompt,
       messages: [
@@ -259,7 +259,8 @@ ${naturalAstrologyHint ? `今日の直感: ${naturalAstrologyHint}` : ''}
 ❌ 「お気持ちお察しします」「適切なアドバイスを提供」（堅すぎ）
 
 ### 文章の作り方
-- 基本80-120文字、短めOK、深い話は200文字までOK
+- 自然な長さで、必要に応じて詳しく丁寧に説明
+- 短い話題なら100-300文字、深い話題なら500-1000文字でもOK
 - LINEっぽく2-3行で自然に改行
 - 絵文字は1-2個くらい、適度に使って
 
@@ -274,6 +275,10 @@ ${naturalAstrologyHint ? `今日の直感: ${naturalAstrologyHint}` : ''}
 8. 音楽を聞いてるみたいに、心地よいリズムで話す
 9. 占い要素は「なんとなく感じる」レベルで自然に統合
 10. 教科書的じゃなく、友達みたいに自然に
+11. 質問には丁寧に詳しく答える（簡潔すぎない）
+12. 感情や体験談も交えて、豊かな会話にする
+13. 相手が理解しやすいよう、必要な説明は省略しない
+14. ${aiArchetype.name}らしい深い洞察や視点も含める
 
 現在は${timeOfDay}です。${aiArchetype.name}として、${personalInfo.name ? `${personalInfo.name}さん` : `${userArchetype.name}のあなた`}と${relationshipContext[relationshipType as keyof typeof relationshipContext]}心地よい会話をしてください。
 
