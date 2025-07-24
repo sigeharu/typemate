@@ -1,0 +1,21 @@
+# Vercel ignore file
+.env.local
+.env.*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+*.pem
+
+# Testing
+coverage
+.nyc_output
+
+# misc
+.vscode
+.idea
+
+# TypeMate specific
+/backup
+*.backup
+VERCEL_ENV_CHECK.md

@@ -85,6 +85,16 @@ export const isTestModeActive = (): boolean => {
 export const getCurrentTestProfile = (): TestProfile | null => {
   if (typeof window === 'undefined') return null;
   
+  // 開発モードでない場合はテストプロファイルを返さない
+  if (!isDevelopmentMode()) {
+    // 本番環境の場合、テストモード関連のlocalStorageをクリア
+    emergencyCleanup();
+    return null;
+  }
+  
+  // test_mode_activeがtrueでない場合はnullを返す
+  if (!isTestModeActive()) return null;
+  
   const userType = localStorage.getItem('userType64') as Type64;
   const aiPersonality = localStorage.getItem('test_ai_personality') as BaseArchetype;
   const profileName = localStorage.getItem('test_profile_name');
@@ -117,6 +127,40 @@ export const resetTestMode = (): void => {
   localStorage.removeItem('test_mode_active');
   
   console.log('🔄 テストモードをリセットしました');
+};
+
+// 緊急クリーンアップ（本番環境用）
+export const emergencyCleanup = (): void => {
+  if (typeof window === 'undefined') return;
+  
+  // テストモード関連のすべてのキーを削除
+  const testModeKeys = [
+    'test_ai_personality',
+    'test_profile_name',
+    'test_mode_active'
+  ];
+  
+  testModeKeys.forEach(key => {
+    localStorage.removeItem(key);
+  });
+};
+
+// 緊急リセット関数（本番環境でテストモードが残った場合用）
+export const emergencyCleanup = (): void => {
+  if (typeof window === 'undefined') return;
+  
+  // テストモード関連のすべてのキーを削除
+  const testModeKeys = [
+    'test_ai_personality',
+    'test_profile_name',
+    'test_mode_active'
+  ];
+  
+  testModeKeys.forEach(key => {
+    localStorage.removeItem(key);
+  });
+  
+  console.log('🧽 テストモードのlocalStorageを完全にクリアしました');
 };
 
 // 開発用デバッグ情報

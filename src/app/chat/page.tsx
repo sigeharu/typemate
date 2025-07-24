@@ -21,7 +21,7 @@ import { PersonalInfoModal } from '@/components/typemate/PersonalInfoModal';
 // import { personalityEngine } from '@/lib/personality-engine';
 import { loadRelationshipData } from '@/lib/relationship-storage';
 // import { memoryStorage } from '@/lib/memory-system';
-import { isDevelopmentMode, getCurrentTestProfile, resetTestMode } from '@/lib/dev-mode';
+import { isDevelopmentMode, getCurrentTestProfile, resetTestMode, emergencyCleanup } from '@/lib/dev-mode';
 import { useMemorySaver } from '@/hooks/useMemoryManager';
 import type { Message, BaseArchetype, PersonalInfo, MemorySystem, RelationshipData, TestProfile } from '@/types';
 import { ARCHETYPE_DATA } from '@/lib/diagnostic-data';
@@ -106,6 +106,9 @@ export default function ChatPage() {
           if (currentTestProfile) {
             setTestProfile(currentTestProfile);
           }
+        } else {
+          // 本番環境の場合、テストモードのlocalStorageをクリア
+          emergencyCleanup();
         }
 
         // Create session ID
