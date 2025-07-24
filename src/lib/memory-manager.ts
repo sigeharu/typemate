@@ -1,7 +1,7 @@
 // 🎵 TypeMate Phase 1: 記憶管理システム
 // 基本記憶保存・取得とSupabase統合
 
-import { supabase } from './supabase';
+import { supabase } from './supabase-simple';
 import type { Database } from '@/types/database';
 
 type MemoryRow = Database['public']['Tables']['typemate_memory']['Row'];
