@@ -20,6 +20,7 @@ export const DEFAULT_RELATIONSHIP_DATA: RelationshipData = {
 
 // 関係性データの保存
 export function saveRelationshipData(data: RelationshipData): void {
+  if (typeof window === 'undefined') return;
   try {
     localStorage.setItem(RELATIONSHIP_STORAGE_KEY, JSON.stringify({
       ...data,
@@ -35,6 +36,7 @@ export function saveRelationshipData(data: RelationshipData): void {
 
 // 関係性データの読み込み
 export function loadRelationshipData(): RelationshipData {
+  if (typeof window === 'undefined') return DEFAULT_RELATIONSHIP_DATA;
   try {
     const stored = localStorage.getItem(RELATIONSHIP_STORAGE_KEY);
     if (!stored) {
@@ -57,6 +59,7 @@ export function loadRelationshipData(): RelationshipData {
 
 // 占いデータの保存
 export function saveAstrologyData(data: Partial<AstrologyData>): void {
+  if (typeof window === 'undefined') return;
   try {
     const existing = loadAstrologyData();
     const updated = { ...existing, ...data };
@@ -72,6 +75,7 @@ export function saveAstrologyData(data: Partial<AstrologyData>): void {
 
 // 占いデータの読み込み
 export function loadAstrologyData(): Partial<AstrologyData> {
+  if (typeof window === 'undefined') return {};
   try {
     const stored = localStorage.getItem(ASTROLOGY_STORAGE_KEY);
     if (!stored) {
@@ -127,6 +131,7 @@ export function getRelationshipStats(): {
 
 // データのリセット（デバッグ用）
 export function resetRelationshipData(): void {
+  if (typeof window === 'undefined') return;
   localStorage.removeItem(RELATIONSHIP_STORAGE_KEY);
   localStorage.removeItem(ASTROLOGY_STORAGE_KEY);
 }

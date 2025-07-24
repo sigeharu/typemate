@@ -108,17 +108,22 @@ export const MessageBubble = ({
       className="w-full"
     >
       {isUserMessage ? (
-        /* ユーザーメッセージ - shadcn/ui Card使用 */
+        /* ユーザーメッセージ - 右寄せ青色バブル */
         <div className="flex justify-end mb-4">
-          <div className="max-w-2xl w-full sm:w-auto">
-            <Card className="bg-blue-500 border-blue-500 shadow-sm">
-              <CardContent className="chat-message">
+          <div className="max-w-[80%] sm:max-w-2xl">
+            <div className="flex items-end gap-2 justify-end">
+              <div className="bg-blue-500 rounded-2xl rounded-br-md px-4 py-3 shadow-sm">
                 <p className="text-[15px] leading-6 text-white whitespace-pre-wrap m-0">
                   {message.content}
                 </p>
-              </CardContent>
-            </Card>
-            <div className="flex justify-end mt-1">
+              </div>
+              <Avatar className="w-8 h-8 flex-shrink-0">
+                <AvatarFallback className="bg-gray-600 text-white text-xs font-semibold">
+                  You
+                </AvatarFallback>
+              </Avatar>
+            </div>
+            <div className="flex justify-end mt-1 mr-10">
               <time className="text-xs text-gray-500">
                 {new Date(message.timestamp).toLocaleTimeString('ja-JP', {
                   hour: '2-digit',
@@ -129,22 +134,20 @@ export const MessageBubble = ({
           </div>
         </div>
       ) : (
-        /* AIメッセージ - Mobile-First最適化 */
-        <div className="flex gap-2 sm:gap-3 mb-3 sm:mb-4">
-          <Avatar className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 mt-1">
-            <AvatarFallback className="bg-blue-500 text-white text-xs sm:text-sm font-semibold">
+        /* AIメッセージ - 左寄せグレーバブル */
+        <div className="flex gap-3 mb-4">
+          <Avatar className="w-8 h-8 flex-shrink-0">
+            <AvatarFallback className="bg-purple-500 text-white text-xs font-semibold">
               AI
             </AvatarFallback>
           </Avatar>
-          <div className="flex-1 max-w-[85%] sm:max-w-2xl">
-            <Card className="border border-gray-200 shadow-sm">
-              <CardContent className="chat-message">
-                <p className="text-sm sm:text-[15px] leading-relaxed text-gray-900 whitespace-pre-wrap m-0">
-                  {message.content}
-                </p>
-              </CardContent>
-            </Card>
-            <div className="flex gap-2 items-center mt-1 flex-wrap">
+          <div className="max-w-[80%] sm:max-w-2xl">
+            <div className="bg-gray-100 rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
+              <p className="text-[15px] leading-6 text-gray-900 whitespace-pre-wrap m-0">
+                {message.content}
+              </p>
+            </div>
+            <div className="flex gap-2 items-center mt-1 ml-2">
               <time className="text-xs text-gray-500">
                 {new Date(message.timestamp).toLocaleTimeString('ja-JP', {
                   hour: '2-digit',

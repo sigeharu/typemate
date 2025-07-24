@@ -50,6 +50,7 @@ class TypeMateStorage {
 
   // チャットセッション管理
   saveChatSession(session: ChatSession): void {
+    if (typeof window === 'undefined') return;
     try {
       const sessions = this.getAllChatSessions();
       const existingIndex = sessions.findIndex(s => s.id === session.id);
@@ -67,6 +68,7 @@ class TypeMateStorage {
   }
 
   getAllChatSessions(): ChatSession[] {
+    if (typeof window === 'undefined') return [];
     try {
       const stored = localStorage.getItem('typemate_chat_sessions');
       if (!stored) return [];
@@ -106,6 +108,7 @@ class TypeMateStorage {
   }
 
   deleteChatSession(sessionId: string): void {
+    if (typeof window === 'undefined') return;
     try {
       const sessions = this.getAllChatSessions();
       const filtered = sessions.filter(s => s.id !== sessionId);
@@ -117,6 +120,7 @@ class TypeMateStorage {
 
   // ユーザープロファイル管理
   saveUserProfile(profile: UserProfile): void {
+    if (typeof window === 'undefined') return;
     try {
       const updatedProfile = { ...profile, updatedAt: new Date() };
       localStorage.setItem('typemate_user_profile', JSON.stringify(updatedProfile));
@@ -126,6 +130,7 @@ class TypeMateStorage {
   }
 
   getUserProfile(): UserProfile | null {
+    if (typeof window === 'undefined') return null;
     try {
       const stored = localStorage.getItem('typemate_user_profile');
       if (!stored) return null;
@@ -144,15 +149,18 @@ class TypeMateStorage {
 
   // 診断結果管理（既存との互換性）
   saveUserType(type: Type64): void {
+    if (typeof window === 'undefined') return;
     localStorage.setItem('userType64', type);
   }
 
   getUserType(): Type64 | null {
+    if (typeof window === 'undefined') return null;
     return localStorage.getItem('userType64') as Type64 || null;
   }
 
   // データのクリア
   clearAllData(): void {
+    if (typeof window === 'undefined') return;
     try {
       localStorage.removeItem('typemate_chat_sessions');
       localStorage.removeItem('typemate_user_profile');

@@ -138,6 +138,43 @@ export interface Database {
           created_at?: string
         }
       }
+      
+      // 🎵 Phase 1: 基本記憶テーブル
+      typemate_memory: {
+        Row: {
+          id: string
+          user_id: string | null
+          archetype: string
+          relationship_level: number
+          user_name: string | null
+          message_content: string | null
+          message_role: 'user' | 'ai' | null
+          conversation_id: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string | null
+          archetype: string
+          relationship_level?: number
+          user_name?: string | null
+          message_content?: string | null
+          message_role?: 'user' | 'ai' | null
+          conversation_id?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string | null
+          archetype?: string
+          relationship_level?: number
+          user_name?: string | null
+          message_content?: string | null
+          message_role?: 'user' | 'ai' | null
+          conversation_id?: string | null
+          created_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never

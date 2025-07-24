@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Heart, Music, Sparkles, Users, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AuthModal } from '@/components/auth/AuthModal';
-import { LoginButton, UserInfo } from '@/components/auth/LoginButton';
+import { SupabaseLoginButton, SupabaseUserInfo } from '@/components/auth/SupabaseLoginButton';
 import { PageLayout } from '@/components/layout';
 
 export default function Home() {
@@ -105,13 +105,13 @@ export default function Home() {
                 <div className="h-px bg-gray-300 flex-1"></div>
               </div>
               
-              <LoginButton 
+              <SupabaseLoginButton 
                 variant="outline"
                 size="lg"
                 className="w-full max-w-sm"
               />
               
-              <UserInfo />
+              <SupabaseUserInfo />
             </div>
             <p className="text-sm text-blue-600 mt-4">
               🎵 今すぐ無料で始める

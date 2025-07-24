@@ -5,8 +5,7 @@ import type { Type64, BaseArchetype } from '@/types';
 
 // 開発者モード判定
 export const isDevelopmentMode = (): boolean => {
-  return process.env.NODE_ENV === 'development' || 
-         process.env.NEXT_PUBLIC_DEV_MODE === 'true';
+  return process.env.NEXT_PUBLIC_DEV_MODE === 'true';
 };
 
 // テストプロファイル定義

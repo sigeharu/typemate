@@ -2,7 +2,7 @@
 // Google OAuth認証専用ページ
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { LoginButton } from '@/components/auth/LoginButton'
+import { SupabaseLoginButton } from '@/components/auth/SupabaseLoginButton'
 
 export default function SignInPage() {
   return (
@@ -22,7 +22,7 @@ export default function SignInPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <LoginButton 
+          <SupabaseLoginButton 
             variant="default"
             size="lg"
             className="w-full"

@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&family=Comfortaa:wght@300;400;500;600;700&display=swap');
 
 /* 🎵 TypeMateスタイルシステム統合 */
@@ -144,33 +146,54 @@ body {
 /* モバイル対応 - typemate-core.cssで定義済み */
 
 /* 🎵 TypeMate モバイルUX最適化コンポーネント */
-@layer components {
-  /* スマホ対応ボタン - 44px×44px タッチターゲット */
-  .touch-button {
-    @apply min-h-11 min-w-11 p-3;
-    @apply flex items-center justify-center;
-    @apply hover:bg-gray-100 active:scale-95;
-    @apply transition-all duration-200;
-  }
-  
-  /* チャット履歴改善 - 読みやすい余白とレイアウト */
-  .chat-message {
-    @apply p-4 leading-relaxed;
-    @apply rounded-lg mb-3;
-    @apply max-w-[85%] break-words;
-  }
-  
-  /* 質問欄レスポンシブ - 画面幅にフィット */
-  .input-container {
-    @apply w-full max-w-full px-4;
-    @apply flex gap-2 items-end;
-  }
-  
-  /* メッセージ入力 - 視認性とタッチ操作性向上 */
-  .message-input {
-    @apply flex-1 min-w-0;
-    @apply px-3 py-2 text-base;
-    @apply border rounded-lg;
-    @apply resize-none overflow-y-auto;
-  }
+
+/* スマホ対応ボタン - 44px×44px タッチターゲット */
+.touch-button {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.touch-button:hover {
+  background-color: rgb(243 244 246);
+}
+
+.touch-button:active {
+  transform: scale(0.95);
+}
+
+/* チャット履歴改善 - 読みやすい余白とレイアウト */
+.chat-message {
+  padding: 16px;
+  line-height: 1.625;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  max-width: 85%;
+  word-wrap: break-word;
+}
+
+/* 質問欄レスポンシブ - 画面幅にフィット */
+.input-container {
+  width: 100%;
+  max-width: 100%;
+  padding: 0 16px;
+  display: flex;
+  gap: 8px;
+  align-items: end;
+}
+
+/* メッセージ入力 - 視認性とタッチ操作性向上 */
+.message-input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 12px;
+  font-size: 16px;
+  border: 1px solid rgb(209 213 219);
+  border-radius: 8px;
+  resize: none;
+  overflow-y: auto;
 }

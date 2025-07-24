@@ -1,15 +1,16 @@
-// 🎵 TypeMate Login Button Component
-// shadcn/ui統一デザインのGoogle OAuth認証ボタン
+// 🎵 TypeMate Supabase Login Button Component
+// shadcn/ui統一デザインのGoogle OAuth認証ボタン（Supabase版）
 
 'use client'
 
-import { signIn, signOut, useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { LogIn, LogOut, User } from 'lucide-react'
+import { useAuth } from '@/components/providers/AuthProvider'
+import { supabase } from '@/lib/supabase-simple'
 
-interface LoginButtonProps {
+interface SupabaseLoginButtonProps {
   /** ボタンのバリエーション */
   variant?: 'default' | 'outline' | 'secondary' | 'ghost'
   /** サイズ */
@@ -20,24 +21,43 @@ interface LoginButtonProps {
   className?: string
 }
 
-export const LoginButton = ({ 
+export const SupabaseLoginButton = ({ 
   variant = 'default',
   size = 'default',
   showCard = false,
   className
-}: LoginButtonProps) => {
-  const { data: session, status } = useSession()
+}: SupabaseLoginButtonProps) => {
+  const { user, loading, signOut } = useAuth()
 
-  const handleSignIn = () => {
-    signIn('google', { callbackUrl: '/diagnosis' })
+  const handleSignIn = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/diagnosis`
+        }
+      })
+      
+      if (error) {
+        console.error('Sign in error:', error)
+      }
+    } catch (error) {
+      console.error('Sign in exception:', error)
+    }
   }
 
-  const handleSignOut = () => {
-    signOut({ callbackUrl: '/' })
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+      // Redirect to home page after sign out
+      window.location.href = '/'
+    } catch (error) {
+      console.error('Sign out error:', error)
+    }
   }
 
   // ローディング状態
-  if (status === 'loading') {
+  if (loading) {
     return (
       <Button variant={variant} size={size} disabled className={className}>
         <div className="w-4 h-4 animate-spin rounded-full border-2 border-current border-t-transparent mr-2" />
@@ -47,7 +67,7 @@ export const LoginButton = ({
   }
 
   // ログイン済み状態
-  if (session?.user) {
+  if (user) {
     if (showCard) {
       return (
         <Card className={className}>
@@ -56,8 +76,8 @@ export const LoginButton = ({
               <div className="flex items-center gap-3">
                 <Avatar className="w-10 h-10">
                   <AvatarImage 
-                    src={session.user.image || undefined} 
-                    alt={session.user.name || 'ユーザー'} 
+                    src={user.user_metadata?.avatar_url || undefined} 
+                    alt={user.user_metadata?.full_name || 'ユーザー'} 
                   />
                   <AvatarFallback>
                     <User size={18} />
@@ -65,10 +85,10 @@ export const LoginButton = ({
                 </Avatar>
                 <div>
                   <p className="font-semibold text-sm">
-                    {session.user.name || 'ユーザー'}
+                    {user.user_metadata?.full_name || 'ユーザー'}
                   </p>
                   <p className="text-xs text-gray-500">
-                    {session.user.email}
+                    {user.email}
                   </p>
                 </div>
               </div>
@@ -115,10 +135,10 @@ export const LoginButton = ({
 }
 
 // シンプル版のログイン状態表示
-export const UserInfo = () => {
-  const { data: session } = useSession()
+export const SupabaseUserInfo = () => {
+  const { user } = useAuth()
 
-  if (!session?.user) {
+  if (!user) {
     return null
   }
 
@@ -126,15 +146,15 @@ export const UserInfo = () => {
     <div className="flex items-center gap-2">
       <Avatar className="w-8 h-8">
         <AvatarImage 
-          src={session.user.image || undefined} 
-          alt={session.user.name || 'ユーザー'} 
+          src={user.user_metadata?.avatar_url || undefined} 
+          alt={user.user_metadata?.full_name || 'ユーザー'} 
         />
         <AvatarFallback className="text-xs">
           <User size={14} />
         </AvatarFallback>
       </Avatar>
       <span className="text-sm font-medium">
-        {session.user.name || 'ユーザー'}
+        {user.user_metadata?.full_name || 'ユーザー'}
       </span>
     </div>
   )

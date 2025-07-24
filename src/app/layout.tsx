@@ -3,7 +3,6 @@ import { Inter, Comfortaa, Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 import { AppRouter } from "@/components/layout/AppRouter";
 import { AuthProvider } from '@/components/providers/AuthProvider';
-import { NextAuthProvider } from '@/components/providers/NextAuthProvider';
 
 // 🎵 音楽的フォント設定
 const inter = Inter({
@@ -53,13 +52,11 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${comfortaa.variable} ${notoSansJP.variable} antialiased`}
       >
-        <NextAuthProvider>
-          <AuthProvider>
-            <AppRouter>
-              {children}
-            </AppRouter>
-          </AuthProvider>
-        </NextAuthProvider>
+        <AuthProvider>
+          <AppRouter>
+            {children}
+          </AppRouter>
+        </AuthProvider>
       </body>
     </html>
   );

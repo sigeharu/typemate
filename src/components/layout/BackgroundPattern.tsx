@@ -4,6 +4,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
 interface BackgroundPatternProps {
@@ -81,11 +82,55 @@ export const BackgroundPattern = ({
   elementCount = 'normal',
   className
 }: BackgroundPatternProps) => {
+  const [mounted, setMounted] = useState(false);
+  const [randomValues, setRandomValues] = useState<{ shapes: Array<{ size: number; x: number; y: number; duration: number; movementX: number; movementY: number; delay: number; }>; decorations: Array<{ x: number; y: number; duration: number; delay: number; }>[]; }>({ shapes: [], decorations: [] });
+
   const config = patternConfigs[variant];
   const intensityConfig = intensityMultipliers[intensity];
   const countMultiplier = elementCountMultipliers[elementCount];
-
   const shapeCount = Math.round(config.shapes.count * countMultiplier);
+
+  useEffect(() => {
+    setMounted(true);
+    
+    // Generate all random values once on client side
+    const shapes = Array.from({ length: shapeCount }, () => {
+      const size = Math.random() * (config.shapes.size.max - config.shapes.size.min) + config.shapes.size.min;
+      const duration = (Math.random() * 15 + 20) * intensityConfig.duration;
+      const movementRange = 80 * intensityConfig.movement;
+      
+      return {
+        size,
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        duration,
+        movementX: Math.random() * movementRange - movementRange/2,
+        movementY: Math.random() * movementRange - movementRange/2,
+        delay: Math.random() * 10
+      };
+    });
+    
+    const decorations = config.decorations.map(decoration => {
+      const decorationCount = Math.round(decoration.count * countMultiplier);
+      return Array.from({ length: decorationCount }, () => ({
+        x: Math.random() * 90 + 5,
+        y: Math.random() * 90 + 5,
+        duration: (Math.random() * 10 + 15) * intensityConfig.duration,
+        delay: Math.random() * 5
+      }));
+    });
+    
+    setRandomValues({ shapes, decorations });
+  }, [variant, intensity, elementCount, shapeCount, config.shapes.size.max, config.shapes.size.min, intensityConfig.duration, intensityConfig.movement, config.decorations, countMultiplier]);
+
+  if (!mounted) {
+    return (
+      <div className={cn(
+        "fixed inset-0 -z-10 overflow-hidden pointer-events-none",
+        className
+      )} />
+    );
+  }
 
   return (
     <div className={cn(
@@ -93,77 +138,66 @@ export const BackgroundPattern = ({
       className
     )}>
       {/* Floating Shapes */}
-      {[...Array(shapeCount)].map((_, i) => {
-        const size = Math.random() * (config.shapes.size.max - config.shapes.size.min) + config.shapes.size.min;
-        const duration = (Math.random() * 15 + 20) * intensityConfig.duration;
-        const movementRange = 80 * intensityConfig.movement;
-        
-        return (
-          <motion.div
-            key={`shape-${i}`}
-            className={cn(
-              "absolute rounded-full bg-gradient-to-r",
-              config.shapes.colors
-            )}
-            style={{
-              width: size,
-              height: size,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              opacity: 0.3 * intensityConfig.opacity
-            }}
-            animate={{
-              x: [0, Math.random() * movementRange - movementRange/2],
-              y: [0, Math.random() * movementRange - movementRange/2],
-              rotate: [0, 360],
-              scale: [0.9, 1.1, 0.9]
-            }}
-            transition={{
-              duration,
-              repeat: Infinity,
-              ease: "linear",
-              delay: Math.random() * 10
-            }}
-          />
-        );
-      })}
+      {randomValues.shapes.map((shape, i) => (
+        <motion.div
+          key={`shape-${i}`}
+          className={cn(
+            "absolute rounded-full bg-gradient-to-r",
+            config.shapes.colors
+          )}
+          style={{
+            width: shape.size,
+            height: shape.size,
+            left: `${shape.x}%`,
+            top: `${shape.y}%`,
+            opacity: 0.3 * intensityConfig.opacity
+          }}
+          animate={{
+            x: [0, shape.movementX],
+            y: [0, shape.movementY],
+            rotate: [0, 360],
+            scale: [0.9, 1.1, 0.9]
+          }}
+          transition={{
+            duration: shape.duration,
+            repeat: Infinity,
+            ease: "linear",
+            delay: shape.delay
+          }}
+        />
+      ))}
 
       {/* Decorative Emojis */}
       {config.decorations.map((decoration, decorationIndex) => {
-        const decorationCount = Math.round(decoration.count * countMultiplier);
+        const rotationRange = 20 * intensityConfig.movement;
         
-        return [...Array(decorationCount)].map((_, i) => {
-          const duration = (Math.random() * 10 + 15) * intensityConfig.duration;
-          const rotationRange = 20 * intensityConfig.movement;
-          
-          return (
-            <motion.div
-              key={`decoration-${decorationIndex}-${i}`}
-              className={cn(
-                "absolute text-6xl select-none",
-                decoration.color
-              )}
-              style={{
-                left: `${Math.random() * 90 + 5}%`,
-                top: `${Math.random() * 90 + 5}%`,
-                opacity: 0.4 * intensityConfig.opacity
-              }}
-              animate={{
-                rotate: [0, rotationRange, 0, -rotationRange, 0],
-                scale: [0.8, 1.2, 0.8],
-                opacity: [0.2, 0.6, 0.2]
-              }}
-              transition={{
-                duration,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: Math.random() * 5
-              }}
-            >
-              {decoration.emoji}
-            </motion.div>
-          );
-        });
+        return randomValues.decorations[decorationIndex]?.map((decorationData, i) => (
+          <motion.div
+            key={`decoration-${decorationIndex}-${i}`}
+            className={cn(
+              "absolute text-6xl select-none",
+              decoration.color
+            )}
+            style={{
+              left: `${decorationData.x}%`,
+              top: `${decorationData.y}%`,
+              opacity: 0.4 * intensityConfig.opacity
+            }}
+            animate={{
+              rotate: [0, rotationRange, 0, -rotationRange, 0],
+              scale: [0.8, 1.2, 0.8],
+              opacity: [0.2, 0.6, 0.2]
+            }}
+            transition={{
+              duration: decorationData.duration,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: decorationData.delay
+            }}
+          >
+            {decoration.emoji}
+          </motion.div>
+        )) || [];
       })}
 
       {/* Subtle Gradient Overlay for depth */}
