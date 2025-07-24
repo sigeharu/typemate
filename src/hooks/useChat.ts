@@ -187,6 +187,32 @@ export function useChat({
     };
 
     setMessages(prev => [...prev, userMessage]);
+    
+    // 🎵 ユーザーメッセージをメモリAPIに保存
+    const saveUserMessage = async () => {
+      try {
+        await fetch('/api/memory', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messageContent: content,
+            messageRole: 'user',
+            archetype: userType,
+            conversationId: currentSessionId,
+            userId: 'guest', // ゲストユーザー対応
+            relationshipLevel: relationship.currentLevel.level
+          })
+        });
+        console.log('✨ ユーザーメッセージ記憶保存完了！');
+      } catch (error) {
+        console.error('User message memory save failed:', error);
+        // エラーでもチャット続行（重要！）
+      }
+    };
+
+    // 非同期で実行（チャットをブロックしない）
+    saveUserMessage();
+    
     setIsTyping(true);
     
     // Option B: 2回目のチャットで個人情報モーダル表示判定
@@ -269,6 +295,32 @@ export function useChat({
         };
         
         setMessages(prev => [...prev, aiMessage]);
+        
+        // 🎵 AI応答をメモリAPIに保存
+        const saveAIMessage = async (aiContent: string) => {
+          try {
+            await fetch('/api/memory', {
+              method: 'POST', 
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                messageContent: aiContent,
+                messageRole: 'ai',
+                archetype: aiPersonality,
+                conversationId: currentSessionId,
+                userId: 'guest',
+                relationshipLevel: relationship.currentLevel.level
+              })
+            });
+            console.log('✨ AI応答記憶保存完了！');
+          } catch (error) {
+            console.error('AI message memory save failed:', error);
+            // エラーでもチャット続行（重要！）
+          }
+        };
+
+        // 非同期で実行
+        saveAIMessage(aiResponse.content);
+        
         setCurrentEmotion(aiResponse.emotion);
         setIsTyping(false);
         
