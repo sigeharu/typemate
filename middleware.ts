@@ -18,7 +18,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 認証不要のパブリックページ
+  // 認証不要のパブリックページ（ランディングページと認証関連のみ）
   const publicPages = [
     '/',
     '/auth/signin',
@@ -26,6 +26,14 @@ export async function middleware(request: NextRequest) {
     '/auth/error',
     '/terms',
     '/privacy'
+  ];
+
+  // 認証必須ページ（診断・チャット・プロフィールなど全機能）
+  const authRequiredPages = [
+    '/diagnosis',
+    '/chat',
+    '/profile',
+    '/debug'
   ];
 
   if (publicPages.includes(pathname)) {
@@ -89,7 +97,9 @@ export async function middleware(request: NextRequest) {
 
   // 認証が必要だが未認証の場合、サインインページにリダイレクト
   if (!user && !publicPages.includes(pathname)) {
-    return NextResponse.redirect(new URL('/auth/signin', request.url));
+    const redirectUrl = new URL('/auth/signin', request.url);
+    redirectUrl.searchParams.set('redirect', pathname);
+    return NextResponse.redirect(redirectUrl);
   }
 
   return response;

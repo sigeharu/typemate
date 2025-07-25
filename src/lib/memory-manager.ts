@@ -47,11 +47,16 @@ export class MemoryManager {
     return MemoryManager.instance;
   }
 
-  // Phase 1: 基本記憶保存
-  async saveMemory(memory: Omit<MemoryInsert, 'id' | 'created_at'>, userId?: string): Promise<BasicMemory | null> {
+  // Phase 1: 基本記憶保存（認証ユーザー必須）
+  async saveMemory(memory: Omit<MemoryInsert, 'id' | 'created_at'>, userId: string): Promise<BasicMemory | null> {
+    if (!userId) {
+      console.error('❌ Memory save failed: userId is required for authenticated users');
+      return null;
+    }
+
     try {
       console.log('🎵 Attempting to save memory:', {
-        userId: userId || 'guest',
+        userId,
         archetype: memory.archetype,
         role: memory.message_role,
         hasContent: !!memory.message_content,
@@ -62,7 +67,7 @@ export class MemoryManager {
         .from('typemate_memory')
         .insert({
           ...memory,
-          user_id: userId || null
+          user_id: userId
         })
         .select()
         .single();
@@ -73,15 +78,8 @@ export class MemoryManager {
           message: error.message,
           details: error.details,
           hint: error.hint,
-          userId: userId || 'guest'
+          userId
         });
-        
-        // RLSエラーの詳細ログ
-        if (error.code === '42501') {
-          console.error('🔒 RLS Policy violation - user_id:', userId || 'null', 
-            '- This likely means guest users are blocked by RLS policies');
-        }
-        
         return null;
       }
 
@@ -93,23 +91,22 @@ export class MemoryManager {
     }
   }
 
-  // Phase 1: 短期記憶取得（直近10件）
-  async getShortTermMemory(userId?: string, conversationId?: string): Promise<ShortTermMemory> {
+  // Phase 1: 短期記憶取得（認証ユーザー必須）
+  async getShortTermMemory(userId: string, conversationId?: string): Promise<ShortTermMemory> {
+    if (!userId) {
+      console.error('❌ Memory fetch failed: userId is required for authenticated users');
+      return { memories: [], totalCount: 0, lastUpdated: new Date().toISOString() };
+    }
+
     try {
-      console.log('🎵 Loading short-term memory:', { userId: userId || 'guest', conversationId });
+      console.log('🎵 Loading short-term memory:', { userId, conversationId });
       
       let query = supabase
         .from('typemate_memory')
         .select('*')
+        .eq('user_id', userId)
         .order('created_at', { ascending: false })
         .limit(10);
-
-      // ゲストユーザーとログインユーザーで条件分岐
-      if (userId) {
-        query = query.eq('user_id', userId);
-      } else {
-        query = query.is('user_id', null);
-      }
 
       if (conversationId) {
         query = query.eq('conversation_id', conversationId);
@@ -136,13 +133,23 @@ export class MemoryManager {
     }
   }
 
-  // Phase 1: 段階的情報収集状態チェック
-  async getMemoryProgress(userId?: string): Promise<MemoryProgressState> {
+  // Phase 1: 段階的情報収集状態チェック（認証ユーザー必須）
+  async getMemoryProgress(userId: string): Promise<MemoryProgressState> {
+    if (!userId) {
+      console.error('❌ Memory progress fetch failed: userId is required');
+      return {
+        hasUserName: false,
+        relationshipLevel: 1,
+        conversationCount: 0,
+        lastInteraction: new Date().toISOString()
+      };
+    }
+
     try {
       const { data, error } = await supabase
         .from('typemate_memory')
         .select('user_name, relationship_level, created_at')
-        .eq('user_id', userId || 'anonymous')
+        .eq('user_id', userId)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -177,23 +184,20 @@ export class MemoryManager {
     }
   }
 
-  // Phase 1: ユーザー名更新
+  // Phase 1: ユーザー名更新（認証ユーザー必須）
   async updateUserName(userId: string, userName: string): Promise<boolean> {
-    try {
-      console.log('🎵 Updating user name:', { userId: userId || 'guest', userName });
-      
-      let query = supabase
-        .from('typemate_memory')
-        .update({ user_name: userName });
-      
-      // ゲストユーザーの場合はuser_idがnullのレコードを更新
-      if (!userId) {
-        query = query.is('user_id', null);
-      } else {
-        query = query.eq('user_id', userId);
-      }
+    if (!userId) {
+      console.error('❌ User name update failed: userId is required');
+      return false;
+    }
 
-      const { error } = await query;
+    try {
+      console.log('🎵 Updating user name:', { userId, userName });
+      
+      const { error } = await supabase
+        .from('typemate_memory')
+        .update({ user_name: userName })
+        .eq('user_id', userId);
 
       if (error) {
         console.error('❌ User name update error:', error);
@@ -208,23 +212,20 @@ export class MemoryManager {
     }
   }
 
-  // Phase 1: 関係性レベル更新
+  // Phase 1: 関係性レベル更新（認証ユーザー必須）
   async updateRelationshipLevel(userId: string, level: number): Promise<boolean> {
-    try {
-      console.log('🎵 Updating relationship level:', { userId: userId || 'guest', level });
-      
-      let query = supabase
-        .from('typemate_memory')
-        .update({ relationship_level: level });
-      
-      // ゲストユーザーの場合はuser_idがnullのレコードを更新
-      if (!userId) {
-        query = query.is('user_id', null);
-      } else {
-        query = query.eq('user_id', userId);
-      }
+    if (!userId) {
+      console.error('❌ Relationship level update failed: userId is required');
+      return false;
+    }
 
-      const { error } = await query;
+    try {
+      console.log('🎵 Updating relationship level:', { userId, level });
+      
+      const { error } = await supabase
+        .from('typemate_memory')
+        .update({ relationship_level: level })
+        .eq('user_id', userId);
 
       if (error) {
         console.error('❌ Relationship level update error:', error);
@@ -239,13 +240,13 @@ export class MemoryManager {
     }
   }
 
-  // Phase 1: 会話記憶保存（チャット統合用）
+  // Phase 1: 会話記憶保存（チャット統合用・認証ユーザー必須）
   async saveConversationMemory(
     messageContent: string,
     messageRole: 'user' | 'ai',
     archetype: string,
     conversationId: string,
-    userId?: string,
+    userId: string,
     userName?: string
   ): Promise<BasicMemory | null> {
     return this.saveMemory({

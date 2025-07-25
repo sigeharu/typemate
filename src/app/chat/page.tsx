@@ -23,6 +23,7 @@ import { loadRelationshipData } from '@/lib/relationship-storage';
 // import { memoryStorage } from '@/lib/memory-system';
 import { isDevelopmentMode, getCurrentTestProfile, resetTestMode, emergencyCleanup } from '@/lib/dev-mode';
 import { useMemorySaver } from '@/hooks/useMemoryManager';
+import { supabase } from '@/lib/supabase-simple';
 import type { Message, BaseArchetype, PersonalInfo, MemorySystem, RelationshipData, TestProfile } from '@/types';
 import { ARCHETYPE_DATA } from '@/lib/diagnostic-data';
 
@@ -34,6 +35,9 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Authentication state
+  const [userId, setUserId] = useState<string>('');
   
   // User & AI state
   const [userType, setUserType] = useState<string>('');
@@ -59,17 +63,28 @@ export default function ChatPage() {
   // Development mode
   const [testProfile, setTestProfile] = useState<TestProfile | null>(null);
   
-  // 🎵 Phase 1: 記憶システム統合（既存機能保護）
+  // 🎵 Phase 1: 記憶システム統合（認証ユーザー必須）
   const { saveMessage } = useMemorySaver(
     currentSessionId, 
     aiPersonality?.archetype || 'DRM',
-    undefined // Phase 1では匿名ユーザー対応
+    userId // 認証ユーザー必須
   );
 
   // Initialize
   useEffect(() => {
     const initializeChat = async () => {
       try {
+        // 🔐 認証チェック（必須）
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          console.log('❌ 未認証ユーザー - ログインページへリダイレクト');
+          router.push('/auth/signin?redirect=/chat');
+          return;
+        }
+        
+        console.log('✅ 認証済みユーザー:', user.id);
+        setUserId(user.id);
+
         // Get user type and AI personality
         const savedType = localStorage.getItem('userType64');
         if (!savedType) {

@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { memoryManager, type BasicMemory, type ShortTermMemory, type MemoryProgressState } from '@/lib/memory-manager';
 
 interface UseMemoryManagerOptions {
-  userId?: string;
+  userId: string; // 認証ユーザー必須
   conversationId?: string;
   archetype: string;
   autoLoad?: boolean;
@@ -104,8 +104,6 @@ export function useMemoryManager({
 
   // Phase 1: ユーザー名更新
   const updateUserName = useCallback(async (name: string): Promise<boolean> => {
-    if (!userId) return false;
-    
     try {
       const success = await memoryManager.updateUserName(userId, name);
       if (success) {
@@ -122,8 +120,6 @@ export function useMemoryManager({
 
   // Phase 1: 関係性レベル更新
   const updateRelationshipLevel = useCallback(async (level: number): Promise<boolean> => {
-    if (!userId) return false;
-    
     try {
       const success = await memoryManager.updateRelationshipLevel(userId, level);
       if (success) {
@@ -168,13 +164,18 @@ export function useMemoryManager({
   };
 }
 
-// Phase 1: 軽量版フック（メッセージ保存のみ）
-export function useMemorySaver(conversationId: string, archetype: string, userId?: string) {
+// Phase 1: 軽量版フック（メッセージ保存のみ・認証ユーザー必須）
+export function useMemorySaver(conversationId: string, archetype: string, userId: string) {
   const saveMessage = useCallback(async (
     content: string, 
     role: 'user' | 'ai', 
     userName?: string
   ): Promise<boolean> => {
+    if (!userId) {
+      console.error('❌ Memory save failed: userId is required for authenticated users');
+      return false;
+    }
+
     try {
       const memory = await memoryManager.saveConversationMemory(
         content,
