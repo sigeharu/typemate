@@ -249,18 +249,35 @@ export default function ChatPage() {
         }
 
         // 感情データ付きでメッセージ保存
+        console.log('💾 Saving user message with emotion data:', {
+          content: content.substring(0, 50) + '...',
+          emotion: emotionAnalysis.emotion,
+          intensity: emotionAnalysis.intensity,
+          userId
+        });
+        
         saveMessage(content, 'user', personalInfo.name, {
           emotion: emotionAnalysis.emotion,
           intensity: emotionAnalysis.intensity,
           isSpecialMoment: emotionAnalysis.isSpecialMoment,
           category: emotionAnalysis.category,
           keywords: emotionAnalysis.keywords
+        }).then(success => {
+          console.log(success ? '✅ User message saved successfully' : '❌ User message save failed');
         }).catch(error => 
-          console.warn('User message save failed:', error)
+          console.warn('❌ User message save failed:', error)
         );
         
-        saveMessage(aiResponse, 'ai', undefined, emotionAnalysis).catch(error => 
-          console.warn('AI message save failed:', error)
+        console.log('💾 Saving AI response with emotion data:', {
+          response: aiResponse.substring(0, 50) + '...',
+          emotion: emotionAnalysis.emotion,
+          userId
+        });
+        
+        saveMessage(aiResponse, 'ai', undefined, emotionAnalysis).then(success => {
+          console.log(success ? '✅ AI message saved successfully' : '❌ AI message save failed');
+        }).catch(error => 
+          console.warn('❌ AI message save failed:', error)
         );
       } else {
         // フォールバック: 感情データなしで保存

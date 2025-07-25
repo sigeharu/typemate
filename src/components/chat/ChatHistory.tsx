@@ -161,7 +161,7 @@ export function ChatHistory({
                   </div>
                 ) : (
                   filteredSessions.map((session) => {
-                    const aiArchetype = ARCHETYPE_DATA[session.aiPersonality];
+                    const aiArchetype = ARCHETYPE_DATA[session.aiPersonality] || ARCHETYPE_DATA['DRM']; // フォールバック
                     const isActive = session.id === currentSessionId;
                     
                     return (
@@ -185,7 +185,7 @@ export function ChatHistory({
                                   AI
                                 </div>
                                 <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-700">
-                                  {aiArchetype.name}
+                                  {aiArchetype?.name || 'AI'}
                                 </Badge>
                               </div>
                               
