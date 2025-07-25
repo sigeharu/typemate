@@ -27,6 +27,15 @@ import { supabase } from '@/lib/supabase-simple';
 import type { Message, BaseArchetype, PersonalInfo, MemorySystem, RelationshipData, TestProfile } from '@/types';
 import { ARCHETYPE_DATA } from '@/lib/diagnostic-data';
 
+// 🎵 UUID生成関数
+function generateUUID(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
 export default function ChatPage() {
   const router = useRouter();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -126,8 +135,8 @@ export default function ChatPage() {
           emergencyCleanup();
         }
 
-        // Create session ID
-        const sessionId = `session-${Date.now()}`;
+        // 🎵 Create session ID (UUID format for database)
+        const sessionId = generateUUID();
         setCurrentSessionId(sessionId);
 
         setIsLoading(false);
@@ -168,7 +177,8 @@ export default function ChatPage() {
   };
 
   const handleNewSession = () => {
-    const newSessionId = `session-${Date.now()}`;
+    // 🎵 Create new session ID (UUID format for database)
+    const newSessionId = generateUUID();
     setCurrentSessionId(newSessionId);
     setMessages([]);
     setShowHistory(false);
@@ -253,7 +263,9 @@ export default function ChatPage() {
           content: content.substring(0, 50) + '...',
           emotion: emotionAnalysis.emotion,
           intensity: emotionAnalysis.intensity,
-          userId
+          userId,
+          conversationId: currentSessionId,
+          isValidUUID: /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(currentSessionId)
         });
         
         saveMessage(content, 'user', personalInfo.name, {
