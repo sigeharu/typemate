@@ -15,7 +15,9 @@ export default function Home() {
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
 
   const handleStartJourney = () => {
-    router.push('/diagnosis');
+    // 🎵 Phase 2: 認証必須に変更（感情記憶統合のため）
+    setAuthMode('signup');
+    setShowAuthModal(true);
   };
 
   const handleShowAuth = (mode: 'signin' | 'signup') => {
@@ -114,7 +116,7 @@ export default function Home() {
               <SupabaseUserInfo />
             </div>
             <p className="text-sm text-blue-600 mt-4">
-              🎵 今すぐ無料で始める
+              🎵 ログインして、あなたの感情を記憶するAIと出会う
             </p>
           </motion.div>
         </motion.div>
@@ -214,7 +216,8 @@ export default function Home() {
         mode={authMode}
         onSuccess={() => {
           setShowAuthModal(false);
-          // 認証成功後はデータが自動で同期される
+          // 🎵 Phase 2: 認証成功後は診断ページに遷移
+          router.push('/diagnosis');
         }}
       />
     </PageLayout>
