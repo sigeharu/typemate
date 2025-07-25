@@ -145,23 +145,6 @@ export const emergencyCleanup = (): void => {
   });
 };
 
-// 緊急リセット関数（本番環境でテストモードが残った場合用）
-export const emergencyCleanup = (): void => {
-  if (typeof window === 'undefined') return;
-  
-  // テストモード関連のすべてのキーを削除
-  const testModeKeys = [
-    'test_ai_personality',
-    'test_profile_name',
-    'test_mode_active'
-  ];
-  
-  testModeKeys.forEach(key => {
-    localStorage.removeItem(key);
-  });
-  
-  console.log('🧽 テストモードのlocalStorageを完全にクリアしました');
-};
 
 // 開発用デバッグ情報
 export const getDebugInfo = () => {

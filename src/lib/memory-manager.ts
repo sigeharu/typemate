@@ -50,6 +50,14 @@ export class MemoryManager {
   // Phase 1: 基本記憶保存
   async saveMemory(memory: Omit<MemoryInsert, 'id' | 'created_at'>, userId?: string): Promise<BasicMemory | null> {
     try {
+      console.log('🎵 Attempting to save memory:', {
+        userId: userId || 'guest',
+        archetype: memory.archetype,
+        role: memory.message_role,
+        hasContent: !!memory.message_content,
+        conversationId: memory.conversation_id
+      });
+
       const { data, error } = await supabase
         .from('typemate_memory')
         .insert({
@@ -60,13 +68,27 @@ export class MemoryManager {
         .single();
 
       if (error) {
-        console.error('Memory save error:', error);
+        console.error('❌ Memory save error:', {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          userId: userId || 'guest'
+        });
+        
+        // RLSエラーの詳細ログ
+        if (error.code === '42501') {
+          console.error('🔒 RLS Policy violation - user_id:', userId || 'null', 
+            '- This likely means guest users are blocked by RLS policies');
+        }
+        
         return null;
       }
 
+      console.log('✅ Memory saved successfully:', data.id);
       return this.transformRowToMemory(data);
     } catch (error) {
-      console.error('Memory save exception:', error);
+      console.error('💥 Memory save exception:', error);
       return null;
     }
   }
@@ -74,14 +96,19 @@ export class MemoryManager {
   // Phase 1: 短期記憶取得（直近10件）
   async getShortTermMemory(userId?: string, conversationId?: string): Promise<ShortTermMemory> {
     try {
+      console.log('🎵 Loading short-term memory:', { userId: userId || 'guest', conversationId });
+      
       let query = supabase
         .from('typemate_memory')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(10);
 
+      // ゲストユーザーとログインユーザーで条件分岐
       if (userId) {
         query = query.eq('user_id', userId);
+      } else {
+        query = query.is('user_id', null);
       }
 
       if (conversationId) {
@@ -91,11 +118,12 @@ export class MemoryManager {
       const { data, error } = await query;
 
       if (error) {
-        console.error('Short-term memory fetch error:', error);
+        console.error('❌ Short-term memory fetch error:', error);
         return { memories: [], totalCount: 0, lastUpdated: new Date().toISOString() };
       }
 
       const memories = data?.map(row => this.transformRowToMemory(row)) || [];
+      console.log('✅ Loaded memories:', memories.length, 'items');
 
       return {
         memories,
@@ -152,19 +180,30 @@ export class MemoryManager {
   // Phase 1: ユーザー名更新
   async updateUserName(userId: string, userName: string): Promise<boolean> {
     try {
-      const { error } = await supabase
+      console.log('🎵 Updating user name:', { userId: userId || 'guest', userName });
+      
+      let query = supabase
         .from('typemate_memory')
-        .update({ user_name: userName })
-        .eq('user_id', userId);
+        .update({ user_name: userName });
+      
+      // ゲストユーザーの場合はuser_idがnullのレコードを更新
+      if (!userId) {
+        query = query.is('user_id', null);
+      } else {
+        query = query.eq('user_id', userId);
+      }
+
+      const { error } = await query;
 
       if (error) {
-        console.error('User name update error:', error);
+        console.error('❌ User name update error:', error);
         return false;
       }
 
+      console.log('✅ User name updated successfully');
       return true;
     } catch (error) {
-      console.error('User name update exception:', error);
+      console.error('💥 User name update exception:', error);
       return false;
     }
   }
@@ -172,19 +211,30 @@ export class MemoryManager {
   // Phase 1: 関係性レベル更新
   async updateRelationshipLevel(userId: string, level: number): Promise<boolean> {
     try {
-      const { error } = await supabase
+      console.log('🎵 Updating relationship level:', { userId: userId || 'guest', level });
+      
+      let query = supabase
         .from('typemate_memory')
-        .update({ relationship_level: level })
-        .eq('user_id', userId);
+        .update({ relationship_level: level });
+      
+      // ゲストユーザーの場合はuser_idがnullのレコードを更新
+      if (!userId) {
+        query = query.is('user_id', null);
+      } else {
+        query = query.eq('user_id', userId);
+      }
+
+      const { error } = await query;
 
       if (error) {
-        console.error('Relationship level update error:', error);
+        console.error('❌ Relationship level update error:', error);
         return false;
       }
 
+      console.log('✅ Relationship level updated successfully');
       return true;
     } catch (error) {
-      console.error('Relationship level update exception:', error);
+      console.error('💥 Relationship level update exception:', error);
       return false;
     }
   }
