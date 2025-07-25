@@ -7,7 +7,16 @@ import type { Database } from '@/types/database';
 type MemoryRow = Database['public']['Tables']['typemate_memory']['Row'];
 type MemoryInsert = Database['public']['Tables']['typemate_memory']['Insert'];
 
-// Phase 1: 基本記憶データ構造
+// 🎵 Phase 2: 感情分析データ構造
+export interface EmotionData {
+  emotion: string;
+  intensity: number; // 1-10スケール
+  isSpecialMoment: boolean; // 8点以上で特別記憶
+  category: 'positive' | 'neutral' | 'negative';
+  keywords: string[];
+}
+
+// Phase 1: 基本記憶データ構造（Phase 2: 感情データ追加）
 export interface BasicMemory {
   id: string;
   userId?: string;
@@ -18,6 +27,8 @@ export interface BasicMemory {
   messageRole?: 'user' | 'ai';
   conversationId?: string;
   createdAt: string;
+  // 🎵 Phase 2: 感情データ追加
+  emotionData?: EmotionData;
 }
 
 // Phase 1: 短期記憶コレクション（直近10件）
@@ -240,16 +251,17 @@ export class MemoryManager {
     }
   }
 
-  // Phase 1: 会話記憶保存（チャット統合用・認証ユーザー必須）
+  // 🎵 Phase 2: 感情データ付き会話記憶保存（チャット統合用・認証ユーザー必須）
   async saveConversationMemory(
     messageContent: string,
     messageRole: 'user' | 'ai',
     archetype: string,
     conversationId: string,
     userId: string,
-    userName?: string
+    userName?: string,
+    emotionData?: EmotionData
   ): Promise<BasicMemory | null> {
-    return this.saveMemory({
+    const memory = await this.saveMemory({
       archetype,
       relationship_level: 1,
       user_name: userName,
@@ -257,6 +269,18 @@ export class MemoryManager {
       message_role: messageRole,
       conversation_id: conversationId
     }, userId);
+
+    // Phase 2: 感情データを結果に追加
+    if (memory && emotionData) {
+      memory.emotionData = emotionData;
+      console.log('🎵 Emotion data attached:', {
+        emotion: emotionData.emotion,
+        intensity: emotionData.intensity,
+        isSpecial: emotionData.isSpecialMoment
+      });
+    }
+
+    return memory;
   }
 
   // Phase 1: データ変換ヘルパー

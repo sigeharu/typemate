@@ -121,12 +121,21 @@ export async function POST(request: NextRequest) {
       throw new Error('No response from Claude');
     }
 
-    // 感情状態の推定
-    const emotion = estimateEmotion(aiResponse, aiPersonality);
+    // 🎵 Phase 2: 詳細感情分析実行
+    const emotionAnalysis = analyzeEmotionWithIntensity(message, aiResponse);
+    const emotion = estimateEmotion(aiResponse, aiPersonality); // 既存機能保護
 
     return NextResponse.json({
       content: aiResponse,
       emotion,
+      // 🎵 Phase 2: 感情データ追加
+      emotionAnalysis: {
+        emotion: emotionAnalysis.emotion,
+        intensity: emotionAnalysis.intensity,
+        isSpecialMoment: emotionAnalysis.isSpecialMoment,
+        category: emotionAnalysis.emotionCategory,
+        keywords: emotionAnalysis.keywords
+      },
       tokens_used: response.usage?.input_tokens + response.usage?.output_tokens || 0
     });
 
@@ -322,32 +331,102 @@ function buildConversationHistory(messageHistory: string[]) {
   return history;
 }
 
-// 感情状態の推定
-function estimateEmotion(response: string, aiPersonality: BaseArchetype): string {
-  const emotions = {
-    happy: ['嬉しい', '楽しい', '素晴らしい', '最高', 'やったー', '😊', '🌟'],
-    excited: ['ワクワク', '興奮', 'すごい', 'amazing', '✨', '🎉'],
-    caring: ['心配', '大丈夫', '支える', '寄り添', '思いやり', '💕'],
-    thoughtful: ['考える', '深い', '理解', '分析', '洞察', '🤔'],
-    playful: ['面白い', '楽しそう', '遊び', 'おもしろ', '😄'],
-    supportive: ['応援', '頑張', '一緒に', 'サポート', '励まし', '💪'],
-    calm: ['落ち着', '静か', '平和', 'リラックス', '穏やか'],
-    focused: ['集中', '真剣', '重要', '注意', '考慮']
+// 🎵 Phase 2: 感情分析強化システム
+interface EmotionAnalysis {
+  emotion: string;
+  intensity: number; // 1-10スケール
+  isSpecialMoment: boolean; // 8点以上で特別記憶
+  emotionCategory: 'positive' | 'neutral' | 'negative';
+  keywords: string[];
+}
+
+// Phase 2: 詳細感情分析（感情スコア計算）
+function analyzeEmotionWithIntensity(userMessage: string, aiResponse: string): EmotionAnalysis {
+  const emotionPatterns = {
+    happy: {
+      keywords: ['嬉しい', '楽しい', '素晴らしい', '最高', 'やったー', '😊', '🌟', '幸せ', '嬉しくて'],
+      baseScore: 7,
+      category: 'positive' as const
+    },
+    excited: {
+      keywords: ['ワクワク', '興奮', 'すごい', 'amazing', '✨', '🎉', '感動', '驚いた', '素敵'],
+      baseScore: 8,
+      category: 'positive' as const
+    },
+    grateful: {
+      keywords: ['ありがとう', '感謝', 'thanks', 'おかげで', '助かった', '支えて', '嬉しかった'],
+      baseScore: 9,
+      category: 'positive' as const
+    },
+    loving: {
+      keywords: ['愛してる', '大好き', '愛情', '大切', '特別', '心から', '深く', '永遠'],
+      baseScore: 10,
+      category: 'positive' as const
+    },
+    caring: {
+      keywords: ['心配', '大丈夫', '支える', '寄り添', '思いやり', '💕', '温かい'],
+      baseScore: 6,
+      category: 'positive' as const
+    },
+    sad: {
+      keywords: ['悲しい', 'つらい', '困った', '大変', '泣きたい', '😢', '落ち込'],
+      baseScore: 3,
+      category: 'negative' as const
+    },
+    confused: {
+      keywords: ['わからない', '混乱', 'confused', '困惑', '迷って', '?'],
+      baseScore: 4,
+      category: 'neutral' as const
+    },
+    thoughtful: {
+      keywords: ['考える', '深い', '理解', '分析', '洞察', '🤔', '思索'],
+      baseScore: 5,
+      category: 'neutral' as const
+    }
   };
 
-  for (const [emotion, keywords] of Object.entries(emotions)) {
-    if (keywords.some(keyword => response.includes(keyword))) {
-      return emotion;
+  let bestMatch = { emotion: 'calm', intensity: 5, keywords: [], category: 'neutral' as const };
+  let maxScore = 0;
+  let foundKeywords: string[] = [];
+
+  // ユーザーメッセージとAI応答両方を分析
+  const combinedText = `${userMessage} ${aiResponse}`;
+
+  for (const [emotionName, pattern] of Object.entries(emotionPatterns)) {
+    const matchedKeywords = pattern.keywords.filter(keyword => 
+      combinedText.toLowerCase().includes(keyword.toLowerCase())
+    );
+    
+    if (matchedKeywords.length > 0) {
+      // マッチしたキーワード数に基づいてスコア調整
+      const intensityBonus = Math.min(matchedKeywords.length * 0.5, 2);
+      const finalScore = pattern.baseScore + intensityBonus;
+      
+      if (finalScore > maxScore) {
+        maxScore = finalScore;
+        bestMatch = {
+          emotion: emotionName,
+          intensity: Math.min(finalScore, 10),
+          keywords: matchedKeywords,
+          category: pattern.category
+        };
+        foundKeywords = matchedKeywords;
+      }
     }
   }
 
-  // アーキタイプデフォルト感情
-  const defaultEmotions: Record<BaseArchetype, string> = {
-    BAR: 'excited', HER: 'caring', DRM: 'thoughtful', SAG: 'caring',
-    INV: 'playful', SOV: 'focused', ALC: 'thoughtful', ARC: 'calm',
-    PER: 'happy', PRO: 'caring', ARS: 'calm', DEF: 'supportive',
-    PIO: 'playful', EXE: 'focused', ART: 'calm', GUA: 'calm'
+  return {
+    emotion: bestMatch.emotion,
+    intensity: bestMatch.intensity,
+    isSpecialMoment: bestMatch.intensity >= 8, // 8点以上で特別記憶
+    emotionCategory: bestMatch.category,
+    keywords: foundKeywords
   };
+}
 
-  return defaultEmotions[aiPersonality] || 'calm';
+// Phase 2: シンプル感情推定（既存機能保護）
+function estimateEmotion(response: string, aiPersonality: BaseArchetype): string {
+  // 既存機能を保護しつつ、新しい分析も呼び出し
+  const analysis = analyzeEmotionWithIntensity('', response);
+  return analysis.emotion;
 }

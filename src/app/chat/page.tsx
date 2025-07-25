@@ -222,6 +222,9 @@ export default function ChatPage() {
       const data = await response.json();
       const aiResponse = data.content || 'すみません、少し考えがまとまりません。もう一度お話しいただけますか？';
       
+      // 🎵 Phase 2: 感情分析結果取得
+      const emotionAnalysis = data.emotionAnalysis;
+      
       const aiMessage: Message = {
         id: `ai-${Date.now()}`,
         content: aiResponse,
@@ -234,13 +237,40 @@ export default function ChatPage() {
       setMessages(prev => [...prev, aiMessage]);
       setIsTyping(false);
       
-      // 🎵 Phase 1: 記憶システム統合 - メッセージ保存（非同期）
-      saveMessage(content, 'user', personalInfo.name).catch(error => 
-        console.warn('User message save failed:', error)
-      );
-      saveMessage(aiResponse, 'ai').catch(error => 
-        console.warn('AI message save failed:', error)
-      );
+      // 🎵 Phase 2: 感情データ付き記憶保存（非同期）
+      if (emotionAnalysis) {
+        // 特別記憶の検出（感情強度8点以上）
+        if (emotionAnalysis.isSpecialMoment) {
+          console.log('🌟 Special moment detected!', {
+            emotion: emotionAnalysis.emotion,
+            intensity: emotionAnalysis.intensity,
+            keywords: emotionAnalysis.keywords
+          });
+        }
+
+        // 感情データ付きでメッセージ保存
+        saveMessage(content, 'user', personalInfo.name, {
+          emotion: emotionAnalysis.emotion,
+          intensity: emotionAnalysis.intensity,
+          isSpecialMoment: emotionAnalysis.isSpecialMoment,
+          category: emotionAnalysis.category,
+          keywords: emotionAnalysis.keywords
+        }).catch(error => 
+          console.warn('User message save failed:', error)
+        );
+        
+        saveMessage(aiResponse, 'ai', undefined, emotionAnalysis).catch(error => 
+          console.warn('AI message save failed:', error)
+        );
+      } else {
+        // フォールバック: 感情データなしで保存
+        saveMessage(content, 'user', personalInfo.name).catch(error => 
+          console.warn('User message save failed:', error)
+        );
+        saveMessage(aiResponse, 'ai').catch(error => 
+          console.warn('AI message save failed:', error)
+        );
+      }
     } catch (error) {
       console.error('Error sending message:', error);
       

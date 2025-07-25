@@ -2,7 +2,7 @@
 // チャット統合用記憶システムフック
 
 import { useState, useEffect, useCallback } from 'react';
-import { memoryManager, type BasicMemory, type ShortTermMemory, type MemoryProgressState } from '@/lib/memory-manager';
+import { memoryManager, type BasicMemory, type ShortTermMemory, type MemoryProgressState, type EmotionData } from '@/lib/memory-manager';
 
 interface UseMemoryManagerOptions {
   userId: string; // 認証ユーザー必須
@@ -18,8 +18,8 @@ interface UseMemoryManagerReturn {
   isLoading: boolean;
   error: string | null;
   
-  // Phase 1: 記憶操作
-  saveMessage: (content: string, role: 'user' | 'ai', userName?: string) => Promise<boolean>;
+  // 🎵 Phase 2: 感情データ付き記憶操作
+  saveMessage: (content: string, role: 'user' | 'ai', userName?: string, emotionData?: EmotionData) => Promise<boolean>;
   loadShortTermMemory: () => Promise<void>;
   updateUserName: (name: string) => Promise<boolean>;
   updateRelationshipLevel: (level: number) => Promise<boolean>;
@@ -68,11 +68,12 @@ export function useMemoryManager({
     }
   }, [userId, conversationId]);
 
-  // Phase 1: メッセージ保存
+  // 🎵 Phase 2: 感情データ付きメッセージ保存
   const saveMessage = useCallback(async (
     content: string, 
     role: 'user' | 'ai', 
-    userName?: string
+    userName?: string,
+    emotionData?: EmotionData
   ): Promise<boolean> => {
     if (!conversationId) {
       console.warn('No conversation ID provided for memory save');
@@ -86,7 +87,8 @@ export function useMemoryManager({
         archetype,
         conversationId,
         userId,
-        userName
+        userName,
+        emotionData
       );
 
       if (memory) {
@@ -164,12 +166,13 @@ export function useMemoryManager({
   };
 }
 
-// Phase 1: 軽量版フック（メッセージ保存のみ・認証ユーザー必須）
+// 🎵 Phase 2: 軽量版フック（感情データ付きメッセージ保存・認証ユーザー必須）
 export function useMemorySaver(conversationId: string, archetype: string, userId: string) {
   const saveMessage = useCallback(async (
     content: string, 
     role: 'user' | 'ai', 
-    userName?: string
+    userName?: string,
+    emotionData?: EmotionData
   ): Promise<boolean> => {
     if (!userId) {
       console.error('❌ Memory save failed: userId is required for authenticated users');
@@ -183,7 +186,8 @@ export function useMemorySaver(conversationId: string, archetype: string, userId
         archetype,
         conversationId,
         userId,
-        userName
+        userName,
+        emotionData
       );
       return !!memory;
     } catch (err) {
