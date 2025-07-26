@@ -17,6 +17,7 @@ import { ChatInputClaude } from '@/components/chat/ChatInputClaude';
 import { ChatHistory } from '@/components/chat/ChatHistory';
 import { LevelUpModal } from '@/components/relationship/LevelUpModal';
 import { PersonalInfoModal } from '@/components/typemate/PersonalInfoModal';
+import { AnalysisProgress } from '@/components/AnalysisProgress';
 // import { SpecialMoments } from '@/components/relationship/SpecialMoments';
 // import { personalityEngine } from '@/lib/personality-engine';
 import { loadRelationshipData } from '@/lib/relationship-storage';
@@ -24,6 +25,7 @@ import { loadRelationshipData } from '@/lib/relationship-storage';
 import { isDevelopmentMode, getCurrentTestProfile, resetTestMode, emergencyCleanup } from '@/lib/dev-mode';
 import { useMemorySaver } from '@/hooks/useMemoryManager';
 import { supabase } from '@/lib/supabase-simple';
+import { diagnosisService } from '@/lib/diagnosis-service';
 import type { Message, BaseArchetype, PersonalInfo, MemorySystem, RelationshipData, TestProfile } from '@/types';
 import { ARCHETYPE_DATA } from '@/lib/diagnostic-data';
 import { EmotionAnalyzer, type EmotionData } from '@/lib/emotion-analyzer';
@@ -95,9 +97,21 @@ export default function ChatPage() {
         console.log('✅ 認証済みユーザー:', user.id);
         setUserId(user.id);
 
-        // Get user type and AI personality
-        const savedType = localStorage.getItem('userType64');
+        // 🔬 診断状況を確認してルーティング決定
+        const diagnosisStatus = await diagnosisService.getDiagnosisStatus(user.id);
+        
+        if (!diagnosisStatus.hasDiagnosis) {
+          console.log('❌ 未診断ユーザー - 診断ページへリダイレクト');
+          router.push('/diagnosis');
+          return;
+        }
+
+        console.log('✅ 診断済みユーザー:', diagnosisStatus.userType);
+
+        // Get user type from database or localStorage fallback
+        let savedType = diagnosisStatus.userType || localStorage.getItem('userType64');
         if (!savedType) {
+          console.log('❌ 診断結果が見つからない - 診断ページへリダイレクト');
           router.push('/diagnosis');
           return;
         }
@@ -373,7 +387,7 @@ export default function ChatPage() {
           
           {/* ヘッダー */}
           <header className="border-b border-gray-200 bg-white p-4 flex-shrink-0">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
                 <Avatar className="w-10 h-10">
                   <AvatarFallback className="bg-blue-500 text-white font-semibold">
@@ -404,6 +418,11 @@ export default function ChatPage() {
                   <Settings size={16} />
                 </Button>
               </div>
+            </div>
+
+            {/* AI理解度分析UI */}
+            <div className="mb-3 flex justify-center">
+              <AnalysisProgress className="w-full max-w-lg" />
             </div>
             
             {/* 関係性レベル表示 */}

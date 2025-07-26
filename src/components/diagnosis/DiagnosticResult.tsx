@@ -7,16 +7,18 @@ import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Heart, Sparkles, Crown, Gem } from 'lucide-react';
+import { Heart, Sparkles, Crown, Gem, CheckCircle, Cloud, HardDrive } from 'lucide-react';
 import { ARCHETYPE_DATA } from '@/lib/diagnostic-data';
 import type { Type64, BaseArchetype } from '@/types';
 
 interface DiagnosticResultProps {
   type64: Type64;
   onStartChat: () => void;
+  isSaving?: boolean;
+  saveSuccess?: boolean;
 }
 
-export function DiagnosticResult({ type64, onStartChat }: DiagnosticResultProps) {
+export function DiagnosticResult({ type64, onStartChat, isSaving = false, saveSuccess = false }: DiagnosticResultProps) {
   const [baseType, variant] = type64.split('-') as [BaseArchetype, string];
   const archetype = ARCHETYPE_DATA[baseType];
   const environmentTrait = variant[0] === 'A' ? '協調型' : '競争型';
@@ -101,6 +103,46 @@ export function DiagnosticResult({ type64, onStartChat }: DiagnosticResultProps)
               </Badge>
             </div>
           </motion.div>
+        </Card>
+      </motion.div>
+
+      {/* 🔬 診断結果保存ステータス - ENFPサポート: 30秒で「覚えてる！」実感 */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+        className="mb-6"
+      >
+        <Card className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+          <div className="flex items-center justify-center gap-3">
+            {isSaving ? (
+              <>
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                >
+                  <Cloud className="text-blue-500" size={20} />
+                </motion.div>
+                <span className="text-blue-700 font-medium">診断結果を保存中...</span>
+              </>
+            ) : saveSuccess ? (
+              <>
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 200 }}
+                >
+                  <CheckCircle className="text-green-500" size={20} />
+                </motion.div>
+                <span className="text-green-700 font-medium">✨ 診断結果を覚えました！次回から自動でチャット画面に進みます</span>
+              </>
+            ) : (
+              <>
+                <HardDrive className="text-orange-500" size={20} />
+                <span className="text-orange-700 font-medium">📱 診断結果をローカルに保存しました</span>
+              </>
+            )}
+          </div>
         </Card>
       </motion.div>
 

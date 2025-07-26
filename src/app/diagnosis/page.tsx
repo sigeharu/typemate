@@ -11,6 +11,7 @@ import { DiagnosticResult } from '@/components/diagnosis/DiagnosticResult';
 import { DIAGNOSTIC_QUESTIONS } from '@/lib/diagnostic-data';
 import type { Type64, BaseArchetype } from '@/types';
 import { isDevelopmentMode, TEST_PROFILES, setTestProfile, type TestProfileKey } from '@/lib/dev-mode';
+import { diagnosisService } from '@/lib/diagnosis-service';
 
 // MBTIコードから新独自コードへのマッピング
 const mbtiToArchetypeMap: Record<string, BaseArchetype> = {
@@ -67,6 +68,8 @@ export default function DiagnosisPage() {
   const [shuffledQuestions] = useState(() => 
     [...DIAGNOSTIC_QUESTIONS].sort(() => Math.random() - 0.5)
   );
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
   const router = useRouter();
 
   const handleAnswer = useCallback((questionId: number, selectedTrait: string) => {
@@ -80,12 +83,27 @@ export default function DiagnosisPage() {
       }, 300);
     } else {
       // 診断完了
-      setTimeout(() => {
+      setTimeout(async () => {
         const calculatedType = calculateType64(newAnswers);
         setResult(calculatedType);
         
-        // 結果をローカルストレージに保存
-        localStorage.setItem('userType64', calculatedType);
+        // 🔬 診断結果をデータベースに保存
+        setIsSaving(true);
+        try {
+          const success = await diagnosisService.saveDiagnosisResult(calculatedType, newAnswers);
+          setSaveSuccess(success);
+          console.log(success ? '✅ 診断結果保存成功' : '⚠️ 診断結果ローカル保存のみ');
+          
+          // LocalStorageにもフォールバック保存（サービス内で実行済みだが念のため）
+          localStorage.setItem('userType64', calculatedType);
+          
+        } catch (error) {
+          console.error('❌ 診断結果保存エラー:', error);
+          // フォールバック: LocalStorageのみ保存
+          localStorage.setItem('userType64', calculatedType);
+        } finally {
+          setIsSaving(false);
+        }
       }, 300);
     }
   }, [answers, currentQuestionIndex, shuffledQuestions.length]);
@@ -104,7 +122,12 @@ export default function DiagnosisPage() {
   if (result) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 py-8">
-        <DiagnosticResult type64={result} onStartChat={handleStartChat} />
+        <DiagnosticResult 
+          type64={result} 
+          onStartChat={handleStartChat}
+          isSaving={isSaving}
+          saveSuccess={saveSuccess}
+        />
       </div>
     );
   }

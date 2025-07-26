@@ -99,3 +99,91 @@ export async function getCurrentUser() {
 export function getSupabaseServer() {
   return createSupabaseServerClient()
 }
+
+// 🔬 診断状況チェック - ユーザーが診断済みかどうか確認
+export async function getUserDiagnosisStatus(userId?: string): Promise<{
+  hasDiagnosis: boolean;
+  userType?: string;
+  shouldRedirectToDiagnosis: boolean;
+  shouldRedirectToChat: boolean;
+}> {
+  try {
+    const supabase = createSupabaseServerClient()
+    
+    // ユーザーID取得
+    let targetUserId = userId;
+    if (!targetUserId) {
+      const { data: { user }, error } = await supabase.auth.getUser()
+      if (error || !user) {
+        return {
+          hasDiagnosis: false,
+          shouldRedirectToDiagnosis: false,
+          shouldRedirectToChat: false
+        }
+      }
+      targetUserId = user.id
+    }
+
+    // user_profilesテーブルから診断状況確認
+    const { data: profile, error } = await supabase
+      .from('user_profiles')
+      .select('user_type, created_at')
+      .eq('user_id', targetUserId)
+      .single()
+
+    if (error && error.code !== 'PGRST116') { // PGRST116 = not found
+      console.warn('診断状況確認エラー:', error)
+      return {
+        hasDiagnosis: false,
+        shouldRedirectToDiagnosis: true,
+        shouldRedirectToChat: false
+      }
+    }
+
+    // 診断済みの場合
+    if (profile && profile.user_type) {
+      return {
+        hasDiagnosis: true,
+        userType: profile.user_type,
+        shouldRedirectToDiagnosis: false,
+        shouldRedirectToChat: true
+      }
+    }
+
+    // 未診断の場合
+    return {
+      hasDiagnosis: false,
+      shouldRedirectToDiagnosis: true,
+      shouldRedirectToChat: false
+    }
+
+  } catch (error) {
+    console.error('診断状況確認エラー:', error)
+    return {
+      hasDiagnosis: false,
+      shouldRedirectToDiagnosis: true,
+      shouldRedirectToChat: false
+    }
+  }
+}
+
+// 🔬 認証ユーザーの診断要求チェック - 認証後のルーティング決定
+export async function getPostAuthRedirect(): Promise<'/diagnosis' | '/chat' | null> {
+  try {
+    const session = await getAuthSession()
+    if (!session?.user) {
+      return null // 未認証の場合はリダイレクトしない
+    }
+
+    const diagnosisStatus = await getUserDiagnosisStatus(session.user.id)
+    
+    if (diagnosisStatus.hasDiagnosis) {
+      return '/chat' // 診断済み → チャット画面
+    } else {
+      return '/diagnosis' // 未診断 → 診断画面
+    }
+  } catch (error) {
+    console.error('認証後リダイレクト決定エラー:', error)
+    return '/diagnosis' // エラー時は診断画面へ
+  }
+}
