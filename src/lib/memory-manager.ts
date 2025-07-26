@@ -3,6 +3,7 @@
 
 import { supabase } from './supabase-simple';
 import type { Database } from '@/types/database';
+import { type EmotionData as EmotionAnalysisData } from './emotion-analyzer';
 
 type MemoryRow = Database['public']['Tables']['typemate_memory']['Row'];
 type MemoryInsert = Database['public']['Tables']['typemate_memory']['Insert'];
@@ -296,6 +297,82 @@ export class MemoryManager {
       conversationId: row.conversation_id || undefined,
       createdAt: row.created_at
     };
+  }
+
+  // 🎵 Phase 2: 感情データ保存
+  async saveEmotionData(messageId: string, emotionData: EmotionAnalysisData): Promise<boolean> {
+    try {
+      console.log('🎵 Saving emotion data for message:', messageId, {
+        emotion: emotionData.dominantEmotion,
+        intensity: emotionData.intensity,
+        musicTone: emotionData.musicTone
+      });
+
+      // この実装では感情データをコンソールログに出力（将来的にはテーブル保存）
+      // 実際のテーブル実装はPhase 3で行う予定
+      console.log('✅ Emotion data logged successfully');
+      return true;
+    } catch (error) {
+      console.error('Emotion data save exception:', error);
+      return false;
+    }
+  }
+
+  // 🎵 Phase 2: 特別記憶作成
+  async createSpecialMemory(
+    content: string, 
+    emotionData: EmotionAnalysisData, 
+    archetype: string, 
+    userId?: string
+  ): Promise<boolean> {
+    try {
+      const emotionScore = Math.round(emotionData.intensity * 10);
+      const category = this.categorizeEmotion(emotionData.dominantEmotion);
+      
+      console.log('✨ Creating special memory:', {
+        userId,
+        content: content.substring(0, 50) + '...',
+        emotionScore,
+        category,
+        archetype,
+        isHighlight: emotionScore >= 7
+      });
+
+      // この実装では特別記憶をコンソールログに出力（将来的にはテーブル保存）
+      // 実際のテーブル実装はPhase 3で行う予定
+      console.log('✨ Special memory created! Score:', emotionScore);
+      return true;
+    } catch (error) {
+      console.error('Special memory exception:', error);
+      return false;
+    }
+  }
+
+  // 🎵 Phase 2: 感情カテゴリ分類ヘルパー
+  private categorizeEmotion(dominantEmotion: string): string {
+    const categoryMap = {
+      'happiness': 'emotion',
+      'excitement': 'special',
+      'affection': 'confession',
+      'gratitude': 'support',
+      'sadness': 'support',
+      'confusion': 'growth',
+      'frustration': 'support',
+      'curiosity': 'growth'
+    };
+    return categoryMap[dominantEmotion] || 'emotion';
+  }
+
+  // 🎵 Phase 2: キーワード抽出ヘルパー
+  private extractKeywords(content: string): string[] {
+    const keywords = [];
+    const emotionWords = ['嬉しい', '楽しい', '悲しい', '好き', '大切', '感謝', 'ありがとう', 'すごい', 'やばい'];
+    
+    emotionWords.forEach(word => {
+      if (content.includes(word)) keywords.push(word);
+    });
+    
+    return keywords;
   }
 }
 

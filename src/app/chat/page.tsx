@@ -26,6 +26,7 @@ import { useMemorySaver } from '@/hooks/useMemoryManager';
 import { supabase } from '@/lib/supabase-simple';
 import type { Message, BaseArchetype, PersonalInfo, MemorySystem, RelationshipData, TestProfile } from '@/types';
 import { ARCHETYPE_DATA } from '@/lib/diagnostic-data';
+import { EmotionAnalyzer, type EmotionData } from '@/lib/emotion-analyzer';
 
 // 🎵 UUID生成関数
 function generateUUID(): string {
@@ -200,7 +201,11 @@ export default function ChatPage() {
     setIsTyping(true);
 
     try {
-      // Generate AI response using Claude API
+      // 🎵 Phase 2: 感情分析実行
+      const emotionData = EmotionAnalyzer.analyzeMessage(content);
+      console.log('🎵 Emotion Analysis:', emotionData);
+
+      // Generate AI response using Claude API with emotion data
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -221,7 +226,12 @@ export default function ChatPage() {
           personalInfo: {
             name: personalInfo.name || undefined,
             birthday: undefined
-          }
+          },
+          // 🎵 Phase 2: 感情データ追加
+          emotionData: emotionData,
+          dominantEmotion: emotionData.dominantEmotion,
+          emotionIntensity: emotionData.intensity,
+          musicTone: emotionData.musicTone
         })
       });
 
@@ -248,58 +258,42 @@ export default function ChatPage() {
       setIsTyping(false);
       
       // 🎵 Phase 2: 感情データ付き記憶保存（非同期）
-      if (emotionAnalysis) {
-        // 特別記憶の検出（感情強度8点以上）
-        if (emotionAnalysis.isSpecialMoment) {
-          console.log('🌟 Special moment detected!', {
-            emotion: emotionAnalysis.emotion,
-            intensity: emotionAnalysis.intensity,
-            keywords: emotionAnalysis.keywords
-          });
-        }
-
-        // 感情データ付きでメッセージ保存
-        console.log('💾 Saving user message with emotion data:', {
-          content: content.substring(0, 50) + '...',
-          emotion: emotionAnalysis.emotion,
-          intensity: emotionAnalysis.intensity,
-          userId,
-          conversationId: currentSessionId,
-          isValidUUID: /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(currentSessionId)
+      // 特別記憶の検出（感情強度0.7以上）
+      if (emotionData.intensity >= 0.7) {
+        console.log('🌟 Special moment detected!', {
+          emotion: emotionData.dominantEmotion,
+          intensity: emotionData.intensity,
+          musicTone: emotionData.musicTone
         });
-        
-        saveMessage(content, 'user', personalInfo.name, {
-          emotion: emotionAnalysis.emotion,
-          intensity: emotionAnalysis.intensity,
-          isSpecialMoment: emotionAnalysis.isSpecialMoment,
-          category: emotionAnalysis.category,
-          keywords: emotionAnalysis.keywords
-        }).then(success => {
-          console.log(success ? '✅ User message saved successfully' : '❌ User message save failed');
-        }).catch(error => 
-          console.warn('❌ User message save failed:', error)
-        );
-        
-        console.log('💾 Saving AI response with emotion data:', {
-          response: aiResponse.substring(0, 50) + '...',
-          emotion: emotionAnalysis.emotion,
-          userId
-        });
-        
-        saveMessage(aiResponse, 'ai', undefined, emotionAnalysis).then(success => {
-          console.log(success ? '✅ AI message saved successfully' : '❌ AI message save failed');
-        }).catch(error => 
-          console.warn('❌ AI message save failed:', error)
-        );
-      } else {
-        // フォールバック: 感情データなしで保存
-        saveMessage(content, 'user', personalInfo.name).catch(error => 
-          console.warn('User message save failed:', error)
-        );
-        saveMessage(aiResponse, 'ai').catch(error => 
-          console.warn('AI message save failed:', error)
-        );
       }
+
+      // Phase 2統合: 感情データ付きでメッセージ保存
+      console.log('💾 Saving user message with emotion data:', {
+        content: content.substring(0, 50) + '...',
+        emotion: emotionData.dominantEmotion,
+        intensity: emotionData.intensity,
+        userId,
+        conversationId: currentSessionId,
+        isValidUUID: /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(currentSessionId)
+      });
+      
+      saveMessage(content, 'user', personalInfo.name, emotionData).then(success => {
+        console.log(success ? '✅ User message saved successfully' : '❌ User message save failed');
+      }).catch(error => 
+        console.warn('❌ User message save failed:', error)
+      );
+      
+      console.log('💾 Saving AI response with emotion data:', {
+        response: aiResponse.substring(0, 50) + '...',
+        emotion: emotionData.dominantEmotion,
+        userId
+      });
+      
+      saveMessage(aiResponse, 'ai', undefined, emotionData).then(success => {
+        console.log(success ? '✅ AI message saved successfully' : '❌ AI message save failed');
+      }).catch(error => 
+        console.warn('❌ AI message save failed:', error)
+      );
     } catch (error) {
       console.error('Error sending message:', error);
       

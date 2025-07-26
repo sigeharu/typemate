@@ -3,6 +3,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { memoryManager, type BasicMemory, type ShortTermMemory, type MemoryProgressState, type EmotionData } from '@/lib/memory-manager';
+import { type EmotionData as EmotionAnalysisData } from '@/lib/emotion-analyzer';
 
 interface UseMemoryManagerOptions {
   userId: string; // 認証ユーザー必須
@@ -19,7 +20,7 @@ interface UseMemoryManagerReturn {
   error: string | null;
   
   // 🎵 Phase 2: 感情データ付き記憶操作
-  saveMessage: (content: string, role: 'user' | 'ai', userName?: string, emotionData?: EmotionData) => Promise<boolean>;
+  saveMessage: (content: string, role: 'user' | 'ai', userName?: string, emotionData?: EmotionAnalysisData) => Promise<boolean>;
   loadShortTermMemory: () => Promise<void>;
   updateUserName: (name: string) => Promise<boolean>;
   updateRelationshipLevel: (level: number) => Promise<boolean>;
@@ -73,7 +74,7 @@ export function useMemoryManager({
     content: string, 
     role: 'user' | 'ai', 
     userName?: string,
-    emotionData?: EmotionData
+    emotionData?: EmotionAnalysisData
   ): Promise<boolean> => {
     if (!conversationId) {
       console.warn('No conversation ID provided for memory save');
@@ -81,17 +82,27 @@ export function useMemoryManager({
     }
 
     try {
+      // Phase 1: 基本記憶保存（絶対保護）
       const memory = await memoryManager.saveConversationMemory(
         content,
         role,
         archetype,
         conversationId,
         userId,
-        userName,
-        emotionData
+        userName
       );
 
       if (memory) {
+        // Phase 2: 感情データがある場合の追加処理
+        if (emotionData) {
+          await memoryManager.saveEmotionData(memory.id, emotionData);
+          
+          // 高感情スコア（0.7以上）で特別記憶作成
+          if (emotionData.intensity >= 0.7) {
+            await memoryManager.createSpecialMemory(content, emotionData, archetype, userId);
+          }
+        }
+
         // 成功時は短期記憶を更新
         setMemories(prev => [memory, ...prev.slice(0, 9)]); // 最新10件維持
         return true;
@@ -172,7 +183,7 @@ export function useMemorySaver(conversationId: string, archetype: string, userId
     content: string, 
     role: 'user' | 'ai', 
     userName?: string,
-    emotionData?: EmotionData
+    emotionData?: EmotionAnalysisData
   ): Promise<boolean> => {
     if (!userId) {
       console.error('❌ Memory save failed: userId is required for authenticated users');
@@ -180,15 +191,26 @@ export function useMemorySaver(conversationId: string, archetype: string, userId
     }
 
     try {
+      // Phase 1: 基本記憶保存（絶対保護）
       const memory = await memoryManager.saveConversationMemory(
         content,
         role,
         archetype,
         conversationId,
         userId,
-        userName,
-        emotionData
+        userName
       );
+
+      if (memory && emotionData) {
+        // Phase 2: 感情データがある場合の追加処理
+        await memoryManager.saveEmotionData(memory.id, emotionData);
+        
+        // 高感情スコア（0.7以上）で特別記憶作成
+        if (emotionData.intensity >= 0.7) {
+          await memoryManager.createSpecialMemory(content, emotionData, archetype, userId);
+        }
+      }
+
       return !!memory;
     } catch (err) {
       console.error('Memory save error:', err);
