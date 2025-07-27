@@ -119,10 +119,16 @@ export default function ChatPage() {
         }
 
         const [baseType] = savedType.split('-') as [BaseArchetype, string];
-        // Simple AI personality setup
-        const compatiblePersonalities = ['DRM', 'SAG', 'BAR', 'HER']; // Compatible archetypes
-        const selectedArchetype = compatiblePersonalities[0] as BaseArchetype; // Default to first
+        // 診断結果に基づくAI人格選択
+        const selectedArchetype = diagnosisStatus.aiPersonality || 'DRM'; // 診断結果からAI人格を取得、フォールバックはDRM
         const aiArchetypeData = ARCHETYPE_DATA[selectedArchetype];
+        
+        console.log('🎯 選択されたAI人格:', { 
+          userType: savedType, 
+          baseType, 
+          selectedArchetype,
+          fromDiagnosis: !!diagnosisStatus.aiPersonality 
+        });
         
         setUserType(savedType);
         setAiPersonality({

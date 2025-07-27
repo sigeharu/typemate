@@ -19,6 +19,7 @@ export interface DiagnosisResult {
 export interface DiagnosisStatus {
   hasDiagnosis: boolean;
   userType?: Type64;
+  aiPersonality?: BaseArchetype;
   lastDiagnosisDate?: Date;
   canRetakeDiagnosis: boolean;
 }
@@ -173,14 +174,21 @@ class DiagnosisService {
         // diagnostic_resultsに結果がある場合
         if (diagnosticResults && diagnosticResults.length > 0) {
           const latestResult = diagnosticResults[0];
+          
+          // AI人格を診断結果から決定
+          const [baseArchetype] = latestResult.user_type.split('-') as [BaseArchetype, string];
+          const aiPersonality = this.getCompatibleAIPersonality(baseArchetype);
+          
           console.log('✅ diagnostic_resultsから診断済み確認:', { 
             userType: latestResult.user_type, 
+            aiPersonality,
             createdAt: latestResult.created_at 
           });
 
           return {
             hasDiagnosis: true,
             userType: latestResult.user_type as Type64,
+            aiPersonality: aiPersonality as BaseArchetype,
             lastDiagnosisDate: new Date(latestResult.created_at),
             canRetakeDiagnosis: true
           };
@@ -193,7 +201,7 @@ class DiagnosisService {
       try {
         const { data: profiles, error } = await supabase
           .from('user_profiles')
-          .select('user_type, created_at, preferences')
+          .select('user_type, selected_ai_personality, created_at, preferences')
           .eq('user_id', targetUserId)
           .order('created_at', { ascending: false })
           .limit(1);
@@ -207,14 +215,20 @@ class DiagnosisService {
             ? new Date(profile.preferences.diagnosisDate) 
             : new Date(profile.created_at);
 
+          // AI人格の取得（保存されていない場合は診断結果から自動選択）
+          const [baseArchetype] = profile.user_type.split('-') as [BaseArchetype, string];
+          const aiPersonality = profile.selected_ai_personality || this.getCompatibleAIPersonality(baseArchetype);
+
           console.log('✅ user_profilesから診断済み確認:', { 
             userType: profile.user_type, 
+            aiPersonality,
             lastDiagnosisDate 
           });
 
           return {
             hasDiagnosis: true,
             userType: profile.user_type as Type64,
+            aiPersonality: aiPersonality as BaseArchetype,
             lastDiagnosisDate,
             canRetakeDiagnosis: true
           };
@@ -342,9 +356,14 @@ class DiagnosisService {
     console.log('🔍 LocalStorage診断状況:', { userType, diagnosisDate });
 
     if (userType) {
+      // AI人格を診断結果から決定
+      const [baseArchetype] = userType.split('-') as [BaseArchetype, string];
+      const aiPersonality = this.getCompatibleAIPersonality(baseArchetype);
+      
       return {
         hasDiagnosis: true,
         userType,
+        aiPersonality: aiPersonality as BaseArchetype,
         lastDiagnosisDate: diagnosisDate ? new Date(diagnosisDate) : undefined,
         canRetakeDiagnosis: true
       };
