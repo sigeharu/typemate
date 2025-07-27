@@ -98,7 +98,10 @@ export default function ChatPage() {
         setUserId(user.id);
 
         // 🔬 診断状況を確認してルーティング決定
+        console.log('🔍 チャットページ: 診断状況確認開始');
         const diagnosisStatus = await diagnosisService.getDiagnosisStatus(user.id);
+        
+        console.log('🔍 チャットページ診断状況結果:', diagnosisStatus);
         
         if (!diagnosisStatus.hasDiagnosis) {
           console.log('❌ 未診断ユーザー - 診断ページへリダイレクト');

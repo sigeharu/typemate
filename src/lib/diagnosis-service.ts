@@ -45,38 +45,80 @@ class DiagnosisService {
       const environmentAxis = variation[0] as 'A' | 'C';
       const motivationAxis = variation[1] as 'S' | 'G';
 
-      // 1. diagnostic_results テーブルに保存
-      const { error: diagnosticError } = await supabase
-        .from('diagnostic_results')
-        .insert({
-          user_id: user.id,
-          user_type: userType,
-          answers: answers,
-          is_guest: false
-        });
+      // 1. diagnostic_results テーブルに保存（テーブルが存在しない場合はスキップ）
+      try {
+        const { error: diagnosticError } = await supabase
+          .from('diagnostic_results')
+          .insert({
+            user_id: user.id,
+            user_type: userType,
+            answers: answers,
+            is_guest: false
+          });
 
-      if (diagnosticError) {
-        console.error('❌ diagnostic_results保存エラー:', diagnosticError);
-        throw diagnosticError;
+        if (diagnosticError) {
+          console.warn('⚠️ diagnostic_results保存スキップ（テーブル未作成？）:', diagnosticError);
+          // エラーをスローせず、user_profilesへの保存を続行
+        } else {
+          console.log('✅ diagnostic_results保存成功');
+        }
+      } catch (error) {
+        console.warn('⚠️ diagnostic_resultsテーブルアクセスエラー、スキップして続行:', error);
       }
 
       // 2. user_profiles テーブルにupsert
-      const { error: profileError } = await supabase
+      const upsertData = {
+        user_id: user.id,
+        user_type: userType,
+        selected_ai_personality: this.getCompatibleAIPersonality(baseArchetype),
+        relationship_type: 'friend' as const,
+        preferences: {
+          baseArchetype,
+          environmentAxis,
+          motivationAxis,
+          diagnosisDate: new Date().toISOString()
+        }
+      };
+
+      console.log('💾 user_profiles保存データ:', upsertData);
+
+      // まず既存レコードを確認
+      const { data: existingProfile } = await supabase
         .from('user_profiles')
-        .upsert({
-          user_id: user.id,
-          user_type: userType,
-          selected_ai_personality: this.getCompatibleAIPersonality(baseArchetype),
-          relationship_type: 'friend',
-          preferences: {
-            baseArchetype,
-            environmentAxis,
-            motivationAxis,
-            diagnosisDate: new Date().toISOString()
-          }
-        }, {
-          onConflict: 'user_id'
-        });
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      let upsertResult, profileError;
+
+      if (existingProfile) {
+        // 既存レコードを更新
+        const { data, error } = await supabase
+          .from('user_profiles')
+          .update({
+            user_type: upsertData.user_type,
+            selected_ai_personality: upsertData.selected_ai_personality,
+            relationship_type: upsertData.relationship_type,
+            preferences: upsertData.preferences,
+            updated_at: new Date().toISOString()
+          })
+          .eq('user_id', user.id)
+          .select();
+        
+        upsertResult = data;
+        profileError = error;
+      } else {
+        // 新規レコードを挿入
+        const { data, error } = await supabase
+          .from('user_profiles')
+          .insert(upsertData)
+          .select();
+        
+        upsertResult = data;
+        profileError = error;
+      }
+
+      console.log('💾 user_profiles保存結果:', { upsertResult, error: profileError?.message });
 
       if (profileError) {
         console.error('❌ user_profiles保存エラー:', profileError);
@@ -105,27 +147,32 @@ class DiagnosisService {
       if (!targetUserId) {
         const { data: { user }, error: authError } = await supabase.auth.getUser();
         if (authError || !user) {
+          console.log('🔍 診断状況確認: 未認証ユーザー');
           return this.getLocalDiagnosisStatus();
         }
         targetUserId = user.id;
       }
 
-      // user_profilesテーブルから診断状況確認
+      console.log('🔍 診断状況確認開始:', { userId: targetUserId });
+
+      // メイン: user_profilesテーブルから診断状況確認
       const { data: profile, error } = await supabase
         .from('user_profiles')
         .select('user_type, created_at, preferences')
         .eq('user_id', targetUserId)
         .single();
 
-      if (error && error.code !== 'PGRST116') { // PGRST116 = not found
-        console.warn('診断状況確認エラー:', error);
-        return this.getLocalDiagnosisStatus();
-      }
+      console.log('🔍 user_profiles結果:', { profile, error: error?.message, errorCode: error?.code });
 
       if (profile && profile.user_type) {
         const lastDiagnosisDate = profile.preferences?.diagnosisDate 
           ? new Date(profile.preferences.diagnosisDate) 
           : new Date(profile.created_at);
+
+        console.log('✅ user_profilesから診断済み確認:', { 
+          userType: profile.user_type, 
+          lastDiagnosisDate 
+        });
 
         return {
           hasDiagnosis: true,
@@ -135,11 +182,46 @@ class DiagnosisService {
         };
       }
 
+      // フォールバック: diagnostic_resultsテーブルから確認（テーブルが存在する場合のみ）
+      try {
+        const { data: diagnosticResults, error: diagnosticError } = await supabase
+          .from('diagnostic_results')
+          .select('user_type, created_at, answers')
+          .eq('user_id', targetUserId)
+          .order('created_at', { ascending: false })
+          .limit(1);
+
+        console.log('🔍 diagnostic_results結果:', { 
+          diagnosticResults, 
+          error: diagnosticError?.message, 
+          errorCode: diagnosticError?.code 
+        });
+
+        // diagnostic_resultsに結果がある場合
+        if (diagnosticResults && diagnosticResults.length > 0) {
+          const latestResult = diagnosticResults[0];
+          console.log('✅ diagnostic_resultsから診断済み確認:', { 
+            userType: latestResult.user_type, 
+            createdAt: latestResult.created_at 
+          });
+
+          return {
+            hasDiagnosis: true,
+            userType: latestResult.user_type as Type64,
+            lastDiagnosisDate: new Date(latestResult.created_at),
+            canRetakeDiagnosis: true
+          };
+        }
+      } catch (error) {
+        console.warn('⚠️ diagnostic_resultsテーブルアクセスエラー、スキップ:', error);
+      }
+
       // データベースに診断結果がない場合、LocalStorageを確認
+      console.log('⚠️ DB診断結果なし、LocalStorage確認');
       return this.getLocalDiagnosisStatus();
 
     } catch (error) {
-      console.error('診断状況取得エラー:', error);
+      console.error('❌ 診断状況取得エラー:', error);
       return this.getLocalDiagnosisStatus();
     }
   }
@@ -249,6 +331,8 @@ class DiagnosisService {
   private getLocalDiagnosisStatus(): DiagnosisStatus {
     const userType = localStorage.getItem('userType64') as Type64;
     const diagnosisDate = localStorage.getItem('diagnosisDate');
+
+    console.log('🔍 LocalStorage診断状況:', { userType, diagnosisDate });
 
     if (userType) {
       return {
