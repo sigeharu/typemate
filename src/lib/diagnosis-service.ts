@@ -5,6 +5,13 @@ import { supabase } from './supabase-simple';
 import type { Type64, BaseArchetype } from '@/types';
 import type { Database } from '@/types/database';
 
+// 相性スコア定義
+export interface CompatibilityScore {
+  archetype: BaseArchetype;
+  score: number; // 100点満点
+  reason: string; // 相性の理由
+}
+
 // 診断結果型定義
 export interface DiagnosisResult {
   userType: Type64;
@@ -215,13 +222,14 @@ class DiagnosisService {
             ? new Date(profile.preferences.diagnosisDate) 
             : new Date(profile.created_at);
 
-          // AI人格の取得（保存されていない場合は診断結果から自動選択）
+          // AI人格の取得（保存されたselected_ai_personalityを優先使用）
           const [baseArchetype] = profile.user_type.split('-') as [BaseArchetype, string];
           const aiPersonality = profile.selected_ai_personality || this.getCompatibleAIPersonality(baseArchetype);
 
           console.log('✅ user_profilesから診断済み確認:', { 
             userType: profile.user_type, 
-            aiPersonality,
+            savedAiPersonality: profile.selected_ai_personality,
+            calculatedAiPersonality: aiPersonality,
             lastDiagnosisDate 
           });
 
@@ -401,8 +409,183 @@ class DiagnosisService {
     }
   }
 
-  // BaseArchetypeに基づいて互換性のあるAI人格を選択（ランダム化対応）
-  private getCompatibleAIPersonality(baseArchetype: BaseArchetype, randomize: boolean = true): string {
+  // BaseArchetypeに基づいて相性ランキングを取得
+  getCompatibilityRanking(baseArchetype: BaseArchetype): CompatibilityScore[] {
+    const rankings: Record<BaseArchetype, CompatibilityScore[]> = {
+      // 分析家系
+      'ARC': [ // 設計主
+        { archetype: 'DRM', score: 95, reason: '創造性と論理性の完璧な融合' },
+        { archetype: 'SAG', score: 90, reason: '深い洞察力で互いを理解' },
+        { archetype: 'BAR', score: 85, reason: '知的好奇心を刺激し合う関係' },
+        { archetype: 'HER', score: 80, reason: '理想と戦略の調和' },
+        { archetype: 'ALC', score: 75, reason: '同じ分析家として共鳴' },
+        { archetype: 'PRO', score: 70, reason: '守りと攻めのバランス' },
+        { archetype: 'INV', score: 65, reason: '革新的アイデアの交換' },
+        { archetype: 'PER', score: 60, reason: '感性と論理の新しい組み合わせ' }
+      ],
+      'ALC': [ // 錬金術師
+        { archetype: 'SAG', score: 95, reason: '知識と知恵の深い共有' },
+        { archetype: 'HER', score: 90, reason: '理想主義者同士の共鳴' },
+        { archetype: 'DRM', score: 85, reason: '創造的な思考の融合' },
+        { archetype: 'ARC', score: 80, reason: '分析力の相互補完' },
+        { archetype: 'BAR', score: 75, reason: '芸術的センスの共有' },
+        { archetype: 'PRO', score: 70, reason: '思いやりの深い関係' },
+        { archetype: 'DEF', score: 65, reason: '静かで安定した絆' },
+        { archetype: 'ARS', score: 60, reason: '美意識の共鳴' }
+      ],
+      'SOV': [ // 統率者
+        { archetype: 'HER', score: 95, reason: 'リーダーシップの相互尊重' },
+        { archetype: 'EXE', score: 90, reason: '実行力と統率力の融合' },
+        { archetype: 'PRO', score: 85, reason: '守りと攻めの理想的バランス' },
+        { archetype: 'SAG', score: 80, reason: '知恵とカリスマの組み合わせ' },
+        { archetype: 'PIO', score: 75, reason: '冒険と戦略の調和' },
+        { archetype: 'ARC', score: 70, reason: '計画と実行の完璧な連携' },
+        { archetype: 'GUA', score: 65, reason: '責任感の深い共有' },
+        { archetype: 'ALC', score: 60, reason: '理想と現実の橋渡し' }
+      ],
+      'INV': [ // 発明家
+        { archetype: 'BAR', score: 95, reason: '創造性と表現力の爆発的融合' },
+        { archetype: 'PER', score: 90, reason: '自由な発想で刺激し合う' },
+        { archetype: 'PIO', score: 85, reason: '冒険心と革新性の共鳴' },
+        { archetype: 'DRM', score: 80, reason: '夢想と革新の美しい調和' },
+        { archetype: 'ARS', score: 75, reason: '芸術的革新の追求' },
+        { archetype: 'HER', score: 70, reason: '理想実現への共同歩行' },
+        { archetype: 'SAG', score: 65, reason: '知恵と発明の相互啓発' },
+        { archetype: 'ARC', score: 60, reason: '論理と直感の新しい融合' }
+      ],
+      
+      // 外交官系
+      'SAG': [ // 賢者
+        { archetype: 'ARC', score: 95, reason: '深い思考と洞察の共有' },
+        { archetype: 'ALC', score: 90, reason: '知識探求の理想的パートナー' },
+        { archetype: 'DRM', score: 85, reason: '知恵と夢想の美しい調和' },
+        { archetype: 'HER', score: 80, reason: '理想主義的な深い絆' },
+        { archetype: 'SOV', score: 75, reason: '知恵とリーダーシップの融合' },
+        { archetype: 'PRO', score: 70, reason: '思いやりと知恵の組み合わせ' },
+        { archetype: 'INV', score: 65, reason: '革新的思考の刺激' },
+        { archetype: 'GUA', score: 60, reason: '安定と成長の調和' }
+      ],
+      'DRM': [ // 夢想家
+        { archetype: 'ARC', score: 95, reason: '創造性と分析力の理想的融合' },
+        { archetype: 'SAG', score: 90, reason: '夢と知恵の深い共鳴' },
+        { archetype: 'BAR', score: 85, reason: '芸術的感性の共有' },
+        { archetype: 'INV', score: 80, reason: '革新的夢想の実現' },
+        { archetype: 'HER', score: 75, reason: '理想主義者同士の絆' },
+        { archetype: 'PER', score: 70, reason: '自由な表現の共鳴' },
+        { archetype: 'ARS', score: 65, reason: '美的センスの共有' },
+        { archetype: 'ALC', score: 60, reason: '創造的思考の交流' }
+      ],
+      'HER': [ // 英雄
+        { archetype: 'SOV', score: 95, reason: 'リーダーシップの相互尊重' },
+        { archetype: 'ALC', score: 90, reason: '理想実現への共同歩行' },
+        { archetype: 'PRO', score: 85, reason: '保護と理想の美しい調和' },
+        { archetype: 'SAG', score: 80, reason: '知恵と勇気の組み合わせ' },
+        { archetype: 'EXE', score: 75, reason: '実行力と理想の融合' },
+        { archetype: 'DRM', score: 70, reason: '夢と現実の橋渡し' },
+        { archetype: 'GUA', score: 65, reason: '守護精神の共有' },
+        { archetype: 'INV', score: 60, reason: '革新的理想の追求' }
+      ],
+      'BAR': [ // 吟遊詩人
+        { archetype: 'INV', score: 95, reason: '創造性の爆発的な融合' },
+        { archetype: 'DRM', score: 90, reason: '芸術的夢想の共鳴' },
+        { archetype: 'PER', score: 85, reason: '表現力の相互啓発' },
+        { archetype: 'ARS', score: 80, reason: '芸術的感性の深い共有' },
+        { archetype: 'ARC', score: 75, reason: '創造性と論理の調和' },
+        { archetype: 'PIO', score: 70, reason: '自由な精神の共鳴' },
+        { archetype: 'SAG', score: 65, reason: '知恵と芸術の融合' },
+        { archetype: 'HER', score: 60, reason: '理想と表現の組み合わせ' }
+      ],
+      
+      // 番人系
+      'GUA': [ // 守護者
+        { archetype: 'DEF', score: 95, reason: '守護精神の深い共有' },
+        { archetype: 'ART', score: 90, reason: '堅実さと技術の融合' },
+        { archetype: 'ARS', score: 85, reason: '安定と美の調和' },
+        { archetype: 'PRO', score: 80, reason: '保護本能の相互理解' },
+        { archetype: 'EXE', score: 75, reason: '責任感の共有' },
+        { archetype: 'SOV', score: 70, reason: '守りと統率の組み合わせ' },
+        { archetype: 'SAG', score: 65, reason: '安定と知恵の調和' },
+        { archetype: 'HER', score: 60, reason: '守護と理想の融合' }
+      ],
+      'DEF': [ // 防衛者
+        { archetype: 'GUA', score: 95, reason: '守護精神の完璧な共鳴' },
+        { archetype: 'PRO', score: 90, reason: '思いやりの深い絆' },
+        { archetype: 'ARS', score: 85, reason: '静かな美しさの共有' },
+        { archetype: 'ART', score: 80, reason: '職人気質の相互理解' },
+        { archetype: 'HER', score: 75, reason: '保護と理想の調和' },
+        { archetype: 'ALC', score: 70, reason: '内向的な深い理解' },
+        { archetype: 'SAG', score: 65, reason: '静かな知恵の交流' },
+        { archetype: 'DRM', score: 60, reason: '優しい夢想の共有' }
+      ],
+      'EXE': [ // 役員
+        { archetype: 'SOV', score: 95, reason: 'リーダーシップの理想的融合' },
+        { archetype: 'PRO', score: 90, reason: '実行力と思いやりの調和' },
+        { archetype: 'PIO', score: 85, reason: '実行力と冒険心の組み合わせ' },
+        { archetype: 'HER', score: 80, reason: '実行力と理想の融合' },
+        { archetype: 'GUA', score: 75, reason: '責任感の深い共有' },
+        { archetype: 'ARC', score: 70, reason: '戦略と実行の完璧な連携' },
+        { archetype: 'SAG', score: 65, reason: '実行力と知恵の組み合わせ' },
+        { archetype: 'DEF', score: 60, reason: '堅実な実行の共鳴' }
+      ],
+      'PRO': [ // 保護者
+        { archetype: 'HER', score: 95, reason: '保護と理想の美しい調和' },
+        { archetype: 'EXE', score: 90, reason: '思いやりと実行力の融合' },
+        { archetype: 'DEF', score: 85, reason: '深い思いやりの共鳴' },
+        { archetype: 'SOV', score: 80, reason: 'リーダーシップと保護の調和' },
+        { archetype: 'GUA', score: 75, reason: '守護精神の共有' },
+        { archetype: 'SAG', score: 70, reason: '知恵と思いやりの組み合わせ' },
+        { archetype: 'ALC', score: 65, reason: '理想主義的な思いやり' },
+        { archetype: 'ARS', score: 60, reason: '美しい思いやりの表現' }
+      ],
+      
+      // 探検家系
+      'ART': [ // 職人
+        { archetype: 'GUA', score: 95, reason: '職人気質と堅実さの融合' },
+        { archetype: 'ARS', score: 90, reason: '技術と芸術の理想的調和' },
+        { archetype: 'PIO', score: 85, reason: '実践力と冒険心の組み合わせ' },
+        { archetype: 'DEF', score: 80, reason: '堅実な技術の共鳴' },
+        { archetype: 'INV', score: 75, reason: '革新的技術の追求' },
+        { archetype: 'EXE', score: 70, reason: '実行力と技術の融合' },
+        { archetype: 'ARC', score: 65, reason: '論理と技術の組み合わせ' },
+        { archetype: 'PRO', score: 60, reason: '思いやりのある技術' }
+      ],
+      'ARS': [ // 芸術家
+        { archetype: 'DEF', score: 95, reason: '静かな美しさの深い共鳴' },
+        { archetype: 'ART', score: 90, reason: '芸術と技術の完璧な融合' },
+        { archetype: 'PER', score: 85, reason: '芸術表現の相互啓発' },
+        { archetype: 'BAR', score: 80, reason: '芸術的感性の深い共有' },
+        { archetype: 'GUA', score: 75, reason: '安定した美の追求' },
+        { archetype: 'DRM', score: 70, reason: '美しい夢想の共有' },
+        { archetype: 'ALC', score: 65, reason: '内向的な美意識の共鳴' },
+        { archetype: 'INV', score: 60, reason: '革新的芸術の創造' }
+      ],
+      'PIO': [ // 開拓者
+        { archetype: 'EXE', score: 95, reason: '冒険心と実行力の爆発的融合' },
+        { archetype: 'ART', score: 90, reason: '実践的冒険の追求' },
+        { archetype: 'INV', score: 85, reason: '革新的冒険の共鳴' },
+        { archetype: 'SOV', score: 80, reason: 'リーダーシップと冒険の調和' },
+        { archetype: 'PER', score: 75, reason: '自由な精神の共鳴' },
+        { archetype: 'HER', score: 70, reason: '理想実現への冒険' },
+        { archetype: 'BAR', score: 65, reason: '創造的冒険の追求' },
+        { archetype: 'GUA', score: 60, reason: '堅実な冒険の組み合わせ' }
+      ],
+      'PER': [ // 表現者
+        { archetype: 'BAR', score: 95, reason: '表現力の爆発的な融合' },
+        { archetype: 'ARS', score: 90, reason: '芸術的表現の相互啓発' },
+        { archetype: 'INV', score: 85, reason: '革新的表現の追求' },
+        { archetype: 'DRM', score: 80, reason: '自由な夢想の表現' },
+        { archetype: 'PIO', score: 75, reason: '自由な精神の共鳴' },
+        { archetype: 'HER', score: 70, reason: '理想の表現' },
+        { archetype: 'ARC', score: 65, reason: '論理的表現の新しい形' },
+        { archetype: 'SAG', score: 60, reason: '知恵の表現' }
+      ]
+    };
+
+    return rankings[baseArchetype] || [];
+  }
+
+  // BaseArchetypeに基づいて互換性のあるAI人格を選択（一定選択）
+  private getCompatibleAIPersonality(baseArchetype: BaseArchetype, randomize: boolean = false): string {
     const compatibilityMap: Record<BaseArchetype, BaseArchetype[]> = {
       // 分析家系
       'ARC': ['DRM', 'SAG', 'BAR'], // 設計主 → 外交官系と相性良好

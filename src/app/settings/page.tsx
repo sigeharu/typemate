@@ -35,6 +35,8 @@ export default function SettingsPage() {
   const [selectedAiPersonality, setSelectedAiPersonality] = useState<BaseArchetype | null>(null);
   const [relationshipType, setRelationshipType] = useState<'friend' | 'counselor' | 'romantic' | 'mentor'>('friend');
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
   
   // 🔬 AI理解度分析関連のstate
   const [memoryPersonalInfo, setMemoryPersonalInfo] = useState<MemoryPersonalInfo>({ 
@@ -80,8 +82,13 @@ export default function SettingsPage() {
           console.warn('⚠️ 個人情報読み込みエラー:', error);
         }
 
-        // AIパートナー設定のデフォルト値
-        if (diagnosisStatus.userType) {
+        // 現在のAI人格設定を取得（診断結果から）
+        const currentAiPersonality = diagnosisStatus.aiPersonality;
+        if (currentAiPersonality) {
+          // 診断結果に保存されているAI人格を使用
+          setSelectedAiPersonality(currentAiPersonality);
+        } else if (diagnosisStatus.userType) {
+          // フォールバック: デフォルト値を使用
           const [baseType] = diagnosisStatus.userType.split('-') as [BaseArchetype, string];
           const userArchetype = ARCHETYPE_DATA[baseType];
           const defaultAiPersonality = userArchetype.compatibility[0];
@@ -97,6 +104,38 @@ export default function SettingsPage() {
 
     initializeSettings();
   }, [router]);
+
+  const handleSaveSettings = async () => {
+    if (!userId || !selectedAiPersonality) return;
+    
+    setIsSaving(true);
+    try {
+      // user_profilesテーブルを更新
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({
+          selected_ai_personality: selectedAiPersonality,
+          relationship_type: relationshipType,
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', userId);
+
+      if (error) {
+        console.error('❌ 設定保存エラー:', error);
+        alert('設定の保存に失敗しました。');
+        return;
+      }
+
+      console.log('✅ 設定保存成功');
+      setHasChanges(false);
+      alert('設定を保存しました！');
+    } catch (error) {
+      console.error('💥 設定保存例外:', error);
+      alert('設定の保存に失敗しました。');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleClearData = () => {
     if (confirm('すべてのチャット履歴とプロファイル設定が削除されます。本当によろしいですか？')) {
@@ -156,6 +195,17 @@ export default function SettingsPage() {
               </div>
             </div>
           </div>
+          
+          {hasChanges && (
+            <Button 
+              onClick={handleSaveSettings}
+              disabled={isSaving}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              <Save size={16} className="mr-2" />
+              {isSaving ? '保存中...' : '設定を保存'}
+            </Button>
+          )}
         </div>
       </motion.header>
 
@@ -253,13 +303,13 @@ export default function SettingsPage() {
             <p className="text-slate-600 mb-6">あなたと相性の良いAIパートナーから選択してください</p>
             
             <div className="grid md:grid-cols-2 gap-4">
-              {userArchetype.compatibility.map((compatibleType) => {
-                const compatibleArchetype = ARCHETYPE_DATA[compatibleType];
-                const isSelected = selectedAiPersonality === compatibleType;
+              {diagnosisService.getCompatibilityRanking(baseType).map((compatibilityScore, index) => {
+                const compatibleArchetype = ARCHETYPE_DATA[compatibilityScore.archetype];
+                const isSelected = selectedAiPersonality === compatibilityScore.archetype;
                 
                 return (
                   <motion.div
-                    key={compatibleType}
+                    key={compatibilityScore.archetype}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
@@ -269,24 +319,36 @@ export default function SettingsPage() {
                           ? 'border-blue-500 bg-blue-50' 
                           : 'border-slate-200 hover:border-slate-300'
                       }`}
-                      onClick={() => setSelectedAiPersonality(compatibleType)}
+                      onClick={() => {
+                        setSelectedAiPersonality(compatibilityScore.archetype);
+                        setHasChanges(true);
+                      }}
                     >
                       <div className="flex items-center gap-3 mb-3">
-                        {getGroupIcon(compatibleArchetype.group)}
-                        <div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="bg-gradient-to-r from-blue-100 to-purple-100 border-blue-300 text-blue-700 font-semibold">
+                            #{index + 1}
+                          </Badge>
+                          {getGroupIcon(compatibleArchetype.group)}
+                        </div>
+                        <div className="flex-1">
                           <div className="font-bold text-slate-800">{compatibleArchetype.name}</div>
                           <div className="text-sm text-slate-600">{compatibleArchetype.nameEn}</div>
                         </div>
-                        {isSelected && (
-                          <div className="ml-auto">
-                            <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                        <div className="text-right">
+                          <div className="text-lg font-bold text-blue-600">{compatibilityScore.score}点</div>
+                          {isSelected && (
+                            <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center mx-auto">
                               <div className="w-2 h-2 bg-white rounded-full"></div>
                             </div>
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </div>
                       <p className="text-sm text-slate-700 mb-2">
                         {compatibleArchetype.personality}
+                      </p>
+                      <p className="text-xs text-blue-600 mb-2 font-medium">
+                        💡 {compatibilityScore.reason}
                       </p>
                       <p className="text-xs text-slate-600 italic">
                         💕 {compatibleArchetype.loveStyle}
@@ -333,7 +395,10 @@ export default function SettingsPage() {
                           ? 'border-blue-500 bg-blue-50' 
                           : 'border-slate-200 hover:border-slate-300'
                       }`}
-                      onClick={() => setRelationshipType(option.key as any)}
+                      onClick={() => {
+                        setRelationshipType(option.key as any);
+                        setHasChanges(true);
+                      }}
                     >
                       <div className="text-2xl mb-2">{option.emoji}</div>
                       <div className="font-semibold text-slate-800 mb-1">{option.label}</div>
