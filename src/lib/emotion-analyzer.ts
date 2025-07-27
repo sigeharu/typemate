@@ -191,8 +191,18 @@ export class EmotionAnalyzer {
       let patternScore = 0;
       
       for (const word of pattern.words) {
-        const matches = (message.match(new RegExp(word, 'gi')) || []).length;
-        patternScore += matches * pattern.weight;
+        try {
+          // 正規表現の特殊文字をエスケープ
+          const escapedWord = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const matches = (message.match(new RegExp(escapedWord, 'gi')) || []).length;
+          patternScore += matches * pattern.weight;
+        } catch (error) {
+          // 正規表現エラーの場合は単純な文字列検索にフォールバック
+          const lowerMessage = message.toLowerCase();
+          const lowerWord = word.toLowerCase();
+          const count = (lowerMessage.split(lowerWord).length - 1);
+          patternScore += count * pattern.weight;
+        }
       }
       
       totalScore += patternScore;
