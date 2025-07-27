@@ -155,34 +155,7 @@ class DiagnosisService {
 
       console.log('🔍 診断状況確認開始:', { userId: targetUserId });
 
-      // メイン: user_profilesテーブルから診断状況確認
-      const { data: profile, error } = await supabase
-        .from('user_profiles')
-        .select('user_type, created_at, preferences')
-        .eq('user_id', targetUserId)
-        .single();
-
-      console.log('🔍 user_profiles結果:', { profile, error: error?.message, errorCode: error?.code });
-
-      if (profile && profile.user_type) {
-        const lastDiagnosisDate = profile.preferences?.diagnosisDate 
-          ? new Date(profile.preferences.diagnosisDate) 
-          : new Date(profile.created_at);
-
-        console.log('✅ user_profilesから診断済み確認:', { 
-          userType: profile.user_type, 
-          lastDiagnosisDate 
-        });
-
-        return {
-          hasDiagnosis: true,
-          userType: profile.user_type as Type64,
-          lastDiagnosisDate,
-          canRetakeDiagnosis: true
-        };
-      }
-
-      // フォールバック: diagnostic_resultsテーブルから確認（テーブルが存在する場合のみ）
+      // メイン: diagnostic_resultsテーブルから診断状況確認（保存が成功しているため）
       try {
         const { data: diagnosticResults, error: diagnosticError } = await supabase
           .from('diagnostic_results')
@@ -213,7 +186,38 @@ class DiagnosisService {
           };
         }
       } catch (error) {
-        console.warn('⚠️ diagnostic_resultsテーブルアクセスエラー、スキップ:', error);
+        console.warn('⚠️ diagnostic_resultsテーブルアクセスエラー:', error);
+      }
+
+      // フォールバック: user_profilesテーブルから確認
+      try {
+        const { data: profile, error } = await supabase
+          .from('user_profiles')
+          .select('user_type, created_at, preferences')
+          .eq('user_id', targetUserId)
+          .single();
+
+        console.log('🔍 user_profiles結果:', { profile, error: error?.message, errorCode: error?.code });
+
+        if (profile && profile.user_type) {
+          const lastDiagnosisDate = profile.preferences?.diagnosisDate 
+            ? new Date(profile.preferences.diagnosisDate) 
+            : new Date(profile.created_at);
+
+          console.log('✅ user_profilesから診断済み確認:', { 
+            userType: profile.user_type, 
+            lastDiagnosisDate 
+          });
+
+          return {
+            hasDiagnosis: true,
+            userType: profile.user_type as Type64,
+            lastDiagnosisDate,
+            canRetakeDiagnosis: true
+          };
+        }
+      } catch (error) {
+        console.warn('⚠️ user_profilesテーブルアクセスエラー:', error);
       }
 
       // データベースに診断結果がない場合、LocalStorageを確認
