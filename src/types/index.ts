@@ -6,6 +6,8 @@ export interface Message {
   content: string;
   sender: 'user' | 'ai' | 'system';
   timestamp: Date;
+  isUser: boolean;
+  sessionId: string;
   archetypeType?: string;
   emotion?: 'happy' | 'excited' | 'calm' | 'thoughtful' | 'caring' | 'playful' | 'focused' | 'supportive';
 }
@@ -58,7 +60,7 @@ export interface RelationshipLevel {
 }
 
 export interface RelationshipData {
-  currentLevel: number;
+  currentLevel: RelationshipLevel;
   totalPoints: number;
   dailyStreak: number;
   lastInteraction: Date;
@@ -146,5 +148,26 @@ export interface EventNotification {
   date: Date;
   isRead: boolean;
   type: 'upcoming' | 'today' | 'missed';
+}
+
+// 個人情報
+export interface PersonalInfo {
+  name: string;
+  birthday?: string;
+}
+
+// メモリシステム
+export interface MemorySystem {
+  memories: Memory[];
+  totalCount: number;
+  lastUpdated: Date;
+}
+
+// テストプロファイル
+export interface TestProfile {
+  name: string;
+  userType: Type64;
+  aiPersonality: BaseArchetype;
+  description: string;
 }
 

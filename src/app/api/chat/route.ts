@@ -12,9 +12,9 @@ const anthropic = new Anthropic({
 });
 
 export async function POST(request: NextRequest) {
-  let message: string;
-  let userType: Type64;
-  let aiPersonality: BaseArchetype;
+  let message: string = '';
+  let userType: Type64 = 'ARC-AS';
+  let aiPersonality: BaseArchetype = 'DRM';
   let relationshipType: 'friend' | 'counselor' | 'romantic' | 'mentor' = 'friend';
   let messageHistory: string[] = [];
   let conversationTurn: number = 0;
@@ -385,7 +385,12 @@ function analyzeEmotionWithIntensity(userMessage: string, aiResponse: string): E
     }
   };
 
-  let bestMatch = { emotion: 'calm', intensity: 5, keywords: [], category: 'neutral' as const };
+  let bestMatch: { emotion: string; intensity: number; keywords: string[]; category: 'positive' | 'neutral' | 'negative' } = { 
+    emotion: 'calm', 
+    intensity: 5, 
+    keywords: [], 
+    category: 'neutral' as const 
+  };
   let maxScore = 0;
   let foundKeywords: string[] = [];
 

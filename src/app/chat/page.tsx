@@ -236,7 +236,7 @@ export default function ChatPage() {
           relationshipType: 'friend',
           messageHistory: [],
           conversationTurn: messages.length,
-          relationshipLevel: relationship?.currentLevel?.level || 1,
+          relationshipLevel: typeof relationship?.currentLevel === 'object' ? relationship.currentLevel.level : relationship?.currentLevel || 1,
           importantMemories: [],
           relatedMemories: [],
           todaysEvents: [],
@@ -426,7 +426,7 @@ export default function ChatPage() {
 
             
             {/* 関係性レベル表示 */}
-            {relationship && relationship.currentLevel.level > 1 && (
+            {relationship && typeof relationship.currentLevel === 'object' && relationship.currentLevel.level > 1 && (
               <div className="mt-3">
                 <div className="bg-stone-100/50 border border-stone-200 rounded-lg p-2">
                   <div className="text-sm text-stone-600 text-center">
