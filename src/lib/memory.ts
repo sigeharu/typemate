@@ -91,7 +91,9 @@ class InfoExtractor {
     for (const pattern of this.BIRTHDAY_PATTERNS) {
       const matches = [...message.matchAll(pattern)];
       for (const match of matches) {
-        let month: string, day: string, year?: string;
+        let month: string;
+        let day: string;
+        let year: string | undefined;
         
         if (match.length === 4) { // 年月日パターン
           year = match[1];
