@@ -181,14 +181,31 @@ class DiagnosisService {
         // diagnostic_resultsに結果がある場合
         if (diagnosticResults && diagnosticResults.length > 0) {
           const latestResult = diagnosticResults[0];
-          
-          // AI人格を診断結果から決定
           const [baseArchetype] = latestResult.user_type.split('-') as [BaseArchetype, string];
-          const aiPersonality = this.getCompatibleAIPersonality(baseArchetype);
+
+          // user_profilesからsaved AI personalityを取得
+          let savedAiPersonality = null;
+          try {
+            const { data: profiles } = await supabase
+              .from('user_profiles')
+              .select('selected_ai_personality')
+              .eq('user_id', targetUserId)
+              .single();
+            
+            savedAiPersonality = profiles?.selected_ai_personality;
+            console.log('🔍 user_profilesから保存済みAI人格取得:', savedAiPersonality);
+          } catch (error) {
+            console.warn('⚠️ user_profiles AI人格取得エラー:', error);
+          }
+
+          // 優先順位: 1) 保存されたAI人格 2) 診断結果から計算
+          const aiPersonality = savedAiPersonality || this.getCompatibleAIPersonality(baseArchetype);
           
           console.log('✅ diagnostic_resultsから診断済み確認:', { 
             userType: latestResult.user_type, 
-            aiPersonality,
+            savedAiPersonality,
+            calculatedAiPersonality: this.getCompatibleAIPersonality(baseArchetype),
+            finalAiPersonality: aiPersonality,
             createdAt: latestResult.created_at 
           });
 

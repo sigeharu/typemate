@@ -82,17 +82,53 @@ export default function SettingsPage() {
           console.warn('⚠️ 個人情報読み込みエラー:', error);
         }
 
-        // 現在のAI人格設定を取得（診断結果から）
-        const currentAiPersonality = diagnosisStatus.aiPersonality;
-        if (currentAiPersonality) {
-          // 診断結果に保存されているAI人格を使用
-          setSelectedAiPersonality(currentAiPersonality);
-        } else if (diagnosisStatus.userType) {
-          // フォールバック: デフォルト値を使用
-          const [baseType] = diagnosisStatus.userType.split('-') as [BaseArchetype, string];
-          const userArchetype = ARCHETYPE_DATA[baseType];
-          const defaultAiPersonality = userArchetype.compatibility[0];
-          setSelectedAiPersonality(defaultAiPersonality);
+        // user_profilesから現在のAI人格設定を直接取得
+        try {
+          const { data: profile, error } = await supabase
+            .from('user_profiles')
+            .select('selected_ai_personality, relationship_type')
+            .eq('user_id', user.id)
+            .single();
+
+          if (profile) {
+            console.log('✅ user_profilesから設定読み込み:', {
+              savedAiPersonality: profile.selected_ai_personality,
+              relationshipType: profile.relationship_type
+            });
+
+            // 保存されたAI人格設定を使用
+            if (profile.selected_ai_personality) {
+              setSelectedAiPersonality(profile.selected_ai_personality);
+            } else if (diagnosisStatus.userType) {
+              // フォールバック: デフォルト値を使用
+              const [baseType] = diagnosisStatus.userType.split('-') as [BaseArchetype, string];
+              const userArchetype = ARCHETYPE_DATA[baseType];
+              const defaultAiPersonality = userArchetype.compatibility[0];
+              setSelectedAiPersonality(defaultAiPersonality);
+            }
+
+            // 関係性タイプも復元
+            if (profile.relationship_type) {
+              setRelationshipType(profile.relationship_type);
+            }
+          } else {
+            // プロファイルが存在しない場合のフォールバック
+            if (diagnosisStatus.userType) {
+              const [baseType] = diagnosisStatus.userType.split('-') as [BaseArchetype, string];
+              const userArchetype = ARCHETYPE_DATA[baseType];
+              const defaultAiPersonality = userArchetype.compatibility[0];
+              setSelectedAiPersonality(defaultAiPersonality);
+            }
+          }
+        } catch (error) {
+          console.warn('⚠️ user_profiles設定読み込みエラー:', error);
+          // エラーの場合のフォールバック
+          if (diagnosisStatus.userType) {
+            const [baseType] = diagnosisStatus.userType.split('-') as [BaseArchetype, string];
+            const userArchetype = ARCHETYPE_DATA[baseType];
+            const defaultAiPersonality = userArchetype.compatibility[0];
+            setSelectedAiPersonality(defaultAiPersonality);
+          }
         }
         
         setIsLoading(false);
