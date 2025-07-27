@@ -7,13 +7,13 @@ import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import type { DiagnosticQuestion } from '@/types';
+import type { DiagnosticQuestion, DiagnosticScore } from '@/types';
 
 interface DiagnosticQuestionProps {
   question: DiagnosticQuestion;
   currentIndex: number;
   totalQuestions: number;
-  onAnswer: (questionId: number, selectedTrait: string) => void;
+  onAnswer: (questionId: number, score: DiagnosticScore) => void;
 }
 
 export function DiagnosticQuestion({ 
@@ -61,48 +61,134 @@ export function DiagnosticQuestion({
             {question.question}
           </h2>
           
-          <div className="space-y-4 sm:space-y-5 lg:space-y-6">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <Button
-                variant="outline"
-                className="w-full text-left h-auto p-4 sm:p-5 lg:p-6 hover:bg-slate-50 hover:border-slate-300 transition-all duration-300 border-2"
-                onClick={() => onAnswer(question.id, question.optionA.trait)}
-              >
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-purple-100 to-blue-100 border-2 border-purple-300 flex items-center justify-center text-musical font-bold">
-                    A
-                  </div>
-                  <div className="text-sm leading-relaxed text-gray-700">
-                    {question.optionA.text}
-                  </div>
+          {/* 5段階評価選択肢 */}
+          <div className="space-y-3">
+            {/* Option A の説明 */}
+            <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border border-purple-200">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-purple-100 to-blue-100 border-2 border-purple-300 flex items-center justify-center text-purple-700 font-bold text-sm">
+                  A
                 </div>
-              </Button>
-            </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.5 }}
-            >
-              <Button
-                variant="outline"
-                className="w-full text-left h-auto p-4 sm:p-5 lg:p-6 hover:bg-blue-50 hover:border-blue-300 transition-all duration-300 border-2"
-                onClick={() => onAnswer(question.id, question.optionB.trait)}
-              >
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 border-2 border-blue-300 flex items-center justify-center text-musical font-bold">
-                    B
-                  </div>
-                  <div className="text-sm leading-relaxed text-gray-700">
-                    {question.optionB.text}
-                  </div>
+                <div className="text-sm leading-relaxed text-gray-700">
+                  {question.optionA.text}
                 </div>
-              </Button>
-            </motion.div>
+              </div>
+            </div>
+
+            {/* 5段階評価ボタン */}
+            <div className="grid grid-cols-1 gap-3">
+              {/* A に強く同意 (+2) */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <Button
+                  variant="outline"
+                  className="w-full text-center h-auto p-3 hover:bg-purple-50 hover:border-purple-400 transition-all duration-300 border-2 border-purple-300"
+                  onClick={() => onAnswer(question.id, 2)}
+                >
+                  <div className="flex items-center justify-center gap-3">
+                    <div className="w-6 h-6 rounded-full bg-purple-500 text-white flex items-center justify-center text-xs font-bold">
+                      +2
+                    </div>
+                    <span className="text-sm font-medium text-purple-700">A に強く同意する</span>
+                  </div>
+                </Button>
+              </motion.div>
+
+              {/* A にやや同意 (+1) */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                <Button
+                  variant="outline"
+                  className="w-full text-center h-auto p-3 hover:bg-purple-25 hover:border-purple-300 transition-all duration-300 border border-purple-200"
+                  onClick={() => onAnswer(question.id, 1)}
+                >
+                  <div className="flex items-center justify-center gap-3">
+                    <div className="w-6 h-6 rounded-full bg-purple-300 text-white flex items-center justify-center text-xs font-bold">
+                      +1
+                    </div>
+                    <span className="text-sm text-purple-600">A にやや同意する</span>
+                  </div>
+                </Button>
+              </motion.div>
+
+              {/* どちらともいえない (0) */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+              >
+                <Button
+                  variant="outline"
+                  className="w-full text-center h-auto p-3 hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 border-2 border-gray-300 bg-gray-25"
+                  onClick={() => onAnswer(question.id, 0)}
+                >
+                  <div className="flex items-center justify-center gap-3">
+                    <div className="w-6 h-6 rounded-full bg-gray-400 text-white flex items-center justify-center text-xs font-bold">
+                      0
+                    </div>
+                    <span className="text-sm font-medium text-gray-600">どちらともいえない</span>
+                  </div>
+                </Button>
+              </motion.div>
+
+              {/* B にやや同意 (-1) */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+              >
+                <Button
+                  variant="outline"
+                  className="w-full text-center h-auto p-3 hover:bg-blue-25 hover:border-blue-300 transition-all duration-300 border border-blue-200"
+                  onClick={() => onAnswer(question.id, -1)}
+                >
+                  <div className="flex items-center justify-center gap-3">
+                    <div className="w-6 h-6 rounded-full bg-blue-300 text-white flex items-center justify-center text-xs font-bold">
+                      -1
+                    </div>
+                    <span className="text-sm text-blue-600">B にやや同意する</span>
+                  </div>
+                </Button>
+              </motion.div>
+
+              {/* B に強く同意 (-2) */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.7 }}
+              >
+                <Button
+                  variant="outline"
+                  className="w-full text-center h-auto p-3 hover:bg-blue-50 hover:border-blue-400 transition-all duration-300 border-2 border-blue-300"
+                  onClick={() => onAnswer(question.id, -2)}
+                >
+                  <div className="flex items-center justify-center gap-3">
+                    <div className="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold">
+                      -2
+                    </div>
+                    <span className="text-sm font-medium text-blue-700">B に強く同意する</span>
+                  </div>
+                </Button>
+              </motion.div>
+            </div>
+
+            {/* Option B の説明 */}
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border border-blue-200">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 border-2 border-blue-300 flex items-center justify-center text-blue-700 font-bold text-sm">
+                  B
+                </div>
+                <div className="text-sm leading-relaxed text-gray-700">
+                  {question.optionB.text}
+                </div>
+              </div>
+            </div>
           </div>
         </Card>
       </motion.div>
@@ -115,10 +201,10 @@ export function DiagnosticQuestion({
         className="text-center"
       >
         <p className="text-sm text-gray-500 mb-2">
-          💡 どちらにより多く当てはまるかで選択してください
+          💡 5段階であなたの傾向を選択してください
         </p>
         <p className="text-xs text-gray-400">
-          完璧にどちらかに当てはまる必要はありません。より近い方を選んでください。
+          強い同意（±2）、やや同意（±1）、中立（0）の中から最も近いものを選んでください。
         </p>
       </motion.div>
     </div>

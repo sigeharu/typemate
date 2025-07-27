@@ -3,7 +3,7 @@
 
 import type { BaseArchetype, ArchetypeData, DiagnosticQuestion } from '@/types/index';
 
-// 18問の診断質問
+// 26問の診断質問（精度向上のため拡張）
 export const DIAGNOSTIC_QUESTIONS: DiagnosticQuestion[] = [
   // エネルギーの方向 (I/E)
   {
@@ -141,6 +141,76 @@ export const DIAGNOSTIC_QUESTIONS: DiagnosticQuestion[] = [
     question: 'もし1ヶ月の長期休暇が取れたら、どのように過ごしたい？',
     optionA: { text: 'いつものお気に入りの場所や、慣れ親しんだ環境で、心ゆくまでリラックスして過ごす。', trait: 'S' },
     optionB: { text: '行ったことのない国へ旅に出たり、新しい趣味の短期集中講座に参加したりして過ごす。', trait: 'G' }
+  },
+
+  // === 新規追加質問（精度向上のため） ===
+
+  // エネルギー軸強化（内向/外向の深い理解）
+  {
+    id: 19,
+    axis: 'energy',
+    question: 'ストレスや疲れを感じた時、あなたが最も効果的だと感じる回復方法は？',
+    optionA: { text: '信頼できる友人や同僚と話し合い、一緒に解決策を探したり、愚痴を聞いてもらう。', trait: 'E' },
+    optionB: { text: '一人の時間を確保し、静かな環境で自分の内面と向き合いながら整理する。', trait: 'I' }
+  },
+  {
+    id: 20,
+    axis: 'energy',
+    question: 'アイデアや思考を整理する時、あなたが最も自然に行う方法は？',
+    optionA: { text: '誰かと話しながら考えを声に出し、対話を通じてアイデアを発展させていく。', trait: 'E' },
+    optionB: { text: '一人で集中して考え込み、頭の中やメモで思考を整理してから人に話す。', trait: 'I' }
+  },
+
+  // 外界への接し方軸強化（内面思考スタイル重視）
+  {
+    id: 21,
+    axis: 'lifestyle',
+    question: '重要な決断をする際、あなたの思考プロセスはどちらに近い？',
+    optionA: { text: '情報収集→分析→結論と、段階的に進めて最終的に一つの答えに絞り込む。', trait: 'J' },
+    optionB: { text: '複数の選択肢を同時に考え続け、最後まで可能性を残してから直感で決める。', trait: 'P' }
+  },
+  {
+    id: 22,
+    axis: 'lifestyle',
+    question: '新しい情報に出会った時、あなたの最初の反応は？',
+    optionA: { text: 'その情報を既存の知識体系のどこに位置づけるか、分類・整理しようとする。', trait: 'J' },
+    optionB: { text: 'その情報が開く新しい可能性や、他の分野との意外な関連性を探ろうとする。', trait: 'P' }
+  },
+
+  // ものの見方軸強化
+  {
+    id: 23,
+    axis: 'perception',
+    question: '映画や小説を楽しむ時、あなたが最も魅力を感じるのは？',
+    optionA: { text: 'リアルな描写や細かい設定、登場人物の心理描写などの「説得力」。', trait: 'S' },
+    optionB: { text: '斬新な世界観や従来にない発想、想像力を刺激するような「創造性」。', trait: 'N' }
+  },
+
+  // 判断の仕方軸強化
+  {
+    id: 24,
+    axis: 'judgment',
+    question: '人を評価する時、あなたが最も重視する基準は？',
+    optionA: { text: 'その人の実績、スキル、論理的思考力などの「客観的な能力」。', trait: 'T' },
+    optionB: { text: 'その人の価値観、人柄、周囲への配慮などの「人間的な魅力」。', trait: 'F' }
+  },
+
+  // 環境軸追加
+  {
+    id: 25,
+    axis: 'environment',
+    question: '理想的なチーム環境として、あなたが最も望むのは？',
+    optionA: { text: 'メンバー全員が平等で、意見交換が活発に行われる水平的な関係性。', trait: 'A' },
+    optionB: { text: '明確な目標設定があり、個人の成果が正当に評価される競争的な環境。', trait: 'C' }
+  },
+
+  // 動機軸追加
+  {
+    id: 26,
+    axis: 'motivation',
+    question: '人生において最も大切にしたい価値観は？',
+    optionA: { text: '安心できる人間関係と、予測可能で安定した日常生活。', trait: 'S' },
+    optionB: { text: '常に新しい体験を積み重ね、自分の可能性を追求し続けること。', trait: 'G' }
   }
 ];
 

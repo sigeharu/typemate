@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS diagnostic_results (
 );
 
 -- 2. RLS有効化
+
 ALTER TABLE diagnostic_results ENABLE ROW LEVEL SECURITY;
 
 -- 3. 既存ポリシー削除（安全のため）

@@ -19,10 +19,20 @@ export type BaseArchetype =
   | 'GUA' | 'DEF' | 'EXE' | 'PRO'  // 番人
   | 'ART' | 'ARS' | 'PIO' | 'PER'; // 探検家
 
-export type EnvironmentAxis = 'A' | 'C'; // 協調 / 競争
-export type MotivationAxis = 'S' | 'G';  // 安定 / 成長
+// 独自軸システム（MBTI権利問題完全回避）
+export type EnergyAxis = 'OUTWARD' | 'INWARD'; // 外向性 / 内向性
+export type PerceptionAxis = 'INTUITION' | 'SENSING'; // 直感性 / 感覚性
+export type JudgmentAxis = 'THINKING' | 'FEELING'; // 論理性 / 感情性
+export type LifestyleAxis = 'JUDGING' | 'PERCEIVING'; // 計画性 / 柔軟性
+export type EnvironmentAxis = 'COOPERATIVE' | 'COMPETITIVE'; // 協調性 / 競争性
+export type MotivationAxis = 'STABLE' | 'GROWTH'; // 安定性 / 成長性
 
-export type Type64 = `${BaseArchetype}-${EnvironmentAxis}${MotivationAxis}`;
+// 4つの称号システム
+export type TitleType = 'HARMONIC' | 'PIONEERING' | 'SOLITARY' | 'CHALLENGING';
+
+// 64タイプシステム
+export type FullArchetype64 = `${TitleType}_${BaseArchetype}`;
+export type Type64 = `${BaseArchetype}-${EnvironmentAxis}${MotivationAxis}`; // 後方互換性維持
 
 // 診断質問
 export interface DiagnosticQuestion {
@@ -31,6 +41,65 @@ export interface DiagnosticQuestion {
   question: string;
   optionA: { text: string; trait: string };
   optionB: { text: string; trait: string };
+}
+
+// 5段階評価システム
+export type DiagnosticScore = -2 | -1 | 0 | 1 | 2;
+
+export interface AxisScore {
+  positive: number; // +2, +1のスコア合計
+  negative: number; // -2, -1のスコア合計
+  neutral: number;  // 0のスコア合計
+  total: number;    // 全スコア合計（重み付け後）
+  percentage: number; // 正の特性の傾向（0-100%）
+  isBalance: boolean; // バランス型判定
+}
+
+// 称号データ
+export interface TitleData {
+  name: string;
+  nameEn: string;
+  description: string;
+  traits: string[];
+  characteristics: string;
+  approach: string;
+  conditions: {
+    environment: EnvironmentAxis;
+    motivation: MotivationAxis;
+  };
+}
+
+// 64タイプアーキタイプデータ
+export interface ArchetypeData64 {
+  base: BaseArchetype;
+  title: TitleType;
+  name: string;
+  nameEn: string;
+  fullName: string; // 称号 + ベースアーキタイプ名
+  description: string;
+  traits: string[];
+  titleTraits: string[];
+  combinedPersonality: string;
+  loveStyle: string;
+  uniqueCharm: string;
+}
+
+// 拡張された診断結果（64タイプ対応）
+export interface DetailedDiagnosisResult {
+  type64: Type64;
+  fullArchetype64: FullArchetype64;
+  title: TitleType;
+  baseArchetype: BaseArchetype;
+  axisScores: {
+    energy: AxisScore & { result: EnergyAxis };
+    perception: AxisScore & { result: PerceptionAxis };
+    judgment: AxisScore & { result: JudgmentAxis };
+    lifestyle: AxisScore & { result: LifestyleAxis };
+    environment: AxisScore & { result: EnvironmentAxis };
+    motivation: AxisScore & { result: MotivationAxis };
+  };
+  confidence: number; // 診断の信頼度（0-100%）
+  balanceTypes: string[]; // バランス型の軸リスト
 }
 
 // アーキタイプデータ
