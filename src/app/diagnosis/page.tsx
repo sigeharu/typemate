@@ -97,6 +97,12 @@ export default function DiagnosisPage() {
           // LocalStorageにもフォールバック保存（サービス内で実行済みだが念のため）
           localStorage.setItem('userType64', calculatedType);
           
+          // 🎯 重要: DB反映を確実にするため少し待機
+          if (success) {
+            console.log('⏱️ DB反映確保のため500ms待機');
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
+          
         } catch (error) {
           console.error('❌ 診断結果保存エラー:', error);
           // フォールバック: LocalStorageのみ保存

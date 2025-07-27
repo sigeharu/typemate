@@ -6,6 +6,7 @@
 import { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase-simple';
+import { diagnosisService } from '@/lib/diagnosis-service';
 
 function AuthCallbackContent() {
   const router = useRouter();
@@ -26,8 +27,25 @@ function AuthCallbackContent() {
         }
 
         if (data.session) {
-          // 認証成功 - 診断ページにリダイレクト（NextAuthと同じ動作）
-          router.push('/diagnosis');
+          console.log('✅ 認証成功 - 診断状況確認開始:', data.session.user.id);
+          
+          // 🎯 根本修正: 診断状況をチェックしてからリダイレクト
+          try {
+            const diagnosisStatus = await diagnosisService.getDiagnosisStatus(data.session.user.id);
+            console.log('🔍 認証後診断状況:', diagnosisStatus);
+            
+            if (diagnosisStatus.hasDiagnosis) {
+              console.log('✅ 診断済みユーザー - チャットへリダイレクト');
+              router.push('/chat');
+            } else {
+              console.log('❓ 未診断ユーザー - 診断ページへリダイレクト');
+              router.push('/diagnosis');
+            }
+          } catch (error) {
+            console.error('❌ 診断状況確認エラー:', error);
+            // エラー時は安全のため診断ページへ
+            router.push('/diagnosis');
+          }
         } else {
           // セッションなし - ホームページにリダイレクト
           router.push('/');
@@ -43,9 +61,25 @@ function AuthCallbackContent() {
       handleAuthCallback();
     } else {
       // コードがない場合は直接セッション確認
-      supabase.auth.getSession().then(({ data }) => {
+      supabase.auth.getSession().then(async ({ data }) => {
         if (data.session) {
-          router.push('/diagnosis');
+          console.log('✅ 既存セッション確認 - 診断状況確認開始:', data.session.user.id);
+          
+          try {
+            const diagnosisStatus = await diagnosisService.getDiagnosisStatus(data.session.user.id);
+            console.log('🔍 既存セッション診断状況:', diagnosisStatus);
+            
+            if (diagnosisStatus.hasDiagnosis) {
+              console.log('✅ 診断済みユーザー - チャットへリダイレクト');
+              router.push('/chat');
+            } else {
+              console.log('❓ 未診断ユーザー - 診断ページへリダイレクト');
+              router.push('/diagnosis');
+            }
+          } catch (error) {
+            console.error('❌ 診断状況確認エラー:', error);
+            router.push('/diagnosis');
+          }
         } else {
           router.push('/');
         }

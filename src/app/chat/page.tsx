@@ -96,14 +96,29 @@ export default function ChatPage() {
         console.log('✅ 認証済みユーザー:', user.id);
         setUserId(user.id);
 
-        // 🔬 診断状況を確認してルーティング決定
+        // 🔬 診断状況を確認してルーティング決定（リトライ機能付き）
         console.log('🔍 チャットページ: 診断状況確認開始');
-        const diagnosisStatus = await diagnosisService.getDiagnosisStatus(user.id);
+        let diagnosisStatus = null;
+        let retryCount = 0;
+        const maxRetries = 3;
         
-        console.log('🔍 チャットページ診断状況結果:', diagnosisStatus);
+        while (retryCount < maxRetries) {
+          diagnosisStatus = await diagnosisService.getDiagnosisStatus(user.id);
+          console.log(`🔍 チャットページ診断状況結果 (試行${retryCount + 1}/${maxRetries}):`, diagnosisStatus);
+          
+          if (diagnosisStatus.hasDiagnosis) {
+            break;
+          }
+          
+          if (retryCount < maxRetries - 1) {
+            console.log(`⏱️ 診断結果未取得 - ${1000}ms後にリトライ`);
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+          retryCount++;
+        }
         
-        if (!diagnosisStatus.hasDiagnosis) {
-          console.log('❌ 未診断ユーザー - 診断ページへリダイレクト');
+        if (!diagnosisStatus?.hasDiagnosis) {
+          console.log('❌ 未診断ユーザー（リトライ後） - 診断ページへリダイレクト');
           router.push('/diagnosis');
           return;
         }
