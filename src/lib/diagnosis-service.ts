@@ -191,11 +191,14 @@ class DiagnosisService {
 
       // フォールバック: user_profilesテーブルから確認
       try {
-        const { data: profile, error } = await supabase
+        const { data: profiles, error } = await supabase
           .from('user_profiles')
           .select('user_type, created_at, preferences')
           .eq('user_id', targetUserId)
-          .single();
+          .order('created_at', { ascending: false })
+          .limit(1);
+
+        const profile = profiles?.[0];
 
         console.log('🔍 user_profiles結果:', { profile, error: error?.message, errorCode: error?.code });
 

@@ -21,29 +21,58 @@ interface AnalysisStage {
 
 interface AnalysisProgressProps {
   className?: string;
+  // 🔬 リアルタイム進捗データ
+  progress?: {
+    basicData: number;
+    preferences: number;
+    values: number;
+    deepUnderstanding: number;
+  };
+  // 🔬 個人情報表示用
+  userInfo?: {
+    user_name?: string;
+    user_birthday?: string;
+    collected_info: {
+      name?: string;
+      birthday?: string;
+      age?: number;
+      hobby?: string;
+      occupation?: string;
+      location?: string;
+    };
+    info_completeness: number;
+  };
 }
 
-export function AnalysisProgress({ className = '' }: AnalysisProgressProps) {
+export function AnalysisProgress({ 
+  className = '', 
+  progress: realProgress,
+  userInfo 
+}: AnalysisProgressProps) {
   const [currentStage, setCurrentStage] = useState(0);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-  // 4段階分析の定義
+  // 🔬 リアルタイム進捗でstagesを動的生成
   const stages: AnalysisStage[] = [
     {
       id: 'basic',
       name: '基本データ',
-      description: '基礎情報を解析中',
+      description: userInfo?.user_name 
+        ? `${userInfo.user_name}さんの情報を解析中` 
+        : '基礎情報を解析中',
       icon: <Search className="w-4 h-4" />,
-      progress: 60,
+      progress: realProgress?.basicData || 0,
       color: 'bg-blue-500',
       glowColor: 'shadow-blue-200'
     },
     {
       id: 'preference',
       name: '嗜好理解',
-      description: '好みパターンを分析',
+      description: userInfo?.collected_info?.hobby 
+        ? `${userInfo.collected_info.hobby}など好みを分析`
+        : '好みパターンを分析',
       icon: <Brain className="w-4 h-4" />,
-      progress: 40,
+      progress: realProgress?.preferences || 0,
       color: 'bg-emerald-500',
       glowColor: 'shadow-emerald-200'
     },
@@ -52,7 +81,7 @@ export function AnalysisProgress({ className = '' }: AnalysisProgressProps) {
       name: '価値観把握',
       description: '深層心理を探索',
       icon: <Heart className="w-4 h-4" />,
-      progress: 20,
+      progress: realProgress?.values || 0,
       color: 'bg-purple-500',
       glowColor: 'shadow-purple-200'
     },
@@ -61,7 +90,7 @@ export function AnalysisProgress({ className = '' }: AnalysisProgressProps) {
       name: '深層理解',
       description: '本質的理解を構築',
       icon: <Sparkles className="w-4 h-4" />,
-      progress: 0,
+      progress: realProgress?.deepUnderstanding || 0,
       color: 'bg-amber-500',
       glowColor: 'shadow-amber-200'
     }
@@ -122,7 +151,10 @@ export function AnalysisProgress({ className = '' }: AnalysisProgressProps) {
               AI理解度分析
             </h3>
             <div className="ml-auto text-xs text-stone-500">
-              実行中
+              {userInfo?.info_completeness 
+                ? `完成度 ${userInfo.info_completeness}%`
+                : '実行中'
+              }
             </div>
           </div>
 

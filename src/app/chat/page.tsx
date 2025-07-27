@@ -29,6 +29,7 @@ import { diagnosisService } from '@/lib/diagnosis-service';
 import type { Message, BaseArchetype, PersonalInfo, MemorySystem, RelationshipData, TestProfile } from '@/types';
 import { ARCHETYPE_DATA } from '@/lib/diagnostic-data';
 import { EmotionAnalyzer, type EmotionData } from '@/lib/emotion-analyzer';
+import { MemoryManager, type PersonalInfo as MemoryPersonalInfo, type ExtractionResult } from '@/lib/memory';
 
 // 🎵 UUID生成関数
 function generateUUID(): string {
@@ -55,6 +56,18 @@ export default function ChatPage() {
   const [userType, setUserType] = useState<string>('');
   const [aiPersonality, setAiPersonality] = useState<any>(null);
   const [personalInfo, setPersonalInfo] = useState<PersonalInfo>({ name: '' });
+  
+  // 🔬 段階的情報収集システム
+  const [memoryPersonalInfo, setMemoryPersonalInfo] = useState<MemoryPersonalInfo>({ 
+    collected_info: {}, 
+    info_completeness: 0 
+  });
+  const [analysisProgress, setAnalysisProgress] = useState({
+    basicData: 0,
+    preferences: 0,
+    values: 0,
+    deepUnderstanding: 0
+  });
   
   // Relationship & Memory
   const [relationship, setRelationship] = useState<RelationshipData | null>(null);
@@ -153,6 +166,39 @@ export default function ChatPage() {
           emergencyCleanup();
         }
 
+        // 🔬 記憶システム初期化: 保存されている個人情報を読み込み
+        try {
+          console.log('🔍 個人情報読み込み開始:', user.id);
+          const savedMemoryInfo = await MemoryManager.getPersonalInfo(user.id);
+          console.log('✅ 個人情報読み込み完了:', savedMemoryInfo);
+          
+          setMemoryPersonalInfo(savedMemoryInfo);
+          
+          // 分析進捗も更新
+          const progress = await MemoryManager.getAnalysisProgress(user.id);
+          setAnalysisProgress(progress);
+          
+          // 個人化された挨拶表示
+          if (savedMemoryInfo.user_name) {
+            const greeting = MemoryManager.generateGreeting(savedMemoryInfo);
+            console.log('👋 個人化挨拶:', greeting);
+            
+            // 初回メッセージとして挨拶を追加
+            const greetingMessage: Message = {
+              id: `greeting-${Date.now()}`,
+              content: greeting,
+              isUser: false,
+              sender: 'ai',
+              timestamp: new Date(),
+              sessionId: sessionId
+            };
+            setMessages([greetingMessage]);
+          }
+          
+        } catch (error) {
+          console.warn('⚠️ 個人情報読み込みエラー:', error);
+        }
+
         // 🎵 Create session ID (UUID format for database)
         const sessionId = generateUUID();
         setCurrentSessionId(sessionId);
@@ -222,6 +268,34 @@ export default function ChatPage() {
       const emotionData = EmotionAnalyzer.analyzeMessage(content);
       console.log('🎵 Emotion Analysis:', emotionData);
 
+      // 🔬 段階的情報収集: チャットメッセージから個人情報を抽出
+      const extractionResult = await MemoryManager.extractAndSaveInfo(
+        userId,
+        content,
+        aiPersonality?.archetype || 'DRM',
+        currentSessionId
+      );
+
+      // リアルタイムUI更新: 新しい情報が抽出された場合
+      if (extractionResult.extracted.length > 0) {
+        console.log('🔬 新しい情報を抽出:', extractionResult.extracted);
+        
+        // 30秒以内の視覚的フィードバック（ENFPサポート）
+        const updatedMemoryInfo = await MemoryManager.getPersonalInfo(userId);
+        setMemoryPersonalInfo(updatedMemoryInfo);
+        
+        // プログレスバー更新
+        const updatedProgress = await MemoryManager.getAnalysisProgress(userId);
+        setAnalysisProgress(updatedProgress);
+        
+        // 「覚えたよ♪」メッセージ表示
+        for (const info of extractionResult.extracted) {
+          if (info.confidence >= 0.6) {
+            console.log(`✨ ${info.type}を覚えました: ${info.value}`);
+          }
+        }
+      }
+
       // Generate AI response using Claude API with emotion data
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -241,8 +315,8 @@ export default function ChatPage() {
           todaysEvents: [],
           chatCount: messages.length + 1,
           personalInfo: {
-            name: personalInfo.name || undefined,
-            birthday: undefined
+            name: memoryPersonalInfo.user_name || personalInfo.name || undefined,
+            birthday: memoryPersonalInfo.user_birthday || undefined
           },
           // 🎵 Phase 2: 感情データ追加
           emotionData: emotionData,
@@ -423,9 +497,13 @@ export default function ChatPage() {
               </div>
             </div>
 
-            {/* AI理解度分析UI */}
+            {/* AI理解度分析UI - リアルタイム更新 */}
             <div className="mb-3 flex justify-center">
-              <AnalysisProgress className="w-full max-w-lg" />
+              <AnalysisProgress 
+                className="w-full max-w-lg"
+                progress={analysisProgress}
+                userInfo={memoryPersonalInfo}
+              />
             </div>
             
             {/* 関係性レベル表示 */}
