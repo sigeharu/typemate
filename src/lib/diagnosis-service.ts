@@ -401,8 +401,8 @@ class DiagnosisService {
     }
   }
 
-  // BaseArchetypeに基づいて互換性のあるAI人格を選択
-  private getCompatibleAIPersonality(baseArchetype: BaseArchetype): string {
+  // BaseArchetypeに基づいて互換性のあるAI人格を選択（ランダム化対応）
+  private getCompatibleAIPersonality(baseArchetype: BaseArchetype, randomize: boolean = true): string {
     const compatibilityMap: Record<BaseArchetype, BaseArchetype[]> = {
       // 分析家系
       'ARC': ['DRM', 'SAG', 'BAR'], // 設計主 → 外交官系と相性良好
@@ -430,7 +430,19 @@ class DiagnosisService {
     };
 
     const compatibleTypes = compatibilityMap[baseArchetype];
-    // 最初の互換性タイプを選択（後で設定で変更可能）
+    if (!compatibleTypes || compatibleTypes.length === 0) {
+      return 'DRM'; // フォールバック
+    }
+
+    if (randomize && compatibleTypes.length > 1) {
+      // 🎯 ランダムに相性の良いAIを選択
+      const randomIndex = Math.floor(Math.random() * compatibleTypes.length);
+      const selectedAI = compatibleTypes[randomIndex];
+      console.log(`🎲 AI人格ランダム選択: ${baseArchetype} → ${selectedAI} (${randomIndex + 1}/${compatibleTypes.length})`);
+      return selectedAI;
+    }
+    
+    // デフォルトは最初の選択肢
     return compatibleTypes[0];
   }
 }

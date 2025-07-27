@@ -25,6 +25,7 @@ import { isDevelopmentMode, getCurrentTestProfile, resetTestMode, emergencyClean
 import { useMemorySaver } from '@/hooks/useMemoryManager';
 import { supabase } from '@/lib/supabase-simple';
 import { diagnosisService } from '@/lib/diagnosis-service';
+import { memoryManager } from '@/lib/memory-manager';
 import type { Message, BaseArchetype, PersonalInfo, MemorySystem, RelationshipData, TestProfile } from '@/types';
 import { ARCHETYPE_DATA } from '@/lib/diagnostic-data';
 import { EmotionAnalyzer, type EmotionData } from '@/lib/emotion-analyzer';
@@ -174,8 +175,24 @@ export default function ChatPage() {
         }
 
 
-        // 🎵 Create session ID (UUID format for database)
-        const sessionId = generateUUID();
+        // 🔄 チャット永続化: 既存セッション取得または新規作成
+        console.log('🔍 既存会話セッション確認開始');
+        const latestConversation = await memoryManager.getLatestConversation(user.id);
+        
+        let sessionId: string;
+        if (latestConversation?.conversation_id) {
+          sessionId = latestConversation.conversation_id;
+          console.log('✅ 既存セッション復元:', sessionId);
+          
+          // 既存メッセージを読み込み
+          const existingMessages = await memoryManager.getConversationMessages(sessionId, user.id);
+          console.log('📋 既存メッセージ読み込み:', existingMessages.length + '件');
+          setMessages(existingMessages);
+        } else {
+          sessionId = generateUUID();
+          console.log('🆕 新規セッション作成:', sessionId);
+        }
+        
         setCurrentSessionId(sessionId);
 
         setIsLoading(false);

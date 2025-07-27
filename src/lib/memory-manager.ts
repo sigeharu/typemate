@@ -374,6 +374,70 @@ export class MemoryManager {
     
     return keywords;
   }
+
+  // 🔄 チャット永続化: 最新会話セッションの取得
+  async getLatestConversation(userId: string): Promise<{ conversation_id: string; created_at: string } | null> {
+    if (!userId) {
+      console.error('❌ getLatestConversation: userId is required');
+      return null;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('typemate_memory')
+        .select('conversation_id, created_at')
+        .eq('user_id', userId)
+        .not('conversation_id', 'is', null)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('❌ Latest conversation fetch error:', error);
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('❌ getLatestConversation error:', error);
+      return null;
+    }
+  }
+
+  // 🔄 チャット永続化: 特定セッションのメッセージ取得
+  async getConversationMessages(conversationId: string, userId: string): Promise<any[]> {
+    if (!userId || !conversationId) {
+      console.error('❌ getConversationMessages: userId and conversationId are required');
+      return [];
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('typemate_memory')
+        .select('id, message_content, message_role, created_at, conversation_id')
+        .eq('conversation_id', conversationId)
+        .eq('user_id', userId)
+        .not('message_content', 'is', null)
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        console.error('❌ Conversation messages fetch error:', error);
+        return [];
+      }
+
+      return data?.map(memory => ({
+        id: memory.id,
+        content: memory.message_content,
+        isUser: memory.message_role === 'user',
+        sender: memory.message_role,
+        timestamp: new Date(memory.created_at),
+        sessionId: memory.conversation_id
+      })) || [];
+    } catch (error) {
+      console.error('❌ getConversationMessages error:', error);
+      return [];
+    }
+  }
 }
 
 // Phase 1: シングルトンインスタンス
