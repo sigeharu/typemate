@@ -26,12 +26,14 @@ import { supabase } from '@/lib/supabase-simple';
 import { MemoryManager, type PersonalInfo as MemoryPersonalInfo } from '@/lib/memory';
 import { diagnosisService } from '@/lib/diagnosis-service';
 import { ARCHETYPE_DATA } from '@/lib/diagnostic-data';
-import type { Type64, BaseArchetype } from '@/types';
+import { TypeDetailDisplayCompact } from '@/components/TypeDetailDisplay';
+import type { Type64, BaseArchetype, DetailedDiagnosisResult } from '@/types';
 
 export default function SettingsPage() {
   const router = useRouter();
   const [userId, setUserId] = useState<string>('');
   const [userType, setUserType] = useState<Type64 | null>(null);
+  const [detailedDiagnosisResult, setDetailedDiagnosisResult] = useState<DetailedDiagnosisResult | null>(null);
   const [selectedAiPersonality, setSelectedAiPersonality] = useState<BaseArchetype | null>(null);
   const [relationshipType, setRelationshipType] = useState<'friend' | 'counselor' | 'romantic' | 'mentor'>('friend');
   const [isLoading, setIsLoading] = useState(true);
@@ -70,6 +72,20 @@ export default function SettingsPage() {
         }
 
         setUserType(diagnosisStatus.userType || null);
+
+        // 🎯 詳細診断結果の取得（64タイプ対応）
+        try {
+          const savedDetailedResult = localStorage.getItem('detailedDiagnosisResult');
+          if (savedDetailedResult) {
+            const parsedResult: DetailedDiagnosisResult = JSON.parse(savedDetailedResult);
+            setDetailedDiagnosisResult(parsedResult);
+            console.log('✅ 64タイプ詳細結果読み込み成功:', parsedResult);
+          } else {
+            console.log('⚠️ 詳細診断結果なし - 基本Type64のみ表示');
+          }
+        } catch (error) {
+          console.warn('⚠️ 詳細診断結果読み込みエラー:', error);
+        }
 
         // 🔬 記憶システム初期化
         try {
@@ -304,24 +320,44 @@ export default function SettingsPage() {
           transition={{ delay: 0.2 }}
         >
           <Card className="p-6 bg-gradient-to-r from-slate-50 to-blue-50 border-slate-200">
-            <div className="flex items-center gap-4">
-              {getGroupIcon(userArchetype.group)}
-              <div className="flex-1">
-                <h2 className="text-xl font-bold text-slate-800">{userArchetype.name}</h2>
-                <p className="text-slate-600">{userArchetype.nameEn} • {userArchetype.group}</p>
-                <div className="flex gap-2 mt-2">
-                  <Badge variant="outline" className="border-slate-400 text-slate-700">
-                    {environmentTrait}
-                  </Badge>
-                  <Badge variant="outline" className="border-slate-400 text-slate-700">
-                    {motivationTrait}
-                  </Badge>
+            {detailedDiagnosisResult ? (
+              // 64タイプ詳細表示
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    {getGroupIcon(userArchetype.group)}
+                    <h2 className="text-xl font-bold text-slate-800">あなたの詳細タイプ</h2>
+                  </div>
+                  <Button variant="outline" onClick={() => router.push('/diagnosis')}>
+                    再診断
+                  </Button>
                 </div>
+                <TypeDetailDisplayCompact 
+                  detailedResult={detailedDiagnosisResult}
+                  showTitle={false}
+                />
               </div>
-              <Button variant="outline" onClick={() => router.push('/diagnosis')}>
-                再診断
-              </Button>
-            </div>
+            ) : (
+              // 従来の基本表示（フォールバック）
+              <div className="flex items-center gap-4">
+                {getGroupIcon(userArchetype.group)}
+                <div className="flex-1">
+                  <h2 className="text-xl font-bold text-slate-800">{userArchetype.name}</h2>
+                  <p className="text-slate-600">{userArchetype.nameEn} • {userArchetype.group}</p>
+                  <div className="flex gap-2 mt-2">
+                    <Badge variant="outline" className="border-slate-400 text-slate-700">
+                      {environmentTrait}
+                    </Badge>
+                    <Badge variant="outline" className="border-slate-400 text-slate-700">
+                      {motivationTrait}
+                    </Badge>
+                  </div>
+                </div>
+                <Button variant="outline" onClick={() => router.push('/diagnosis')}>
+                  再診断
+                </Button>
+              </div>
+            )}
           </Card>
         </motion.div>
 
