@@ -523,44 +523,66 @@ export default function SettingsPage() {
           transition={{ delay: 0.2 }}
         >
           <Card className="p-6 bg-gradient-to-r from-slate-50 to-blue-50 border-slate-200">
-            {detailedDiagnosisResult ? (
-              // 64タイプ詳細表示
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    {getGroupIcon(userArchetype.group)}
-                    <h2 className="text-xl font-bold text-slate-800">あなたの詳細タイプ</h2>
-                  </div>
-                  <Button variant="outline" onClick={() => router.push('/diagnosis')}>
-                    再診断
-                  </Button>
-                </div>
-                <TypeDetailDisplayCompact 
-                  detailedResult={detailedDiagnosisResult}
-                  showTitle={false}
-                />
-              </div>
-            ) : (
-              // 従来の基本表示（フォールバック）
-              <div className="flex items-center gap-4">
-                {getGroupIcon(userArchetype.group)}
-                <div className="flex-1">
-                  <h2 className="text-xl font-bold text-slate-800">{userArchetype.name}</h2>
-                  <p className="text-slate-600">{userArchetype.nameEn} • {userArchetype.group}</p>
-                  <div className="flex gap-2 mt-2">
-                    <Badge variant="outline" className="border-slate-400 text-slate-700">
-                      {environmentTrait}
-                    </Badge>
-                    <Badge variant="outline" className="border-slate-400 text-slate-700">
-                      {motivationTrait}
-                    </Badge>
-                  </div>
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  {getGroupIcon(userArchetype.group)}
+                  <h2 className="text-xl font-bold text-slate-800">あなたの詳細タイプ</h2>
                 </div>
                 <Button variant="outline" onClick={() => router.push('/diagnosis')}>
                   再診断
                 </Button>
               </div>
-            )}
+              
+              {detailedDiagnosisResult ? (
+                // 64タイプ詳細表示
+                <TypeDetailDisplayCompact 
+                  detailedResult={detailedDiagnosisResult}
+                  showTitle={false}
+                />
+              ) : (
+                // 🎵 フォールバック表示 - モバイル対応
+                <div className="space-y-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-slate-800 mb-2">
+                      【{userArchetype.name}】
+                    </div>
+                    <div className="text-slate-600 mb-4">
+                      {userArchetype.nameEn} • {userArchetype.group}
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">環境適応</span>
+                        <span className="font-medium text-slate-800">{environmentTrait}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">動機・価値観</span>
+                        <span className="font-medium text-slate-800">{motivationTrait}</span>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">グループ</span>
+                        <span className="font-medium text-slate-800">{userArchetype.group}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">タイプ</span>
+                        <span className="font-medium text-slate-800">{userType}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-blue-800 text-sm">
+                      <span className="font-medium">基本表示モード:</span> より詳細な軸スコアを表示するには、再診断を実行してください。
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
           </Card>
         </motion.div>
 
@@ -623,18 +645,66 @@ export default function SettingsPage() {
           </motion.div>
         )}
 
-        {/* あなたの価値・才能（64タイプ詳細結果がある場合のみ表示） */}
-        {detailedDiagnosisResult && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 }}
-          >
+        {/* あなたの価値・才能（常に表示） */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+        >
+          {detailedDiagnosisResult ? (
+            // 詳細な価値表示
             <SelfAffirmationDisplayCompact 
               detailedResult={detailedDiagnosisResult}
             />
-          </motion.div>
-        )}
+          ) : (
+            // 🎵 フォールバック価値表示 - モバイル対応
+            <Card className="p-6 bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
+              <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                ✨ あなたの価値
+              </h3>
+              
+              <div className="space-y-4">
+                <div className="text-center">
+                  <p className="text-slate-700 leading-relaxed">
+                    あなたは「<span className="font-bold text-purple-700">{userArchetype.name}</span>」として、
+                    独自の価値と才能を持つ特別な存在です。
+                  </p>
+                </div>
+                
+                <div className="bg-white/70 p-4 rounded-lg border border-purple-100">
+                  <h4 className="font-semibold text-purple-800 mb-2">✨ 核心的な能力</h4>
+                  <p className="text-slate-700 text-sm leading-relaxed">
+                    {userArchetype.personality}
+                  </p>
+                </div>
+                
+                <div className="bg-white/70 p-4 rounded-lg border border-purple-100">
+                  <h4 className="font-semibold text-purple-800 mb-2">💝 あなたらしさ</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-start gap-2">
+                      <span className="text-purple-600">•</span>
+                      <span className="text-slate-700">{environmentTrait}な環境で力を発揮</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-purple-600">•</span>
+                      <span className="text-slate-700">{motivationTrait}を重視する価値観</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-purple-600">•</span>
+                      <span className="text-slate-700">{userArchetype.group}グループの特徴を活かした行動</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="text-center p-3 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg">
+                  <p className="text-purple-800 text-sm font-medium">
+                    💡 より詳細な価値分析を表示するには、再診断を実行してください
+                  </p>
+                </div>
+              </div>
+            </Card>
+          )}
+        </motion.div>
 
         {/* AIパートナー選択 */}
         <motion.div
