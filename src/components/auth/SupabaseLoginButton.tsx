@@ -3,6 +3,7 @@
 
 'use client'
 
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -28,9 +29,13 @@ export const SupabaseLoginButton = ({
   className
 }: SupabaseLoginButtonProps) => {
   const { user, loading, signOut } = useAuth()
+  const [isSigningIn, setIsSigningIn] = useState(false)
 
   const handleSignIn = async () => {
+    if (isSigningIn) return // 重複クリック防止
+    
     try {
+      setIsSigningIn(true)
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -40,9 +45,11 @@ export const SupabaseLoginButton = ({
       
       if (error) {
         console.error('Sign in error:', error)
+        setIsSigningIn(false)
       }
     } catch (error) {
       console.error('Sign in exception:', error)
+      setIsSigningIn(false)
     }
   }
 
@@ -56,12 +63,12 @@ export const SupabaseLoginButton = ({
     }
   }
 
-  // ローディング状態
-  if (loading) {
+  // ローディング状態またはサインイン中
+  if (loading || isSigningIn) {
     return (
       <Button variant={variant} size={size} disabled className={className}>
         <div className="w-4 h-4 animate-spin rounded-full border-2 border-current border-t-transparent mr-2" />
-        読み込み中...
+        {isSigningIn ? '認証中...' : '読み込み中...'}
       </Button>
     )
   }
@@ -126,6 +133,7 @@ export const SupabaseLoginButton = ({
       variant={variant} 
       size={size} 
       onClick={handleSignIn}
+      disabled={isSigningIn}
       className={className}
     >
       <LogIn size={16} className="mr-2" />
