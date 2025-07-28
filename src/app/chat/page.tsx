@@ -428,10 +428,10 @@ export default function ChatPage() {
           )}
           
           {/* ヘッダー */}
-          <header className="border-b border-gray-200 bg-white p-4 flex-shrink-0">
+          <header className="border-b border-gray-200 bg-white p-3 sm:p-4 flex-shrink-0">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
-                <Avatar className="w-10 h-10">
+                <Avatar className="w-8 h-8 sm:w-10 sm:h-10">
                   <AvatarFallback className="bg-blue-500 text-white font-semibold">
                     {aiPersonality?.name?.charAt(0) || 'AI'}
                   </AvatarFallback>
@@ -440,12 +440,12 @@ export default function ChatPage() {
                   <h1 className="font-semibold text-gray-900">
                     {aiPersonality?.name || 'TypeMate AI'}
                   </h1>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-xs sm:text-sm text-gray-500">
                     {aiPersonality?.personality || 'あなたの相談相手'}
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-2">
                 <Button variant="ghost" onClick={handleShowHistory} className="touch-button">
                   <History size={16} />
                 </Button>
@@ -483,8 +483,8 @@ export default function ChatPage() {
           </header>
           
           {/* メッセージエリア */}
-          <main className="flex-1 overflow-y-auto p-4">
-            <div className="space-y-4">
+          <main className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">
+            <div className="space-y-3 sm:space-y-4">
               <AnimatePresence>
                 {messages.map((message) => (
                   <MessageBubble
@@ -497,7 +497,7 @@ export default function ChatPage() {
               {/* Typing Indicator */}
               {isTyping && (
                 <div className="flex gap-3">
-                  <Avatar className="w-8 h-8 flex-shrink-0">
+                  <Avatar className="w-6 h-6 sm:w-8 sm:h-8 flex-shrink-0">
                     <AvatarFallback className="bg-blue-500 text-white text-sm font-semibold">
                       AI
                     </AvatarFallback>
@@ -519,7 +519,7 @@ export default function ChatPage() {
           </main>
           
           {/* 入力エリア */}
-          <footer className="flex-shrink-0 border-t border-gray-200 bg-white p-4">
+          <footer className="flex-shrink-0 border-t border-gray-200 bg-white p-3 sm:p-4">
             <ChatInputClaude
               onSendMessage={handleSendMessage}
               disabled={isTyping}
