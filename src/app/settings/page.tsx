@@ -27,6 +27,7 @@ import { MemoryManager, type PersonalInfo as MemoryPersonalInfo } from '@/lib/me
 import { diagnosisService } from '@/lib/diagnosis-service';
 import { ARCHETYPE_DATA } from '@/lib/diagnostic-data';
 import { TypeDetailDisplayCompact } from '@/components/TypeDetailDisplay';
+import { SelfAffirmationDisplayCompact } from '@/components/SelfAffirmationDisplay';
 import type { Type64, BaseArchetype, DetailedDiagnosisResult } from '@/types';
 
 export default function SettingsPage() {
@@ -360,6 +361,19 @@ export default function SettingsPage() {
             )}
           </Card>
         </motion.div>
+
+        {/* あなたの価値・才能（64タイプ詳細結果がある場合のみ表示） */}
+        {detailedDiagnosisResult && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+          >
+            <SelfAffirmationDisplayCompact 
+              detailedResult={detailedDiagnosisResult}
+            />
+          </motion.div>
+        )}
 
         {/* AIパートナー選択 */}
         <motion.div
