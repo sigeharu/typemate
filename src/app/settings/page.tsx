@@ -53,6 +53,28 @@ export default function SettingsPage() {
     deepUnderstanding: 0
   });
 
+  // 🔄 モバイルでの追加読み込み処理
+  useEffect(() => {
+    const handleReload = () => {
+      if (!detailedDiagnosisResult && window.innerWidth <= 768) {
+        console.log('📱 モバイルで詳細結果なし - 再読み込み実行');
+        loadDetailedDiagnosisResult();
+      }
+    };
+    
+    // ページ読み込み後のチェック
+    if (typeof window !== 'undefined') {
+      window.addEventListener('load', handleReload);
+      // フォーカス時のチェック（タブ切り替え等）
+      window.addEventListener('focus', handleReload);
+      
+      return () => {
+        window.removeEventListener('load', handleReload);
+        window.removeEventListener('focus', handleReload);
+      };
+    }
+  }, [detailedDiagnosisResult]);
+
   useEffect(() => {
     const initializeSettings = async () => {
       try {
@@ -74,22 +96,8 @@ export default function SettingsPage() {
 
         setUserType(diagnosisStatus.userType || null);
 
-        // 🎯 詳細診断結果の取得（64タイプ対応）
-        try {
-          const savedDetailedResult = localStorage.getItem('detailedDiagnosisResult');
-          if (savedDetailedResult) {
-            const parsedResult: DetailedDiagnosisResult = JSON.parse(savedDetailedResult);
-            setDetailedDiagnosisResult(parsedResult);
-            console.log('✅ 64タイプ詳細結果読み込み成功:', parsedResult);
-          } else {
-            console.log('⚠️ 詳細診断結果なし - 基本Type64のみ表示');
-            // 🔍 デバッグ: localStorageの全キーを確認
-            console.log('🔍 localStorage keys:', Object.keys(localStorage));
-            console.log('🔍 detailedDiagnosisResult key exists:', localStorage.getItem('detailedDiagnosisResult') !== null);
-          }
-        } catch (error) {
-          console.warn('⚠️ 詳細診断結果読み込みエラー:', error);
-        }
+        // 🎯 詳細診断結果の取得（64タイプ対応）リトライ機能付き
+        await loadDetailedDiagnosisResult();
 
         // 🔬 記憶システム初期化
         try {
@@ -162,6 +170,51 @@ export default function SettingsPage() {
 
     initializeSettings();
   }, [router]);
+
+  // 🔄 詳細診断結果のリトライ読み込み関数
+  const loadDetailedDiagnosisResult = async (maxRetries = 3) => {
+    const isMobile = window.innerWidth <= 768;
+    console.log('📱 モバイルデバイス:', isMobile, 'window.innerWidth:', window.innerWidth);
+    
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        console.log(`🔍 詳細診断結果読み込み試行 ${attempt + 1}/${maxRetries}`);
+        
+        // 1. localStorageから読み取り
+        let savedDetailedResult = localStorage.getItem('detailedDiagnosisResult');
+        
+        // 2. SessionStorageフォールバック
+        if (!savedDetailedResult) {
+          console.log('🔍 localStorageになし - sessionStorageを確認');
+          savedDetailedResult = sessionStorage.getItem('detailedDiagnosisResult');
+        }
+        
+        if (savedDetailedResult) {
+          const parsedResult: DetailedDiagnosisResult = JSON.parse(savedDetailedResult);
+          setDetailedDiagnosisResult(parsedResult);
+          console.log('✅ 64タイプ詳細結果読み込み成功:', parsedResult);
+          console.log('📱 モバイルでの詳細タイプ表示:', isMobile ? '有効' : '無効');
+          return; // 成功時は抜ける
+        }
+        
+        // 3. リトライ時のウェイト
+        if (attempt < maxRetries - 1) {
+          console.log(`⏳ ${500 * (attempt + 1)}ms待機後リトライ`);
+          await new Promise(resolve => setTimeout(resolve, 500 * (attempt + 1)));
+        }
+        
+      } catch (error) {
+        console.warn(`⚠️ 試行${attempt + 1}失敗:`, error);
+      }
+    }
+    
+    // 全て失敗時のデバッグ情報
+    console.log('⚠️ 詳細診断結果なし - 基本Type64のみ表示');
+    console.log('🔍 localStorage keys:', Object.keys(localStorage));
+    console.log('🔍 sessionStorage keys:', Object.keys(sessionStorage));
+    console.log('🔍 detailedDiagnosisResult in localStorage:', localStorage.getItem('detailedDiagnosisResult') !== null);
+    console.log('🔍 detailedDiagnosisResult in sessionStorage:', sessionStorage.getItem('detailedDiagnosisResult') !== null);
+  };
 
   const handleSaveSettings = async () => {
     if (!userId || !selectedAiPersonality) return;

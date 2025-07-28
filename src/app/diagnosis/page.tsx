@@ -269,9 +269,22 @@ export default function DiagnosisPage() {
           console.log(success ? '✅ 64タイプ診断結果保存成功' : '⚠️ 診断結果ローカル保存のみ');
           console.log('📊 64タイプ詳細診断結果:', calculatedDetailedResult);
           
-          // LocalStorageにも保存
-          localStorage.setItem('userType64', calculatedDetailedResult.type64);
-          localStorage.setItem('detailedDiagnosisResult', JSON.stringify(calculatedDetailedResult));
+          // 🔄 両方のストレージに保存（モバイル対応強化）
+          try {
+            localStorage.setItem('userType64', calculatedDetailedResult.type64);
+            localStorage.setItem('detailedDiagnosisResult', JSON.stringify(calculatedDetailedResult));
+            console.log('✅ localStorage保存成功');
+          } catch (error) {
+            console.warn('⚠️ localStorage保存失敗:', error);
+          }
+          
+          try {
+            sessionStorage.setItem('userType64', calculatedDetailedResult.type64);
+            sessionStorage.setItem('detailedDiagnosisResult', JSON.stringify(calculatedDetailedResult));
+            console.log('✅ sessionStorage保存成功');
+          } catch (error) {
+            console.warn('⚠️ sessionStorage保存失敗:', error);
+          }
           
           // 🎯 重要: DB反映を確実にするため少し待機
           if (success) {
@@ -281,9 +294,22 @@ export default function DiagnosisPage() {
           
         } catch (error) {
           console.error('❌ 診断結果保存エラー:', error);
-          // フォールバック: LocalStorageのみ保存
-          localStorage.setItem('userType64', calculatedDetailedResult.type64);
-          localStorage.setItem('detailedDiagnosisResult', JSON.stringify(calculatedDetailedResult));
+          // フォールバック: 両方のストレージに保存
+          try {
+            localStorage.setItem('userType64', calculatedDetailedResult.type64);
+            localStorage.setItem('detailedDiagnosisResult', JSON.stringify(calculatedDetailedResult));
+            console.log('✅ フォールバック localStorage保存成功');
+          } catch (error) {
+            console.warn('⚠️ フォールバック localStorage保存失敗:', error);
+          }
+          
+          try {
+            sessionStorage.setItem('userType64', calculatedDetailedResult.type64);
+            sessionStorage.setItem('detailedDiagnosisResult', JSON.stringify(calculatedDetailedResult));
+            console.log('✅ フォールバック sessionStorage保存成功');
+          } catch (error) {
+            console.warn('⚠️ フォールバック sessionStorage保存失敗:', error);
+          }
         } finally {
           setIsSaving(false);
         }
