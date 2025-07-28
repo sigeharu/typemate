@@ -9,6 +9,15 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 
+// 🎵 Phase 1: 基本気分データ定義
+const BASIC_MOODS = [
+  { emoji: '😊', name: '楽しい', color: 'text-yellow-500' },
+  { emoji: '😢', name: '悲しい', color: 'text-blue-500' },
+  { emoji: '😠', name: '怒り', color: 'text-red-500' },
+  { emoji: '😌', name: '穏やか', color: 'text-green-500' },
+  { emoji: '💭', name: '考え中', color: 'text-purple-500' }
+];
+
 interface ChatInputClaudeProps {
   onSendMessage: (message: string) => void;
   placeholder?: string;
@@ -18,6 +27,9 @@ interface ChatInputClaudeProps {
   onShowHistory?: () => void;
   onShowMemories?: () => void;
   onShowProfile?: () => void;
+  // 🎵 Phase 1: 気分連動AI機能
+  currentMood?: string;
+  onMoodChange?: (mood: string) => void;
 }
 
 export const ChatInputClaude = ({ 
@@ -27,10 +39,14 @@ export const ChatInputClaude = ({
   className,
   onShowHistory,
   onShowMemories,
-  onShowProfile
+  onShowProfile,
+  currentMood,
+  onMoodChange
 }: ChatInputClaudeProps) => {
   const [message, setMessage] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  // 🎵 Phase 1: 気分選択パネル表示state
+  const [showMoodSelector, setShowMoodSelector] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,14 +97,51 @@ export const ChatInputClaude = ({
           }}
         />
         <div className="flex items-center justify-between">
-          <Button
-            type="submit"
-            onClick={handleSubmit}
-            disabled={!message.trim() || disabled}
-            className="ml-3 h-9 w-9 bg-blue-500 hover:bg-blue-600 active:scale-95 transition-all duration-150 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Send size={16} />
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              type="submit"
+              onClick={handleSubmit}
+              disabled={!message.trim() || disabled}
+              className="ml-3 h-9 w-9 bg-blue-500 hover:bg-blue-600 active:scale-95 transition-all duration-150 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Send size={16} />
+            </Button>
+            
+            {/* 🎵 Phase 1: 気分ボタン */}
+            {onMoodChange && (
+              <div className="relative">
+                <Button 
+                  variant="ghost" 
+                  onClick={() => setShowMoodSelector(!showMoodSelector)}
+                  className="h-9 w-9 p-0 hover:bg-orange-100 active:scale-95 transition-all duration-150 hover:scale-105"
+                  title="気分を選択"
+                >
+                  <span className="text-lg">{currentMood || '😊'}</span>
+                </Button>
+                
+                {/* 🎵 Phase 1: 気分選択パネル */}
+                {showMoodSelector && (
+                  <div className="absolute bottom-full mb-2 left-0 bg-white border border-gray-200 rounded-lg shadow-lg p-2 flex gap-1 z-50">
+                    {BASIC_MOODS.map((mood) => (
+                      <Button
+                        key={mood.emoji}
+                        variant="ghost"
+                        onClick={() => {
+                          onMoodChange(mood.emoji);
+                          setShowMoodSelector(false);
+                        }}
+                        className="h-8 w-8 p-0 hover:bg-gray-100 hover:scale-110 transition-all duration-150"
+                        title={mood.name}
+                      >
+                        <span className="text-base">{mood.emoji}</span>
+                      </Button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          
           <div className="flex items-center gap-2">
             {onShowHistory && (
               <Button 

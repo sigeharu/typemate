@@ -26,6 +26,7 @@ import { useMemorySaver } from '@/hooks/useMemoryManager';
 import { supabase } from '@/lib/supabase-simple';
 import { diagnosisService } from '@/lib/diagnosis-service';
 import { memoryManager } from '@/lib/memory-manager';
+import { storage, type ChatSession } from '@/lib/storage';
 import type { Message, BaseArchetype, PersonalInfo, MemorySystem, RelationshipData, TestProfile } from '@/types';
 import { ARCHETYPE_DATA } from '@/lib/diagnostic-data';
 import { EmotionAnalyzer, type EmotionData } from '@/lib/emotion-analyzer';
@@ -58,7 +59,12 @@ export default function ChatPage() {
   
   // Relationship & Memory
   const [relationship, setRelationship] = useState<RelationshipData | null>(null);
-  const [memory, setMemory] = useState<MemorySystem | null>(null);
+  const [memory, setMemory] = useState<MemorySystem | null>({
+    recentMemories: [],
+    importantMoments: [],
+    sharedExperiences: [],
+    personalInfo: { name: '' }
+  });
   const [newLevel, setNewLevel] = useState<any>(null);
   
   // UI state
@@ -71,6 +77,7 @@ export default function ChatPage() {
   const [currentSessionId, setCurrentSessionId] = useState<string>('');
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
   const [chatCount, setChatCount] = useState(1);
+  const [sessionStartTime, setSessionStartTime] = useState<Date>(new Date());
   
   // Development mode
   const [testProfile, setTestProfile] = useState<TestProfile | null>(null);
@@ -237,7 +244,36 @@ export default function ChatPage() {
     const newSessionId = generateUUID();
     setCurrentSessionId(newSessionId);
     setMessages([]);
+    setSessionStartTime(new Date());
     setShowHistory(false);
+  };
+
+  // チャットセッション保存関数
+  const saveCurrentSession = (updatedMessages: Message[]) => {
+    if (!userType || !aiPersonality || updatedMessages.length === 0) return;
+    
+    try {
+      // セッションタイトルを生成（最初のユーザーメッセージから）
+      const userMessages = updatedMessages.filter(m => m.sender === 'user');
+      const title = userMessages.length > 0 
+        ? userMessages[0].content.slice(0, 30) + (userMessages[0].content.length > 30 ? '...' : '')
+        : '新しい会話';
+
+      const session: ChatSession = {
+        id: currentSessionId,
+        userType: userType as any,
+        aiPersonality: aiPersonality.archetype,
+        messages: updatedMessages,
+        createdAt: sessionStartTime,
+        updatedAt: new Date(),
+        title
+      };
+      
+      storage.saveChatSession(session);
+      console.log('✅ チャットセッション保存成功:', session.id);
+    } catch (error) {
+      console.error('❌ チャットセッション保存エラー:', error);
+    }
   };
 
   const handleSendMessage = async (content: string) => {
@@ -252,8 +288,12 @@ export default function ChatPage() {
       sessionId: currentSessionId
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    const updatedMessagesWithUser = [...messages, userMessage];
+    setMessages(updatedMessagesWithUser);
     setIsTyping(true);
+
+    // ユーザーメッセージ送信後にセッション保存
+    saveCurrentSession(updatedMessagesWithUser);
 
     try {
       // 🎵 Phase 2: 感情分析実行
@@ -310,8 +350,12 @@ export default function ChatPage() {
         sessionId: currentSessionId
       };
       
-      setMessages(prev => [...prev, aiMessage]);
+      const updatedMessagesWithAI = [...updatedMessagesWithUser, aiMessage];
+      setMessages(updatedMessagesWithAI);
       setIsTyping(false);
+
+      // AI応答後にセッション保存
+      saveCurrentSession(updatedMessagesWithAI);
       
       // 🎵 Phase 2: 感情データ付き記憶保存（非同期）
       // 特別記憶の検出（感情強度0.7以上）
@@ -486,9 +530,39 @@ export default function ChatPage() {
             )}
             
             {/* 思い出表示 */}
-            {showMemories && memory && (
-              <div className="mt-3">
-                <div className="text-sm text-gray-500">思い出機能は準備中です</div>
+            {showMemories && (
+              <div className="mt-3 p-4 bg-pink-50 border border-pink-200 rounded-lg">
+                <h4 className="font-semibold text-pink-800 mb-3 flex items-center gap-2">
+                  💕 共有した思い出
+                </h4>
+                <div className="space-y-3 text-sm">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-white/70 p-3 rounded-lg">
+                      <div className="text-pink-700 font-medium mb-1">今日の会話</div>
+                      <div className="text-pink-600">{messages.length}メッセージ交換</div>
+                    </div>
+                    <div className="bg-white/70 p-3 rounded-lg">
+                      <div className="text-pink-700 font-medium mb-1">関係性レベル</div>
+                      <div className="text-pink-600">レベル {relationship?.currentLevel?.level || 1}</div>
+                    </div>
+                  </div>
+                  <div className="bg-white/70 p-3 rounded-lg">
+                    <div className="text-pink-700 font-medium mb-2">最近の話題</div>
+                    <div className="text-pink-600 space-y-1">
+                      {messages.filter(m => m.sender === 'user').slice(-3).map((msg, index) => (
+                        <div key={msg.id} className="text-xs truncate">
+                          • {msg.content.slice(0, 40)}{msg.content.length > 40 ? '...' : ''}
+                        </div>
+                      ))}
+                      {messages.filter(m => m.sender === 'user').length === 0 && (
+                        <div className="text-xs text-pink-500">まだお話していませんね♪</div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="text-center text-pink-600 text-xs italic">
+                    🌸 一緒に過ごした時間を大切にしています
+                  </div>
+                </div>
               </div>
             )}
           </header>
