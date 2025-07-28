@@ -32,10 +32,11 @@ export interface DiagnosisStatus {
 }
 
 class DiagnosisService {
-  // 🎵 診断結果をデータベースに保存
+  // 🎵 診断結果をデータベースに保存（詳細結果対応）
   async saveDiagnosisResult(
     userType: Type64, 
-    answers: Record<number, string>
+    answers: Record<number, string>,
+    detailedResult?: DetailedDiagnosisResult
   ): Promise<boolean> {
     try {
       // 認証ユーザー取得
@@ -74,7 +75,7 @@ class DiagnosisService {
         console.warn('⚠️ diagnostic_resultsテーブルアクセスエラー、スキップして続行:', error);
       }
 
-      // 2. user_profiles テーブルにupsert
+      // 2. user_profiles テーブルにupsert（詳細結果含む）
       const upsertData = {
         user_id: user.id,
         user_type: userType,
@@ -84,7 +85,9 @@ class DiagnosisService {
           baseArchetype,
           environmentAxis,
           motivationAxis,
-          diagnosisDate: new Date().toISOString()
+          diagnosisDate: new Date().toISOString(),
+          // 🎯 詳細診断結果をpreferencesに含める
+          detailedDiagnosisResult: detailedResult || null
         }
       };
 
@@ -644,6 +647,76 @@ class DiagnosisService {
     
     // デフォルトは最初の選択肢
     return compatibleTypes[0];
+  }
+
+  // 🎯 詳細診断結果をデータベースから取得する新機能
+  async getDetailedDiagnosisResult(userId?: string): Promise<DetailedDiagnosisResult | null> {
+    try {
+      // 認証ユーザー取得
+      let targetUserId = userId;
+      if (!targetUserId) {
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        if (authError || !user) {
+          console.log('🔍 詳細診断結果取得: 未認証ユーザー - localStorageを確認');
+          return this.getDetailedDiagnosisResultFromStorage();
+        }
+        targetUserId = user.id;
+      }
+
+      console.log('🔍 詳細診断結果取得開始:', { userId: targetUserId });
+
+      // user_profilesテーブルから詳細診断結果を取得
+      const { data: profile, error } = await supabase
+        .from('user_profiles')
+        .select('preferences')
+        .eq('user_id', targetUserId)
+        .single();
+
+      if (error || !profile) {
+        console.log('⚠️ user_profiles詳細結果なし:', error?.message);
+        return this.getDetailedDiagnosisResultFromStorage();
+      }
+
+      // preferences内のdetailedDiagnosisResultを取得
+      const detailedResult = profile.preferences?.detailedDiagnosisResult;
+      
+      if (detailedResult) {
+        console.log('✅ データベースから詳細診断結果取得成功:', detailedResult);
+        return detailedResult as DetailedDiagnosisResult;
+      }
+
+      console.log('⚠️ DB内に詳細診断結果なし - localStorageフォールバック');
+      return this.getDetailedDiagnosisResultFromStorage();
+
+    } catch (error) {
+      console.error('❌ 詳細診断結果取得エラー:', error);
+      return this.getDetailedDiagnosisResultFromStorage();
+    }
+  }
+
+  // localStorage/sessionStorageから詳細診断結果を取得
+  private getDetailedDiagnosisResultFromStorage(): DetailedDiagnosisResult | null {
+    try {
+      // 1. localStorageを試行
+      let savedResult = localStorage.getItem('detailedDiagnosisResult');
+      
+      // 2. sessionStorageフォールバック
+      if (!savedResult) {
+        savedResult = sessionStorage.getItem('detailedDiagnosisResult');
+      }
+      
+      if (savedResult) {
+        const parsedResult = JSON.parse(savedResult) as DetailedDiagnosisResult;
+        console.log('✅ ストレージから詳細診断結果取得成功');
+        return parsedResult;
+      }
+      
+      console.log('⚠️ ストレージにも詳細診断結果なし');
+      return null;
+    } catch (error) {
+      console.warn('⚠️ ストレージ取得エラー:', error);
+      return null;
+    }
   }
 }
 

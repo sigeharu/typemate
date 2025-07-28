@@ -264,7 +264,7 @@ export default function DiagnosisPage() {
             }
           });
           
-          const success = await diagnosisService.saveDiagnosisResult(calculatedDetailedResult.type64, stringAnswers);
+          const success = await diagnosisService.saveDiagnosisResult(calculatedDetailedResult.type64, stringAnswers, calculatedDetailedResult);
           setSaveSuccess(success);
           console.log(success ? '✅ 64タイプ診断結果保存成功' : '⚠️ 診断結果ローカル保存のみ');
           console.log('📊 64タイプ詳細診断結果:', calculatedDetailedResult);

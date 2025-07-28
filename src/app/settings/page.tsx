@@ -52,12 +52,6 @@ export default function SettingsPage() {
     deepUnderstanding: 0
   });
 
-  // 🗄️ ストレージアクセス最適化キャッシュ
-  const storageCache = useState<{
-    localStorage: DetailedDiagnosisResult | null;
-    sessionStorage: DetailedDiagnosisResult | null;
-    lastCheck: number;
-  }>({ localStorage: null, sessionStorage: null, lastCheck: 0 })[0];
 
   // 🔍 モバイル専用デバッグ状態
   const [debugInfo, setDebugInfo] = useState<{
@@ -77,8 +71,8 @@ export default function SettingsPage() {
     renderCount: 0
   });
 
-  // 🔄 詳細診断結果のリトライ読み込み関数（ストレージキャッシュ機構付き）
-  const loadDetailedDiagnosisResult = useCallback(async (maxRetries = 3) => {
+  // 🔄 詳細診断結果のデータベース読み込み関数（フォールバック機構付き）
+  const loadDetailedDiagnosisResult = useCallback(async (userId?: string) => {
     const startTime = Date.now();
     
     // SSR対応: window オブジェクトの安全なアクセス
@@ -102,95 +96,92 @@ export default function SettingsPage() {
       lastAttemptTime: startTime
     }));
     
-    // キャッシュ有効性チェック（5秒間有効）
-    const now = Date.now();
-    const cacheValid = (now - storageCache.lastCheck) < 5000;
-    
-    if (cacheValid && (storageCache.localStorage || storageCache.sessionStorage)) {
-      const cachedResult = storageCache.localStorage || storageCache.sessionStorage;
-      console.log('✨ キャッシュから詳細診断結果を取得:', cachedResult);
-      setDetailedDiagnosisResult(cachedResult);
-      return;
-    }
-    
-    for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      console.log('🔍 データベースから詳細診断結果を取得中...');
+      
+      // 1. データベースから取得（優先）
+      const dbResult = await diagnosisService.getDetailedDiagnosisResult(userId);
+      
+      if (dbResult) {
+        setDetailedDiagnosisResult(dbResult);
+        console.log('✅ データベースから64タイプ詳細結果読み込み成功:', dbResult);
+        console.log('📱 モバイルでの詳細タイプ表示:', isMobile ? '有効' : '無効');
+        
+        // ストレージアクセス成功をデバッグに記録
+        setDebugInfo(prev => ({ 
+          ...prev,
+          storageAccess: { localStorage: true, sessionStorage: true }
+        }));
+        return;
+      }
+      
+      console.log('⚠️ データベースに詳細診断結果なし - ストレージフォールバック実行');
+      
+      // 2. localStorage フォールバック
       try {
-        console.log(`🔍 詳細診断結果読み込み試行 ${attempt + 1}/${maxRetries}`);
-        
-        // 1. localStorageから読み取り
-        let savedDetailedResult: string | null = null;
-        let resultSource: 'localStorage' | 'sessionStorage' | null = null;
-        
-        try {
-          savedDetailedResult = localStorage.getItem('detailedDiagnosisResult');
-          if (savedDetailedResult) {
-            resultSource = 'localStorage';
-          }
-          // ストレージアクセス成功をデバッグ情報に記録
+        const localResult = localStorage.getItem('detailedDiagnosisResult');
+        if (localResult) {
+          const parsedResult: DetailedDiagnosisResult = JSON.parse(localResult);
+          setDetailedDiagnosisResult(parsedResult);
+          console.log('✅ localStorageから64タイプ詳細結果読み込み成功:', parsedResult);
+          
           setDebugInfo(prev => ({ 
             ...prev,
             storageAccess: { ...prev.storageAccess, localStorage: true }
           }));
-        } catch (error) {
-          const errorMsg = `localStorage読み取りエラー: ${error}`;
-          console.warn('⚠️', errorMsg);
+          return;
+        }
+        
+        setDebugInfo(prev => ({ 
+          ...prev,
+          storageAccess: { ...prev.storageAccess, localStorage: true }
+        }));
+      } catch (error) {
+        const errorMsg = `localStorage読み取りエラー: ${error}`;
+        console.warn('⚠️', errorMsg);
+        setDebugInfo(prev => ({ 
+          ...prev,
+          errors: [...prev.errors, errorMsg],
+          storageAccess: { ...prev.storageAccess, localStorage: false }
+        }));
+      }
+      
+      // 3. sessionStorage フォールバック
+      try {
+        const sessionResult = sessionStorage.getItem('detailedDiagnosisResult');
+        if (sessionResult) {
+          const parsedResult: DetailedDiagnosisResult = JSON.parse(sessionResult);
+          setDetailedDiagnosisResult(parsedResult);
+          console.log('✅ sessionStorageから64タイプ詳細結果読み込み成功:', parsedResult);
+          
           setDebugInfo(prev => ({ 
             ...prev,
-            errors: [...prev.errors, errorMsg],
-            storageAccess: { ...prev.storageAccess, localStorage: false }
+            storageAccess: { ...prev.storageAccess, sessionStorage: true }
           }));
+          return;
         }
         
-        // 2. SessionStorageフォールバック
-        if (!savedDetailedResult) {
-          console.log('🔍 localStorageになし - sessionStorageを確認');
-          try {
-            savedDetailedResult = sessionStorage.getItem('detailedDiagnosisResult');
-            if (savedDetailedResult) {
-              resultSource = 'sessionStorage';
-            }
-            // ストレージアクセス成功をデバッグ情報に記録
-            setDebugInfo(prev => ({ 
-              ...prev,
-              storageAccess: { ...prev.storageAccess, sessionStorage: true }
-            }));
-          } catch (error) {
-            const errorMsg = `sessionStorage読み取りエラー: ${error}`;
-            console.warn('⚠️', errorMsg);
-            setDebugInfo(prev => ({ 
-              ...prev,
-              errors: [...prev.errors, errorMsg],
-              storageAccess: { ...prev.storageAccess, sessionStorage: false }
-            }));
-          }
-        }
-        
-        if (savedDetailedResult && resultSource) {
-          const parsedResult: DetailedDiagnosisResult = JSON.parse(savedDetailedResult);
-          
-          // キャッシュ更新
-          storageCache.lastCheck = now;
-          if (resultSource === 'localStorage') {
-            storageCache.localStorage = parsedResult;
-          } else {
-            storageCache.sessionStorage = parsedResult;
-          }
-          
-          setDetailedDiagnosisResult(parsedResult);
-          console.log(`✅ ${resultSource}から64タイプ詳細結果読み込み成功:`, parsedResult);
-          console.log('📱 モバイルでの詳細タイプ表示:', isMobile ? '有効' : '無効');
-          return; // 成功時は抜ける
-        }
-        
-        // 3. リトライ時のウェイト
-        if (attempt < maxRetries - 1) {
-          console.log(`⏳ ${500 * (attempt + 1)}ms待機後リトライ`);
-          await new Promise(resolve => setTimeout(resolve, 500 * (attempt + 1)));
-        }
-        
+        setDebugInfo(prev => ({ 
+          ...prev,
+          storageAccess: { ...prev.storageAccess, sessionStorage: true }
+        }));
       } catch (error) {
-        console.warn(`⚠️ 試行${attempt + 1}失敗:`, error);
+        const errorMsg = `sessionStorage読み取りエラー: ${error}`;
+        console.warn('⚠️', errorMsg);
+        setDebugInfo(prev => ({ 
+          ...prev,
+          errors: [...prev.errors, errorMsg],
+          storageAccess: { ...prev.storageAccess, sessionStorage: false }
+        }));
       }
+      
+    } catch (error) {
+      const errorMsg = `詳細診断結果読み込みエラー: ${error}`;
+      console.warn('⚠️', errorMsg);
+      setDebugInfo(prev => ({ 
+        ...prev,
+        errors: [...prev.errors, errorMsg]
+      }));
     }
     
     // 全て失敗時のデバッグ情報
@@ -203,7 +194,7 @@ export default function SettingsPage() {
     } catch (error) {
       console.warn('⚠️ ストレージデバッグ情報取得エラー:', error);
     }
-  }, [storageCache]); // storageCacheを依存配列に追加
+  }, []); // 依存配列からstorageCache削除
 
   // 🔄 モバイル専用の詳細結果読み込み処理（強化された無限ループ防止機構付き）
   useEffect(() => {
@@ -228,7 +219,7 @@ export default function SettingsPage() {
         isHandlerExecuting = true;
         
         try {
-          await loadDetailedDiagnosisResult();
+          await loadDetailedDiagnosisResult(userId);
         } catch (error) {
           console.warn('⚠️ モバイル読み込み処理エラー:', error);
         } finally {
@@ -266,7 +257,7 @@ export default function SettingsPage() {
         window.removeEventListener('focus', debouncedFocusHandler);
       };
     }
-  }, [detailedDiagnosisResult, loadDetailedDiagnosisResult]);
+  }, [detailedDiagnosisResult, loadDetailedDiagnosisResult, userId]);
 
   useEffect(() => {
     const initializeSettings = async () => {
@@ -289,8 +280,8 @@ export default function SettingsPage() {
 
         setUserType(diagnosisStatus.userType || null);
 
-        // 🎯 詳細診断結果の取得（64タイプ対応）リトライ機能付き
-        await loadDetailedDiagnosisResult();
+        // 🎯 詳細診断結果の取得（64タイプ対応）データベース優先
+        await loadDetailedDiagnosisResult(user.id);
 
         // 🔬 記憶システム初期化
         try {
