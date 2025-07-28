@@ -83,6 +83,9 @@ export default function SettingsPage() {
             console.log('✅ 64タイプ詳細結果読み込み成功:', parsedResult);
           } else {
             console.log('⚠️ 詳細診断結果なし - 基本Type64のみ表示');
+            // 🔍 デバッグ: localStorageの全キーを確認
+            console.log('🔍 localStorage keys:', Object.keys(localStorage));
+            console.log('🔍 detailedDiagnosisResult key exists:', localStorage.getItem('detailedDiagnosisResult') !== null);
           }
         } catch (error) {
           console.warn('⚠️ 詳細診断結果読み込みエラー:', error);
@@ -91,9 +94,11 @@ export default function SettingsPage() {
         // 🔬 記憶システム初期化
         try {
           const savedMemoryInfo = await MemoryManager.getPersonalInfo(user.id);
+          console.log('🔍 記憶システム個人情報:', savedMemoryInfo);
           setMemoryPersonalInfo(savedMemoryInfo);
           
           const progress = await MemoryManager.getAnalysisProgress(user.id);
+          console.log('🔍 AI理解度分析進捗:', progress);
           setAnalysisProgress(progress);
         } catch (error) {
           console.warn('⚠️ 個人情報読み込みエラー:', error);
@@ -233,7 +238,7 @@ export default function SettingsPage() {
         animate={{ opacity: 1, y: 0 }}
         className="bg-white/80 backdrop-blur-sm border-b border-slate-100 p-4 sticky top-0 z-10"
       >
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
+        <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="sm" onClick={() => router.back()}>
               <ArrowLeft size={20} />
@@ -262,7 +267,7 @@ export default function SettingsPage() {
         </div>
       </motion.header>
 
-      <main className="max-w-4xl mx-auto p-4 md:p-6 space-y-6 md:space-y-8">
+      <main className="max-w-4xl mx-auto p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6 md:space-y-8">
         {/* AI理解度分析 */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
