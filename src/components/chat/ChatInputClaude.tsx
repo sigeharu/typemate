@@ -80,45 +80,47 @@ export const ChatInputClaude = ({
             fontFamily: 'system-ui, -apple-system, sans-serif' 
           }}
         />
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between">
           <Button
             type="submit"
             onClick={handleSubmit}
             disabled={!message.trim() || disabled}
-            className="h-11 w-11 bg-blue-500 hover:bg-blue-600 active:scale-95 transition-all duration-150 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+            className="ml-3 h-9 w-9 bg-blue-500 hover:bg-blue-600 active:scale-95 transition-all duration-150 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Send size={18} />
+            <Send size={16} />
           </Button>
-          {onShowHistory && (
-            <Button 
-              variant="outline"
-              onClick={onShowHistory}
-              className="h-10 w-10 p-0 bg-slate-50 hover:bg-slate-100 active:scale-95 transition-all duration-150 border-slate-200 hover:border-slate-300"
-              title="チャット履歴"
-            >
-              <History size={18} />
-            </Button>
-          )}
-          {onShowMemories && (
-            <Button 
-              variant="outline"
-              onClick={onShowMemories}
-              className="h-10 w-10 p-0 bg-pink-50 hover:bg-pink-100 active:scale-95 transition-all duration-150 border-pink-200 hover:border-pink-300 text-pink-600 hover:text-pink-700"
-              title="思い出"
-            >
-              <Heart size={18} />
-            </Button>
-          )}
-          {onShowProfile && (
-            <Button 
-              variant="outline"
-              onClick={onShowProfile}
-              className="h-10 w-10 p-0 bg-slate-50 hover:bg-slate-100 active:scale-95 transition-all duration-150 border-slate-200 hover:border-slate-300"
-              title="設定"
-            >
-              <Settings size={18} />
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {onShowHistory && (
+              <Button 
+                variant="outline"
+                onClick={onShowHistory}
+                className="h-10 w-10 p-0 bg-slate-50 hover:bg-slate-100 active:scale-95 transition-all duration-150 border-slate-200 hover:border-slate-300"
+                title="チャット履歴"
+              >
+                <History size={18} />
+              </Button>
+            )}
+            {onShowMemories && (
+              <Button 
+                variant="outline"
+                onClick={onShowMemories}
+                className="h-10 w-10 p-0 bg-pink-50 hover:bg-pink-100 active:scale-95 transition-all duration-150 border-pink-200 hover:border-pink-300 text-pink-600 hover:text-pink-700"
+                title="思い出"
+              >
+                <Heart size={18} />
+              </Button>
+            )}
+            {onShowProfile && (
+              <Button 
+                variant="outline"
+                onClick={onShowProfile}
+                className="h-10 w-10 p-0 bg-slate-50 hover:bg-slate-100 active:scale-95 transition-all duration-150 border-slate-200 hover:border-slate-300"
+                title="設定"
+              >
+                <Settings size={18} />
+              </Button>
+            )}
+          </div>
         </div>
       </div>
       

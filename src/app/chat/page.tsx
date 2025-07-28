@@ -446,18 +446,29 @@ export default function ChatPage() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" onClick={handleShowHistory} className="touch-button">
-                  <History size={16} />
+                <Button 
+                  variant="ghost" 
+                  onClick={handleShowHistory} 
+                  className="h-10 w-10 p-0 hover:bg-slate-100 active:scale-95 transition-all duration-150"
+                  title="チャット履歴"
+                >
+                  <History size={18} />
                 </Button>
                 <Button 
                   variant="ghost" 
                   onClick={() => setShowMemories(!showMemories)}
-                  className="touch-button"
+                  className="h-10 w-10 p-0 hover:bg-pink-100 active:scale-95 transition-all duration-150 text-pink-600 hover:text-pink-700"
+                  title="思い出"
                 >
-                  <Heart size={16} />
+                  <Heart size={18} />
                 </Button>
-                <Button variant="ghost" onClick={handleShowProfile} className="touch-button">
-                  <Settings size={16} />
+                <Button 
+                  variant="ghost" 
+                  onClick={handleShowProfile} 
+                  className="h-10 w-10 p-0 hover:bg-slate-100 active:scale-95 transition-all duration-150"
+                  title="設定"
+                >
+                  <Settings size={18} />
                 </Button>
               </div>
             </div>
