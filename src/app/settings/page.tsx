@@ -3,12 +3,11 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { 
   ArrowLeft, 
-  User, 
   Heart, 
   Settings, 
   Trash2, 
@@ -53,27 +52,221 @@ export default function SettingsPage() {
     deepUnderstanding: 0
   });
 
-  // 🔄 モバイルでの追加読み込み処理
+  // 🗄️ ストレージアクセス最適化キャッシュ
+  const storageCache = useState<{
+    localStorage: DetailedDiagnosisResult | null;
+    sessionStorage: DetailedDiagnosisResult | null;
+    lastCheck: number;
+  }>({ localStorage: null, sessionStorage: null, lastCheck: 0 })[0];
+
+  // 🔍 モバイル専用デバッグ状態
+  const [debugInfo, setDebugInfo] = useState<{
+    attempts: number;
+    lastAttemptTime: number;
+    errors: string[];
+    storageAccess: {
+      localStorage: boolean;
+      sessionStorage: boolean;
+    };
+    renderCount: number;
+  }>({
+    attempts: 0,
+    lastAttemptTime: 0,
+    errors: [],
+    storageAccess: { localStorage: false, sessionStorage: false },
+    renderCount: 0
+  });
+
+  // 🔄 詳細診断結果のリトライ読み込み関数（ストレージキャッシュ機構付き）
+  const loadDetailedDiagnosisResult = useCallback(async (maxRetries = 3) => {
+    const startTime = Date.now();
+    
+    // SSR対応: window オブジェクトの安全なアクセス
+    if (typeof window === 'undefined') {
+      console.warn('⚠️ SSR環境でのloadDetailedDiagnosisResult呼び出し');
+      setDebugInfo(prev => ({ 
+        ...prev,
+        errors: [...prev.errors, 'SSR環境での呼び出し'],
+        lastAttemptTime: startTime
+      }));
+      return;
+    }
+    
+    const isMobile = window.innerWidth <= 768;
+    console.log('📱 モバイルデバイス:', isMobile, 'window.innerWidth:', window.innerWidth);
+    
+    // デバッグ情報更新
+    setDebugInfo(prev => ({ 
+      ...prev,
+      attempts: prev.attempts + 1,
+      lastAttemptTime: startTime
+    }));
+    
+    // キャッシュ有効性チェック（5秒間有効）
+    const now = Date.now();
+    const cacheValid = (now - storageCache.lastCheck) < 5000;
+    
+    if (cacheValid && (storageCache.localStorage || storageCache.sessionStorage)) {
+      const cachedResult = storageCache.localStorage || storageCache.sessionStorage;
+      console.log('✨ キャッシュから詳細診断結果を取得:', cachedResult);
+      setDetailedDiagnosisResult(cachedResult);
+      return;
+    }
+    
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        console.log(`🔍 詳細診断結果読み込み試行 ${attempt + 1}/${maxRetries}`);
+        
+        // 1. localStorageから読み取り
+        let savedDetailedResult: string | null = null;
+        let resultSource: 'localStorage' | 'sessionStorage' | null = null;
+        
+        try {
+          savedDetailedResult = localStorage.getItem('detailedDiagnosisResult');
+          if (savedDetailedResult) {
+            resultSource = 'localStorage';
+          }
+          // ストレージアクセス成功をデバッグ情報に記録
+          setDebugInfo(prev => ({ 
+            ...prev,
+            storageAccess: { ...prev.storageAccess, localStorage: true }
+          }));
+        } catch (error) {
+          const errorMsg = `localStorage読み取りエラー: ${error}`;
+          console.warn('⚠️', errorMsg);
+          setDebugInfo(prev => ({ 
+            ...prev,
+            errors: [...prev.errors, errorMsg],
+            storageAccess: { ...prev.storageAccess, localStorage: false }
+          }));
+        }
+        
+        // 2. SessionStorageフォールバック
+        if (!savedDetailedResult) {
+          console.log('🔍 localStorageになし - sessionStorageを確認');
+          try {
+            savedDetailedResult = sessionStorage.getItem('detailedDiagnosisResult');
+            if (savedDetailedResult) {
+              resultSource = 'sessionStorage';
+            }
+            // ストレージアクセス成功をデバッグ情報に記録
+            setDebugInfo(prev => ({ 
+              ...prev,
+              storageAccess: { ...prev.storageAccess, sessionStorage: true }
+            }));
+          } catch (error) {
+            const errorMsg = `sessionStorage読み取りエラー: ${error}`;
+            console.warn('⚠️', errorMsg);
+            setDebugInfo(prev => ({ 
+              ...prev,
+              errors: [...prev.errors, errorMsg],
+              storageAccess: { ...prev.storageAccess, sessionStorage: false }
+            }));
+          }
+        }
+        
+        if (savedDetailedResult && resultSource) {
+          const parsedResult: DetailedDiagnosisResult = JSON.parse(savedDetailedResult);
+          
+          // キャッシュ更新
+          storageCache.lastCheck = now;
+          if (resultSource === 'localStorage') {
+            storageCache.localStorage = parsedResult;
+          } else {
+            storageCache.sessionStorage = parsedResult;
+          }
+          
+          setDetailedDiagnosisResult(parsedResult);
+          console.log(`✅ ${resultSource}から64タイプ詳細結果読み込み成功:`, parsedResult);
+          console.log('📱 モバイルでの詳細タイプ表示:', isMobile ? '有効' : '無効');
+          return; // 成功時は抜ける
+        }
+        
+        // 3. リトライ時のウェイト
+        if (attempt < maxRetries - 1) {
+          console.log(`⏳ ${500 * (attempt + 1)}ms待機後リトライ`);
+          await new Promise(resolve => setTimeout(resolve, 500 * (attempt + 1)));
+        }
+        
+      } catch (error) {
+        console.warn(`⚠️ 試行${attempt + 1}失敗:`, error);
+      }
+    }
+    
+    // 全て失敗時のデバッグ情報
+    console.log('⚠️ 詳細診断結果なし - 基本Type64のみ表示');
+    try {
+      console.log('🔍 localStorage keys:', Object.keys(localStorage));
+      console.log('🔍 sessionStorage keys:', Object.keys(sessionStorage));
+      console.log('🔍 detailedDiagnosisResult in localStorage:', localStorage.getItem('detailedDiagnosisResult') !== null);
+      console.log('🔍 detailedDiagnosisResult in sessionStorage:', sessionStorage.getItem('detailedDiagnosisResult') !== null);
+    } catch (error) {
+      console.warn('⚠️ ストレージデバッグ情報取得エラー:', error);
+    }
+  }, [storageCache]); // storageCacheを依存配列に追加
+
+  // 🔄 モバイル専用の詳細結果読み込み処理（強化された無限ループ防止機構付き）
   useEffect(() => {
-    const handleReload = () => {
-      if (!detailedDiagnosisResult && window.innerWidth <= 768) {
+    // 無限ループ防止: detailedDiagnosisResultがすでに存在する場合はスキップ
+    if (detailedDiagnosisResult) {
+      console.log('🔒 詳細診断結果が既に存在 - モバイル読み込み処理をスキップ');
+      return;
+    }
+    
+    // 重複実行防止フラグ
+    let isHandlerExecuting = false;
+    
+    const handleReload = async () => {
+      // 重複実行防止
+      if (isHandlerExecuting) {
+        console.log('🔒 既に実行中 - 重複実行をスキップ');
+        return;
+      }
+      
+      if (typeof window !== 'undefined' && window.innerWidth <= 768) {
         console.log('📱 モバイルで詳細結果なし - 再読み込み実行');
-        loadDetailedDiagnosisResult();
+        isHandlerExecuting = true;
+        
+        try {
+          await loadDetailedDiagnosisResult();
+        } catch (error) {
+          console.warn('⚠️ モバイル読み込み処理エラー:', error);
+        } finally {
+          isHandlerExecuting = false;
+        }
       }
     };
     
     // ページ読み込み後のチェック
     if (typeof window !== 'undefined') {
-      window.addEventListener('load', handleReload);
-      // フォーカス時のチェック（タブ切り替え等）
-      window.addEventListener('focus', handleReload);
+      // 即座に一度実行
+      handleReload();
+      
+      // デバウンス付きイベントリスナー
+      let loadTimeout: NodeJS.Timeout;
+      let focusTimeout: NodeJS.Timeout;
+      
+      const debouncedLoadHandler = () => {
+        clearTimeout(loadTimeout);
+        loadTimeout = setTimeout(handleReload, 100);
+      };
+      
+      const debouncedFocusHandler = () => {
+        clearTimeout(focusTimeout);
+        focusTimeout = setTimeout(handleReload, 300);
+      };
+      
+      window.addEventListener('load', debouncedLoadHandler);
+      window.addEventListener('focus', debouncedFocusHandler);
       
       return () => {
-        window.removeEventListener('load', handleReload);
-        window.removeEventListener('focus', handleReload);
+        clearTimeout(loadTimeout);
+        clearTimeout(focusTimeout);
+        window.removeEventListener('load', debouncedLoadHandler);
+        window.removeEventListener('focus', debouncedFocusHandler);
       };
     }
-  }, [detailedDiagnosisResult]);
+  }, [detailedDiagnosisResult, loadDetailedDiagnosisResult]);
 
   useEffect(() => {
     const initializeSettings = async () => {
@@ -119,6 +312,10 @@ export default function SettingsPage() {
             .select('selected_ai_personality, relationship_type')
             .eq('user_id', user.id)
             .single();
+
+          if (error) {
+            console.warn('⚠️ user_profiles取得エラー:', error);
+          }
 
           if (profile) {
             console.log('✅ user_profilesから設定読み込み:', {
@@ -169,52 +366,8 @@ export default function SettingsPage() {
     };
 
     initializeSettings();
-  }, [router]);
+  }, [router, loadDetailedDiagnosisResult]);
 
-  // 🔄 詳細診断結果のリトライ読み込み関数
-  const loadDetailedDiagnosisResult = async (maxRetries = 3) => {
-    const isMobile = window.innerWidth <= 768;
-    console.log('📱 モバイルデバイス:', isMobile, 'window.innerWidth:', window.innerWidth);
-    
-    for (let attempt = 0; attempt < maxRetries; attempt++) {
-      try {
-        console.log(`🔍 詳細診断結果読み込み試行 ${attempt + 1}/${maxRetries}`);
-        
-        // 1. localStorageから読み取り
-        let savedDetailedResult = localStorage.getItem('detailedDiagnosisResult');
-        
-        // 2. SessionStorageフォールバック
-        if (!savedDetailedResult) {
-          console.log('🔍 localStorageになし - sessionStorageを確認');
-          savedDetailedResult = sessionStorage.getItem('detailedDiagnosisResult');
-        }
-        
-        if (savedDetailedResult) {
-          const parsedResult: DetailedDiagnosisResult = JSON.parse(savedDetailedResult);
-          setDetailedDiagnosisResult(parsedResult);
-          console.log('✅ 64タイプ詳細結果読み込み成功:', parsedResult);
-          console.log('📱 モバイルでの詳細タイプ表示:', isMobile ? '有効' : '無効');
-          return; // 成功時は抜ける
-        }
-        
-        // 3. リトライ時のウェイト
-        if (attempt < maxRetries - 1) {
-          console.log(`⏳ ${500 * (attempt + 1)}ms待機後リトライ`);
-          await new Promise(resolve => setTimeout(resolve, 500 * (attempt + 1)));
-        }
-        
-      } catch (error) {
-        console.warn(`⚠️ 試行${attempt + 1}失敗:`, error);
-      }
-    }
-    
-    // 全て失敗時のデバッグ情報
-    console.log('⚠️ 詳細診断結果なし - 基本Type64のみ表示');
-    console.log('🔍 localStorage keys:', Object.keys(localStorage));
-    console.log('🔍 sessionStorage keys:', Object.keys(sessionStorage));
-    console.log('🔍 detailedDiagnosisResult in localStorage:', localStorage.getItem('detailedDiagnosisResult') !== null);
-    console.log('🔍 detailedDiagnosisResult in sessionStorage:', sessionStorage.getItem('detailedDiagnosisResult') !== null);
-  };
 
   const handleSaveSettings = async () => {
     if (!userId || !selectedAiPersonality) return;
@@ -420,6 +573,65 @@ export default function SettingsPage() {
           </Card>
         </motion.div>
 
+        {/* 🔍 モバイルデバッグ情報（開発環境のみ） */}
+        {process.env.NODE_ENV === 'development' && typeof window !== 'undefined' && window.innerWidth <= 768 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+          >
+            <Card className="p-4 bg-amber-50 border-amber-200">
+              <h4 className="text-sm font-semibold text-amber-800 mb-2 flex items-center gap-2">
+                🔍 モバイルデバッグ情報
+              </h4>
+              <div className="space-y-2 text-xs">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <span className="text-amber-700 font-medium">試行回数:</span> {debugInfo.attempts}
+                  </div>
+                  <div>
+                    <span className="text-amber-700 font-medium">レンダー回数:</span> {debugInfo.renderCount}
+                  </div>
+                  <div>
+                    <span className="text-amber-700 font-medium">localStorage:</span> 
+                    <span className={debugInfo.storageAccess.localStorage ? 'text-green-600' : 'text-red-600'}>
+                      {debugInfo.storageAccess.localStorage ? ' ✅' : ' ❌'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-amber-700 font-medium">sessionStorage:</span>
+                    <span className={debugInfo.storageAccess.sessionStorage ? 'text-green-600' : 'text-red-600'}>
+                      {debugInfo.storageAccess.sessionStorage ? ' ✅' : ' ❌'}
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <span className="text-amber-700 font-medium">詳細結果:</span>
+                  <span className={detailedDiagnosisResult ? 'text-green-600' : 'text-red-600'}>
+                    {detailedDiagnosisResult ? ' ✅ 読み込み成功' : ' ❌ 未読み込み'}
+                  </span>
+                </div>
+                {debugInfo.errors.length > 0 && (
+                  <div>
+                    <span className="text-amber-700 font-medium">エラー:</span>
+                    <div className="text-red-600 text-xs max-h-16 overflow-y-auto">
+                      {debugInfo.errors.map((error, index) => (
+                        <div key={index}>• {error}</div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {debugInfo.lastAttemptTime > 0 && (
+                  <div>
+                    <span className="text-amber-700 font-medium">最終試行:</span> 
+                    {new Date(debugInfo.lastAttemptTime).toLocaleTimeString()}
+                  </div>
+                )}
+              </div>
+            </Card>
+          </motion.div>
+        )}
+
         {/* あなたの価値・才能（64タイプ詳細結果がある場合のみ表示） */}
         {detailedDiagnosisResult && (
           <motion.div
@@ -540,7 +752,7 @@ export default function SettingsPage() {
                           : 'border-slate-200 hover:border-slate-300'
                       }`}
                       onClick={() => {
-                        setRelationshipType(option.key as any);
+                        setRelationshipType(option.key as 'friend' | 'counselor' | 'romantic' | 'mentor');
                         setHasChanges(true);
                       }}
                     >
