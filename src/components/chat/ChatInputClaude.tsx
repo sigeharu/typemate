@@ -193,14 +193,52 @@ export const ChatInputClaude = ({
               fontFamily: 'system-ui, -apple-system, sans-serif' 
             }}
           />
-          <Button
-            type="submit"
-            disabled={!message.trim() || disabled}
-            className="px-6 py-2 bg-blue-500 hover:bg-blue-600 active:scale-[0.98] transition-all duration-150 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium"
-          >
-            <Send size={18} className="mr-2" />
-            送信
-          </Button>
+          <div className="flex items-center gap-3">
+            {/* 🎵 PC版気分ボタン */}
+            {onMoodChange && (
+              <div className="relative">
+                <Button 
+                  type="button"
+                  variant="ghost" 
+                  onClick={() => setShowMoodSelector(!showMoodSelector)}
+                  className="h-10 w-10 p-0 hover:bg-orange-100 active:scale-95 transition-all duration-150 hover:scale-105"
+                  title="気分を選択"
+                >
+                  <span className="text-xl">{currentMood || '😊'}</span>
+                </Button>
+                
+                {/* 🎵 PC版気分選択パネル */}
+                {showMoodSelector && (
+                  <div className="absolute top-full mt-2 left-0 bg-white border border-gray-200 rounded-lg shadow-lg p-2 flex gap-1 z-50">
+                    {BASIC_MOODS.map((mood) => (
+                      <Button
+                        key={mood.emoji}
+                        type="button"
+                        variant="ghost"
+                        onClick={() => {
+                          onMoodChange(mood.emoji);
+                          setShowMoodSelector(false);
+                        }}
+                        className="h-10 w-10 p-0 hover:bg-gray-100 hover:scale-110 transition-all duration-150"
+                        title={mood.name}
+                      >
+                        <span className="text-lg">{mood.emoji}</span>
+                      </Button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+            
+            <Button
+              type="submit"
+              disabled={!message.trim() || disabled}
+              className="px-6 py-2 bg-blue-500 hover:bg-blue-600 active:scale-[0.98] transition-all duration-150 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium"
+            >
+              <Send size={18} className="mr-2" />
+              送信
+            </Button>
+          </div>
         </form>
         
         {/* PC版ヒント表示 */}
