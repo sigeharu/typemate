@@ -524,6 +524,9 @@ export default function ChatPage() {
               onSendMessage={handleSendMessage}
               disabled={isTyping}
               placeholder="メッセージを入力してください..."
+              onShowHistory={handleShowHistory}
+              onShowMemories={() => setShowMemories(!showMemories)}
+              onShowProfile={handleShowProfile}
             />
           </footer>
         </div>
