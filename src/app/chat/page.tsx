@@ -73,6 +73,33 @@ export default function ChatPage() {
   const [showLevelUpModal, setShowLevelUpModal] = useState(false);
   const [showPersonalInfoModal, setShowPersonalInfoModal] = useState(false);
   
+  // 🎵 Phase 2: 気分状態管理
+  const [currentMood, setCurrentMood] = useState<string>('😊');
+  
+  // 🎵 Phase 2: 気分コンテキスト生成
+  const getMoodContext = (mood: string): string => {
+    const moodContexts: Record<string, string> = {
+      '😊': 'ユーザーは楽しい気分です。一緒に盛り上がって、その楽しさを共有してください。',
+      '😢': 'ユーザーは悲しい気分です。優しく寄り添い、温かい言葉で励ましてください。',
+      '😠': 'ユーザーは怒っている気分です。まず話をじっくり聞き、気持ちを理解することに専念してください。',
+      '😌': 'ユーザーは穏やかな気分です。その平穏を大切にして、落ち着いた会話を心がけてください。',
+      '💭': 'ユーザーは考え事をしている気分です。思考整理を手伝い、一緒に考えてください。'
+    };
+    return moodContexts[mood] || moodContexts['😊'];
+  };
+  
+  // 🎵 Phase 2: 気分変更ハンドラー
+  const handleMoodChange = (mood: string) => {
+    setCurrentMood(mood);
+    
+    const moodNames: Record<string, string> = {
+      '😊': '楽しい', '😢': '悲しい', '😠': '怒り', 
+      '😌': '穏やか', '💭': '考え中'
+    };
+    
+    console.log(`🎵 気分変更: ${moodNames[mood]} ${mood}`);
+  };
+  
   // Chat session
   const [currentSessionId, setCurrentSessionId] = useState<string>('');
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
@@ -327,7 +354,10 @@ export default function ChatPage() {
           emotionData: emotionData,
           dominantEmotion: emotionData.dominantEmotion,
           emotionIntensity: emotionData.intensity,
-          musicTone: emotionData.musicTone
+          musicTone: emotionData.musicTone,
+          // 🎵 Phase 2: 気分データ追加
+          currentMood: currentMood,
+          moodContext: getMoodContext(currentMood)
         })
       });
 
@@ -612,6 +642,9 @@ export default function ChatPage() {
               onShowHistory={handleShowHistory}
               onShowMemories={() => setShowMemories(!showMemories)}
               onShowProfile={handleShowProfile}
+              // 🎵 Phase 2: 気分機能統合
+              currentMood={currentMood}
+              onMoodChange={handleMoodChange}
             />
           </footer>
         </div>
