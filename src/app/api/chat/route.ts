@@ -26,6 +26,10 @@ export async function POST(request: NextRequest) {
   // Option B: 個人情報関連
   let chatCount: number = 0;
   let personalInfo: {name?: string; birthday?: string} = {};
+  
+  // 🎵 Phase 2: 気分連動データ
+  let currentMood: string = '😊';
+  let moodContext: string = '';
 
   try {
     const body = await request.json();
@@ -43,7 +47,10 @@ export async function POST(request: NextRequest) {
       todaysEvents = [],
       // Option B
       chatCount = 0,
-      personalInfo = {}
+      personalInfo = {},
+      // 🎵 Phase 2: 気分データ
+      currentMood = '😊',
+      moodContext = ''
     } = body);
 
     if (!message || !userType || !aiPersonality) {
@@ -97,7 +104,10 @@ export async function POST(request: NextRequest) {
       // Option B
       chatCount,
       personalInfo,
-      naturalAstrologyHint
+      naturalAstrologyHint,
+      // 🎵 Phase 2: 気分データ統合
+      currentMood,
+      moodContext
     });
 
     // 会話履歴の構築
@@ -194,7 +204,10 @@ function buildSystemPrompt({
   // Option B
   chatCount,
   personalInfo,
-  naturalAstrologyHint
+  naturalAstrologyHint,
+  // 🎵 Phase 2: 気分データ
+  currentMood,
+  moodContext
 }: {
   userArchetype: typeof ARCHETYPE_DATA[BaseArchetype];
   aiArchetype: typeof ARCHETYPE_DATA[BaseArchetype];
@@ -211,6 +224,9 @@ function buildSystemPrompt({
   chatCount: number;
   personalInfo: {name?: string; birthday?: string};
   naturalAstrologyHint: string;
+  // 🎵 Phase 2: 気分データ
+  currentMood: string;
+  moodContext: string;
 }) {
   const relationshipContext = {
     friend: '親友として',
@@ -288,6 +304,45 @@ ${naturalAstrologyHint ? `今日の直感: ${naturalAstrologyHint}` : ''}
 12. 感情や体験談も交えて、豊かな会話にする
 13. 相手が理解しやすいよう、必要な説明は省略しない
 14. ${aiArchetype.name}らしい深い洞察や視点も含める
+
+## 🎵 現在の気分に合わせた対応
+現在のユーザーの気分: ${currentMood}
+気分別対応指示: ${moodContext}
+
+### 気分別応答スタイル
+${currentMood === '😢' ? `
+**悲しい気分への対応**
+- 温かく寄り添い、話を深く聞いてください
+- 「つらかったね」「よく頑張ったね」など共感的な言葉を使う
+- 解決策を急がず、まずは気持ちを受け止める
+- 優しく励まし、温かい言葉で支える
+` : currentMood === '😠' ? `
+**怒っている気分への対応**
+- まず話をじっくり聞き、気持ちを理解することに専念
+- 「そんな風に感じるのも当然だよ」など気持ちを認める
+- 冷静になれるよう、穏やかなトーンで応答
+- 相手の立場を理解し、共感を示す
+` : currentMood === '😊' ? `
+**楽しい気分への対応**
+- 一緒に盛り上がり、楽しさを共有してください
+- 「わぁ、それ楽しそう！」など一緒に喜ぶ
+- ポジティブなエネルギーを大切にする  
+- 楽しい話題を広げ、さらに盛り上げる
+` : currentMood === '😌' ? `
+**穏やかな気分への対応**
+- その平穏を大切にして、落ち着いた会話を心がける
+- ゆったりとしたペースで応答
+- 深い話題や内省的な会話も歓迎
+- 安心感を与える温かい雰囲気で
+` : currentMood === '💭' ? `
+**考え中の気分への対応**
+- 思考整理を手伝い、一緒に考えてください
+- 「なるほど、こう考えることもできるかも」など思考を広げる
+- 論理的かつ創造的な視点を提供
+- 答えを急がず、考える過程を大切にする
+` : ''}
+
+**重要**: この気分に応じた対応を最優先し、自然に会話に反映させてください。
 
 現在は${timeOfDay}です。${aiArchetype.name}として、${personalInfo.name ? `${personalInfo.name}さん` : `${userArchetype.name}のあなた`}と${relationshipContext[relationshipType as keyof typeof relationshipContext]}心地よい会話をしてください。
 
