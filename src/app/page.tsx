@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { Heart, Music, Sparkles, Users, ArrowRight } from 'lucide-react';
+import { Heart, Music, Sparkles, Users, ArrowRight, Brain, Wand2, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AuthModal } from '@/components/auth/AuthModal';
 import { SupabaseLoginButton, SupabaseUserInfo } from '@/components/auth/SupabaseLoginButton';
@@ -130,7 +130,7 @@ export default function Home() {
         >
           {[
             {
-              icon: Users,
+              icon: Brain,
               title: "64Type専用AI",
               description: "従来の16倍の精密分析！あなただけの性格に完璧に最適化されたAIパートナー",
               color: "blue-600",
@@ -146,7 +146,7 @@ export default function Home() {
               borderColor: "border-purple-200"
             },
             {
-              icon: Sparkles,
+              icon: Wand2,
               title: "ファンタジー世界観 🎵",
               description: "設計主、賢者、吟遊詩人...美しいアーキタイプ名で彩られたパートナーたち",
               color: "cyan-500",
@@ -154,7 +154,7 @@ export default function Home() {
               borderColor: "border-cyan-200"
             },
             {
-              icon: Music,
+              icon: Clock,
               title: "24時間サポート 🎶",
               description: "いつでもあなたの気持ちに寄り添い、支えてくれる信頼できる存在",
               color: "indigo-600",
@@ -169,8 +169,13 @@ export default function Home() {
               transition={{ duration: 0.6, delay: 1 + index * 0.1 }}
               className={`bg-gradient-to-br ${feature.bgColor} border ${feature.borderColor} rounded-xl p-6 shadow-lg hover:shadow-xl text-center group transition-all duration-300 crisp-button quick-feedback`}
             >
-              <div className={`inline-flex items-center justify-center w-12 h-12 rounded-full bg-${feature.color} text-white mb-4 group-hover:scale-110 transition-transform duration-300 celebration-effect`}>
-                <feature.icon size={24} />
+              <div className={`inline-flex items-center justify-center w-14 h-14 rounded-full text-white mb-4 group-hover:scale-110 transition-transform duration-300 celebration-effect shadow-lg ${
+                feature.color === 'blue-600' ? 'bg-blue-600' :
+                feature.color === 'purple-500' ? 'bg-purple-500' :
+                feature.color === 'cyan-500' ? 'bg-cyan-500' :
+                'bg-indigo-600'
+              }`}>
+                <feature.icon size={28} strokeWidth={2} />
               </div>
               <h3 className="text-lg font-semibold text-slate-800 mb-2">
                 {feature.title}
