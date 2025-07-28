@@ -45,8 +45,9 @@ export const ChatInputClaude = ({
 }: ChatInputClaudeProps) => {
   const [message, setMessage] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  // 🎵 Phase 1: 気分選択パネル表示state
-  const [showMoodSelector, setShowMoodSelector] = useState(false);
+  // 🎵 Phase 1: 気分選択パネル表示state（モバイル・PC別管理）
+  const [showMoodSelectorMobile, setShowMoodSelectorMobile] = useState(false);
+  const [showMoodSelectorDesktop, setShowMoodSelectorDesktop] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,20 +108,20 @@ export const ChatInputClaude = ({
               <Send size={16} />
             </Button>
             
-            {/* 🎵 Phase 1: 気分ボタン */}
+            {/* 🎵 Phase 1: 気分ボタン（モバイル版） */}
             {onMoodChange && (
               <div className="relative">
                 <Button 
                   variant="ghost" 
-                  onClick={() => setShowMoodSelector(!showMoodSelector)}
+                  onClick={() => setShowMoodSelectorMobile(!showMoodSelectorMobile)}
                   className="h-9 w-9 p-0 hover:bg-orange-100 active:scale-95 transition-all duration-150 hover:scale-105"
                   title="気分を選択"
                 >
                   <span className="text-lg">{currentMood || '😊'}</span>
                 </Button>
                 
-                {/* 🎵 Phase 1: 気分選択パネル */}
-                {showMoodSelector && (
+                {/* 🎵 Phase 1: 気分選択パネル（モバイル版） */}
+                {showMoodSelectorMobile && (
                   <div className="absolute bottom-full mb-2 left-0 bg-white border border-gray-200 rounded-lg shadow-lg p-2 flex gap-1 z-50">
                     {BASIC_MOODS.map((mood) => (
                       <Button
@@ -128,7 +129,7 @@ export const ChatInputClaude = ({
                         variant="ghost"
                         onClick={() => {
                           onMoodChange(mood.emoji);
-                          setShowMoodSelector(false);
+                          setShowMoodSelectorMobile(false);
                         }}
                         className="h-8 w-8 p-0 hover:bg-gray-100 hover:scale-110 transition-all duration-150"
                         title={mood.name}
@@ -200,7 +201,7 @@ export const ChatInputClaude = ({
                 <Button 
                   type="button"
                   variant="ghost" 
-                  onClick={() => setShowMoodSelector(!showMoodSelector)}
+                  onClick={() => setShowMoodSelectorDesktop(!showMoodSelectorDesktop)}
                   className="h-10 w-10 p-0 hover:bg-orange-100 active:scale-95 transition-all duration-150 hover:scale-105"
                   title="気分を選択"
                 >
@@ -208,7 +209,7 @@ export const ChatInputClaude = ({
                 </Button>
                 
                 {/* 🎵 PC版気分選択パネル */}
-                {showMoodSelector && (
+                {showMoodSelectorDesktop && (
                   <div className="absolute top-full mt-2 left-0 bg-white border border-gray-200 rounded-lg shadow-lg p-2 flex gap-1 z-50">
                     {BASIC_MOODS.map((mood) => (
                       <Button
@@ -217,7 +218,7 @@ export const ChatInputClaude = ({
                         variant="ghost"
                         onClick={() => {
                           onMoodChange(mood.emoji);
-                          setShowMoodSelector(false);
+                          setShowMoodSelectorDesktop(false);
                         }}
                         className="h-10 w-10 p-0 hover:bg-gray-100 hover:scale-110 transition-all duration-150"
                         title={mood.name}
