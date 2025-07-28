@@ -25,7 +25,7 @@ export function DiagnosticQuestion({
   const progressValue = ((currentIndex + 1) / totalQuestions) * 100;
 
   return (
-    <div className="max-w-6xl mx-auto p-4 sm:p-6">
+    <div className="max-w-4xl mx-auto px-2 sm:px-4 md:px-6 py-4 sm:py-6">
       {/* プログレスバー */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -56,8 +56,8 @@ export function DiagnosticQuestion({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        <Card className="p-4 sm:p-6 lg:p-8 mb-4 sm:mb-6 lg:mb-8 bg-gradient-to-br from-white to-slate-50 border-slate-200 shadow-lg">
-          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-musical mb-4 sm:mb-6 lg:mb-8 leading-relaxed text-center">
+        <Card className="p-3 sm:p-4 md:p-6 lg:p-8 mb-4 sm:mb-6 lg:mb-8 bg-gradient-to-br from-white to-slate-50 border-slate-200 shadow-lg">
+          <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-musical mb-4 sm:mb-6 lg:mb-8 leading-normal sm:leading-relaxed text-center">
             {question.question}
           </h2>
           
@@ -85,7 +85,7 @@ export function DiagnosticQuestion({
               >
                 <Button
                   variant="outline"
-                  className="w-full text-center h-auto p-3 hover:bg-purple-50 hover:border-purple-400 transition-all duration-300 border-2 border-purple-300"
+                  className="w-full text-center h-auto min-h-12 p-3 hover:bg-purple-50 hover:border-purple-400 transition-all duration-300 border-2 border-purple-300"
                   onClick={() => onAnswer(question.id, 2)}
                 >
                   <div className="flex items-center justify-center gap-3">
@@ -105,7 +105,7 @@ export function DiagnosticQuestion({
               >
                 <Button
                   variant="outline"
-                  className="w-full text-center h-auto p-3 hover:bg-purple-25 hover:border-purple-300 transition-all duration-300 border border-purple-200"
+                  className="w-full text-center h-auto min-h-12 p-3 hover:bg-purple-25 hover:border-purple-300 transition-all duration-300 border border-purple-200"
                   onClick={() => onAnswer(question.id, 1)}
                 >
                   <div className="flex items-center justify-center gap-3">
@@ -125,7 +125,7 @@ export function DiagnosticQuestion({
               >
                 <Button
                   variant="outline"
-                  className="w-full text-center h-auto p-3 hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 border-2 border-gray-300 bg-gray-25"
+                  className="w-full text-center h-auto min-h-12 p-3 hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 border-2 border-gray-300 bg-gray-25"
                   onClick={() => onAnswer(question.id, 0)}
                 >
                   <div className="flex items-center justify-center gap-3">
@@ -145,7 +145,7 @@ export function DiagnosticQuestion({
               >
                 <Button
                   variant="outline"
-                  className="w-full text-center h-auto p-3 hover:bg-blue-25 hover:border-blue-300 transition-all duration-300 border border-blue-200"
+                  className="w-full text-center h-auto min-h-12 p-3 hover:bg-blue-25 hover:border-blue-300 transition-all duration-300 border border-blue-200"
                   onClick={() => onAnswer(question.id, -1)}
                 >
                   <div className="flex items-center justify-center gap-3">
@@ -165,7 +165,7 @@ export function DiagnosticQuestion({
               >
                 <Button
                   variant="outline"
-                  className="w-full text-center h-auto p-3 hover:bg-blue-50 hover:border-blue-400 transition-all duration-300 border-2 border-blue-300"
+                  className="w-full text-center h-auto min-h-12 p-3 hover:bg-blue-50 hover:border-blue-400 transition-all duration-300 border-2 border-blue-300"
                   onClick={() => onAnswer(question.id, -2)}
                 >
                   <div className="flex items-center justify-center gap-3">
