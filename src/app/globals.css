@@ -24,6 +24,24 @@
 
 /* 基本タイポグラフィ - typemate-core.cssで定義済み */
 
+/* 🎵 気分ボタン微細アニメーション */
+@keyframes mood-subtle-glow {
+  0%, 100% { 
+    box-shadow: 0 0 0 0 rgba(251, 146, 60, 0); 
+  }
+  50% { 
+    box-shadow: 0 0 0 2px rgba(251, 146, 60, 0.1); 
+  }
+}
+
+.mood-button-subtle {
+  animation: mood-subtle-glow 4s ease-in-out infinite;
+}
+
+.mood-button-subtle:hover {
+  animation: none;
+}
+
 /* 🔍 アクセシビリティ対応 */
 .focus-visible {
   outline: 2px solid #10b981;

@@ -48,6 +48,15 @@ export const ChatInputClaude = ({
   // 🎵 Phase 1: 気分選択パネル表示state（モバイル・PC別管理）
   const [showMoodSelectorMobile, setShowMoodSelectorMobile] = useState(false);
   const [showMoodSelectorDesktop, setShowMoodSelectorDesktop] = useState(false);
+  // 🎵 UX改善: ホバープレビュー表示state
+  const [showHoverPreviewMobile, setShowHoverPreviewMobile] = useState(false);
+  const [showHoverPreviewDesktop, setShowHoverPreviewDesktop] = useState(false);
+
+  // 🎵 UX改善: 現在の気分名を取得
+  const getCurrentMoodName = () => {
+    const mood = BASIC_MOODS.find(m => m.emoji === currentMood);
+    return mood ? mood.name : '楽しい';
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,11 +123,20 @@ export const ChatInputClaude = ({
                 <Button 
                   variant="ghost" 
                   onClick={() => setShowMoodSelectorMobile(!showMoodSelectorMobile)}
-                  className="h-9 w-9 p-0 hover:bg-orange-100 active:scale-95 transition-all duration-150 hover:scale-105"
-                  title="気分を選択"
+                  onMouseEnter={() => setShowHoverPreviewMobile(true)}
+                  onMouseLeave={() => setShowHoverPreviewMobile(false)}
+                  className="h-9 w-9 p-0 hover:bg-orange-100 active:scale-95 transition-all duration-150 hover:scale-105 mood-button-subtle"
+                  title={`現在の気分: ${currentMood || '😊'} - クリックして気分を変更`}
                 >
                   <span className="text-lg">{currentMood || '😊'}</span>
                 </Button>
+                
+                {/* 🎵 UX改善: ホバープレビュー（モバイル版） */}
+                {showHoverPreviewMobile && !showMoodSelectorMobile && (
+                  <div className="absolute bottom-full mb-1 left-0 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-50">
+                    他の気分: {BASIC_MOODS.filter(mood => mood.emoji !== currentMood).map(mood => mood.emoji).join(' ')}
+                  </div>
+                )}
                 
                 {/* 🎵 Phase 1: 気分選択パネル（モバイル版） */}
                 {showMoodSelectorMobile && (
@@ -207,16 +225,30 @@ export const ChatInputClaude = ({
               
               {/* 🎵 PC版気分ボタン（送信ボタンの右側） */}
               {onMoodChange && (
-                <div className="relative">
+                <div className="relative flex flex-col items-center">
                   <Button 
                     type="button"
                     variant="ghost" 
                     onClick={() => setShowMoodSelectorDesktop(!showMoodSelectorDesktop)}
-                    className="h-10 w-10 p-0 hover:bg-orange-100 active:scale-95 transition-all duration-150 hover:scale-105"
-                    title="気分を選択"
+                    onMouseEnter={() => setShowHoverPreviewDesktop(true)}
+                    onMouseLeave={() => setShowHoverPreviewDesktop(false)}
+                    className="h-10 w-10 p-0 hover:bg-orange-100 active:scale-95 transition-all duration-150 hover:scale-105 mood-button-subtle"
+                    title={`現在の気分: ${currentMood || '😊'} - クリックして気分を変更`}
                   >
                     <span className="text-xl">{currentMood || '😊'}</span>
                   </Button>
+                  
+                  {/* 🎵 UX改善: PC版気分名表示 */}
+                  <span className="text-xs text-gray-500 mt-1 hidden md:block">
+                    {getCurrentMoodName()}
+                  </span>
+                  
+                  {/* 🎵 UX改善: ホバープレビュー（PC版） */}
+                  {showHoverPreviewDesktop && !showMoodSelectorDesktop && (
+                    <div className="absolute bottom-full mb-1 left-0 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-50">
+                      他の気分: {BASIC_MOODS.filter(mood => mood.emoji !== currentMood).map(mood => mood.emoji).join(' ')}
+                    </div>
+                  )}
                   
                   {/* 🎵 PC版気分選択パネル（上向き展開） */}
                   {showMoodSelectorDesktop && (
