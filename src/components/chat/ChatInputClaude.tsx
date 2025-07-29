@@ -171,16 +171,16 @@ export const ChatInputClaude = ({
                   <span className="text-lg">{currentMood || '😊'}</span>
                 </Button>
                 
-                {/* 🎵 UX改善: ホバープレビュー（モバイル版） */}
+                {/* 🎵 UX改善: ホバープレビュー（モバイル版 - 右寄せ修正） */}
                 {showHoverPreviewMobile && !showMoodSelectorMobile && (
-                  <div className="absolute bottom-full mb-1 left-0 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-50">
+                  <div className="absolute bottom-full mb-1 right-0 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-50">
                     他の気分: {BASIC_MOODS.filter(mood => mood.emoji !== currentMood).map(mood => mood.emoji).join(' ')}
                   </div>
                 )}
                 
-                {/* 🎵 Phase 1: 気分選択パネル（モバイル版） */}
+                {/* 🎵 Phase 1: 気分選択パネル（モバイル版 - 右寄せ修正） */}
                 {showMoodSelectorMobile && (
-                  <div className="absolute bottom-full mb-2 left-0 bg-white border border-gray-200 rounded-lg shadow-lg p-2 flex gap-1 z-50">
+                  <div className="absolute bottom-full mb-2 right-0 bg-white border border-gray-200 rounded-lg shadow-lg p-2 flex gap-1 z-50 max-w-xs">
                     {BASIC_MOODS.map((mood) => (
                       <Button
                         key={mood.emoji}
@@ -189,7 +189,7 @@ export const ChatInputClaude = ({
                           onMoodChange(mood.emoji);
                           setShowMoodSelectorMobile(false);
                         }}
-                        className="h-8 w-8 p-0 hover:bg-gray-100 hover:scale-110 transition-all duration-150"
+                        className="h-8 w-8 p-0 hover:bg-gray-100 hover:scale-110 transition-all duration-150 flex-shrink-0"
                         title={mood.name}
                       >
                         <span className="text-base">{mood.emoji}</span>
@@ -256,16 +256,16 @@ export const ChatInputClaude = ({
                     {getCurrentMoodName()}
                   </span>
                   
-                  {/* 🎵 UX改善: ホバープレビュー（PC版） */}
+                  {/* 🎵 UX改善: ホバープレビュー（PC版 - 右寄せ修正） */}
                   {showHoverPreviewDesktop && !showMoodSelectorDesktop && (
-                    <div className="absolute bottom-full mb-1 left-0 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-50">
+                    <div className="absolute bottom-full mb-1 right-0 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-50">
                       他の気分: {BASIC_MOODS.filter(mood => mood.emoji !== currentMood).map(mood => mood.emoji).join(' ')}
                     </div>
                   )}
                   
-                  {/* 🎵 PC版気分選択パネル（上向き展開） */}
+                  {/* 🎵 PC版気分選択パネル（上向き展開 - 右寄せ修正） */}
                   {showMoodSelectorDesktop && (
-                    <div className="absolute bottom-full mb-2 left-0 bg-white border border-gray-200 rounded-lg shadow-lg p-2 flex gap-1 z-[9999]">
+                    <div className="absolute bottom-full mb-2 right-0 bg-white border border-gray-200 rounded-lg shadow-lg p-2 flex gap-1 z-[9999] max-w-sm">
                       {BASIC_MOODS.map((mood) => (
                         <Button
                           key={mood.emoji}
@@ -275,7 +275,7 @@ export const ChatInputClaude = ({
                             onMoodChange(mood.emoji);
                             setShowMoodSelectorDesktop(false);
                           }}
-                          className="h-10 w-10 p-0 hover:bg-gray-100 hover:scale-110 transition-all duration-150"
+                          className="h-10 w-10 p-0 hover:bg-gray-100 hover:scale-110 transition-all duration-150 flex-shrink-0"
                           title={mood.name}
                         >
                           <span className="text-lg">{mood.emoji}</span>
