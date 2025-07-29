@@ -58,6 +58,12 @@ export const ChatInputClaude = ({
     return mood ? mood.name : '楽しい';
   };
 
+  // 🎵 モバイルデバイス判定
+  const isMobileDevice = () => {
+    return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || 
+           ('ontouchstart' in window);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (message.trim() && !disabled) {
@@ -72,9 +78,19 @@ export const ChatInputClaude = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
-      e.preventDefault();
-      handleSubmit(e);
+    if (e.key === 'Enter') {
+      const isMobile = isMobileDevice();
+      
+      if (isMobile) {
+        // モバイル: Enterで改行（送信は送信ボタンのみ）
+        return; // デフォルトの改行動作を許可
+      } else {
+        // PC: 現在の動作維持（Shift+Enterで改行、Enterで送信）
+        if (!e.shiftKey && !e.nativeEvent.isComposing) {
+          e.preventDefault();
+          handleSubmit(e);
+        }
+      }
     }
   };
 
@@ -108,16 +124,7 @@ export const ChatInputClaude = ({
         />
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Button
-              type="submit"
-              onClick={handleSubmit}
-              disabled={!message.trim() || disabled}
-              className="ml-3 h-9 w-9 bg-blue-500 hover:bg-blue-600 active:scale-95 transition-all duration-150 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Send size={16} />
-            </Button>
-            
-            {/* 🎵 Phase 1: 気分ボタン（モバイル版） */}
+            {/* 🎵 Phase 1: 気分ボタン（モバイル版 - 左側に移動） */}
             {onMoodChange && (
               <div className="relative">
                 <Button 
@@ -125,7 +132,7 @@ export const ChatInputClaude = ({
                   onClick={() => setShowMoodSelectorMobile(!showMoodSelectorMobile)}
                   onMouseEnter={() => setShowHoverPreviewMobile(true)}
                   onMouseLeave={() => setShowHoverPreviewMobile(false)}
-                  className="h-9 w-9 p-0 hover:bg-orange-100 active:scale-95 transition-all duration-150 hover:scale-105 mood-button-subtle"
+                  className="h-9 w-9 p-0 hover:bg-orange-100 active:scale-95 transition-all duration-150 hover:scale-105 mood-button-subtle ml-3"
                   title={`現在の気分: ${currentMood || '😊'} - クリックして気分を変更`}
                 >
                   <span className="text-lg">{currentMood || '😊'}</span>
@@ -192,6 +199,16 @@ export const ChatInputClaude = ({
                 <Settings size={18} />
               </Button>
             )}
+            
+            {/* 🎵 送信ボタン（モバイル版 - 右端に移動） */}
+            <Button
+              type="submit"
+              onClick={handleSubmit}
+              disabled={!message.trim() || disabled}
+              className="h-9 w-9 bg-blue-500 hover:bg-blue-600 active:scale-95 transition-all duration-150 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Send size={16} />
+            </Button>
           </div>
         </div>
       </div>
@@ -214,16 +231,7 @@ export const ChatInputClaude = ({
           />
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Button
-                type="submit"
-                disabled={!message.trim() || disabled}
-                className="px-6 py-2 bg-blue-500 hover:bg-blue-600 active:scale-[0.98] transition-all duration-150 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium"
-              >
-                <Send size={18} className="mr-2" />
-                送信
-              </Button>
-              
-              {/* 🎵 PC版気分ボタン（送信ボタンの右側） */}
+              {/* 🎵 PC版気分ボタン（左側に移動） */}
               {onMoodChange && (
                 <div className="relative flex flex-col items-center">
                   <Button 
@@ -274,17 +282,27 @@ export const ChatInputClaude = ({
               )}
             </div>
             
-            {/* PC版右側エリア（将来拡張用） */}
+            {/* PC版右側エリア - 送信ボタン */}
             <div className="flex items-center gap-2">
-              {/* 将来的にPC版でも追加ボタンをここに配置可能 */}
+              <Button
+                type="submit"
+                disabled={!message.trim() || disabled}
+                className="px-6 py-2 bg-blue-500 hover:bg-blue-600 active:scale-[0.98] transition-all duration-150 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium"
+              >
+                <Send size={18} className="mr-2" />
+                送信
+              </Button>
             </div>
           </div>
         </form>
         
-        {/* PC版ヒント表示 */}
+        {/* デバイス別ヒント表示 */}
         <div className="flex justify-center mt-2">
           <span className="text-xs text-gray-500">
-            Enterで送信、Shift+Enterで改行
+            {isMobileDevice() 
+              ? "改行は改行ボタンで、送信は送信ボタンで" 
+              : "Enterで送信、Shift+Enterで改行"
+            }
           </span>
         </div>
       </div>
