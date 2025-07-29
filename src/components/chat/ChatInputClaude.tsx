@@ -124,7 +124,40 @@ export const ChatInputClaude = ({
         />
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {/* 🎵 Phase 1: 気分ボタン（モバイル版 - 左側に移動） */}
+            {onShowHistory && (
+              <Button 
+                variant="outline"
+                onClick={onShowHistory}
+                className="h-10 w-10 p-0 bg-slate-50 hover:bg-slate-100 active:scale-95 transition-all duration-150 border-slate-200 hover:border-slate-300"
+                title="チャット履歴"
+              >
+                <History size={18} />
+              </Button>
+            )}
+            {onShowMemories && (
+              <Button 
+                variant="outline"
+                onClick={onShowMemories}
+                className="h-10 w-10 p-0 bg-pink-50 hover:bg-pink-100 active:scale-95 transition-all duration-150 border-pink-200 hover:border-pink-300 text-pink-600 hover:text-pink-700"
+                title="思い出"
+              >
+                <Heart size={18} />
+              </Button>
+            )}
+            {onShowProfile && (
+              <Button 
+                variant="outline"
+                onClick={onShowProfile}
+                className="h-10 w-10 p-0 bg-slate-50 hover:bg-slate-100 active:scale-95 transition-all duration-150 border-slate-200 hover:border-slate-300"
+                title="設定"
+              >
+                <Settings size={18} />
+              </Button>
+            )}
+          </div>
+          
+          <div className="flex items-center gap-2">
+            {/* 🎵 Phase 1: 気分ボタン（モバイル版 - 右側に移動） */}
             {onMoodChange && (
               <div className="relative">
                 <Button 
@@ -132,7 +165,7 @@ export const ChatInputClaude = ({
                   onClick={() => setShowMoodSelectorMobile(!showMoodSelectorMobile)}
                   onMouseEnter={() => setShowHoverPreviewMobile(true)}
                   onMouseLeave={() => setShowHoverPreviewMobile(false)}
-                  className="h-9 w-9 p-0 hover:bg-orange-100 active:scale-95 transition-all duration-150 hover:scale-105 mood-button-subtle ml-3"
+                  className="h-9 w-9 p-0 hover:bg-orange-100 active:scale-95 transition-all duration-150 hover:scale-105 mood-button-subtle"
                   title={`現在の気分: ${currentMood || '😊'} - クリックして気分を変更`}
                 >
                   <span className="text-lg">{currentMood || '😊'}</span>
@@ -166,39 +199,6 @@ export const ChatInputClaude = ({
                 )}
               </div>
             )}
-          </div>
-          
-          <div className="flex items-center gap-2">
-            {onShowHistory && (
-              <Button 
-                variant="outline"
-                onClick={onShowHistory}
-                className="h-10 w-10 p-0 bg-slate-50 hover:bg-slate-100 active:scale-95 transition-all duration-150 border-slate-200 hover:border-slate-300"
-                title="チャット履歴"
-              >
-                <History size={18} />
-              </Button>
-            )}
-            {onShowMemories && (
-              <Button 
-                variant="outline"
-                onClick={onShowMemories}
-                className="h-10 w-10 p-0 bg-pink-50 hover:bg-pink-100 active:scale-95 transition-all duration-150 border-pink-200 hover:border-pink-300 text-pink-600 hover:text-pink-700"
-                title="思い出"
-              >
-                <Heart size={18} />
-              </Button>
-            )}
-            {onShowProfile && (
-              <Button 
-                variant="outline"
-                onClick={onShowProfile}
-                className="h-10 w-10 p-0 bg-slate-50 hover:bg-slate-100 active:scale-95 transition-all duration-150 border-slate-200 hover:border-slate-300"
-                title="設定"
-              >
-                <Settings size={18} />
-              </Button>
-            )}
             
             {/* 🎵 送信ボタン（モバイル版 - 右端に移動） */}
             <Button
@@ -231,7 +231,12 @@ export const ChatInputClaude = ({
           />
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              {/* 🎵 PC版気分ボタン（左側に移動） */}
+              {/* 🎵 PC版は履歴/思い出/設定ボタンを非表示（メインヘッダーに存在） */}
+            </div>
+            
+            {/* PC版右側エリア - 気分ボタン + 送信ボタン */}
+            <div className="flex items-center gap-2">
+              {/* 🎵 PC版気分ボタン（右側に移動） */}
               {onMoodChange && (
                 <div className="relative flex flex-col items-center">
                   <Button 
@@ -280,10 +285,7 @@ export const ChatInputClaude = ({
                   )}
                 </div>
               )}
-            </div>
-            
-            {/* PC版右側エリア - 送信ボタン */}
-            <div className="flex items-center gap-2">
+              
               <Button
                 type="submit"
                 disabled={!message.trim() || disabled}
