@@ -56,34 +56,45 @@ export const SecureConnectionStatus = ({
   return (
     <>
       <div 
-        className="flex items-center space-x-3 p-3 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer hover:bg-gradient-to-r hover:from-green-100 hover:to-blue-100"
+        className="flex items-center space-x-2 sm:space-x-3 p-2 sm:p-3 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer hover:bg-gradient-to-r hover:from-green-100 hover:to-blue-100"
         onClick={() => setIsModalOpen(true)}
       >
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-1 sm:space-x-2">
           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          <Shield className="w-5 h-5 text-green-600" />
+          <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
         </div>
-        <div className="flex-1">
-          <p className="text-sm font-medium text-gray-800">
+        <div className="flex-1 min-w-0">
+          <p className="text-xs sm:text-sm font-medium text-gray-800 truncate">
             セキュア接続中
           </p>
-          <p className="text-xs text-gray-600">
+          <p className="text-xs text-gray-600 truncate sm:block hidden">
             {securityEnhanced 
               ? '最高レベルの暗号化で保護中 - タップして詳細を確認'
               : 'あなたの会話は完全に保護されています - タップして詳細を確認'
             }
           </p>
+          <p className="text-xs text-gray-600 truncate sm:hidden">
+            詳細
+          </p>
         </div>
-        <div className="flex items-center space-x-2">
-          <div className="text-xs text-green-600 font-mono bg-white px-2 py-1 rounded border">
-            AES-256
-          </div>
-          {securityEnhanced && (
-            <div className="text-xs text-red-600 font-mono bg-red-50 px-2 py-1 rounded border border-red-200">
-              100K-PBKDF2
+        <div className="flex items-center space-x-1 sm:space-x-2">
+          {/* モバイル: 🛡️アイコンのみ、デスクトップ: 技術バッジ表示 */}
+          <div className="sm:hidden">
+            <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+              <span className="text-xs">🛡️</span>
             </div>
-          )}
-          <ChevronRight className="w-4 h-4 text-gray-400" />
+          </div>
+          <div className="hidden sm:flex items-center space-x-2">
+            <div className="text-xs text-green-600 font-mono bg-white px-2 py-1 rounded border">
+              AES-256
+            </div>
+            {securityEnhanced && (
+              <div className="text-xs text-red-600 font-mono bg-red-50 px-2 py-1 rounded border border-red-200">
+                100K-PBKDF2
+              </div>
+            )}
+          </div>
+          <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
         </div>
       </div>
 

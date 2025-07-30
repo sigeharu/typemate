@@ -548,8 +548,8 @@ export default function ChatPage() {
               </div>
             </div>
 
-            {/* 🔐 プライバシー表示 */}
-            <div className="mt-3">
+            {/* 🔐 プライバシー表示 - モバイル最適化 */}
+            <div className="mt-2 sm:mt-3">
               <SecureConnectionStatus 
                 messagesEncrypted={messages.length}
                 totalMessages={messages.length}
@@ -557,20 +557,20 @@ export default function ChatPage() {
               />
             </div>
             
-            {/* 関係性レベル表示 */}
+            {/* 関係性レベル表示 - モバイル最適化 */}
             {relationship && typeof relationship.currentLevel === 'object' && relationship.currentLevel.level > 1 && (
-              <div className="mt-3">
-                <div className="bg-stone-100/50 border border-stone-200 rounded-lg p-2">
-                  <div className="text-sm text-stone-600 text-center">
+              <div className="mt-2 sm:mt-3">
+                <div className="bg-stone-100/50 border border-stone-200 rounded-lg p-1.5 sm:p-2">
+                  <div className="text-xs sm:text-sm text-stone-600 text-center">
                     関係性レベル {relationship.currentLevel.level}/6: {relationship.currentLevel.name}
                   </div>
                 </div>
               </div>
             )}
             
-            {/* 思い出表示 */}
+            {/* 思い出表示 - モバイル最適化 */}
             {showMemories && (
-              <div className="mt-3 p-4 bg-pink-50 border border-pink-200 rounded-lg">
+              <div className="mt-2 sm:mt-3 p-3 sm:p-4 bg-pink-50 border border-pink-200 rounded-lg">
                 <h4 className="font-semibold text-pink-800 mb-3 flex items-center gap-2">
                   💕 共有した思い出
                 </h4>
