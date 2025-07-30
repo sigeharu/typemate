@@ -98,7 +98,7 @@ export function HarmonicProfileCard({
             >
               <Sun className="w-5 h-5 mx-auto mb-1 text-orange-600 dark:text-orange-400" />
               <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                {zodiac.details.nameJa}
+                {zodiac.details?.nameJa || zodiac.sign || '星座'}
               </div>
               <div className="text-xs text-gray-600 dark:text-gray-400">
                 {zodiac.element === 'fire' && '🔥 火'}
@@ -115,7 +115,7 @@ export function HarmonicProfileCard({
             >
               <Crown className="w-5 h-5 mx-auto mb-1 text-purple-600 dark:text-purple-400" />
               <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                {numerology.info.name}
+                {numerology.info?.name || `ライフパス${numerology.lifePathNumber}`}
               </div>
               <div className="text-xs text-gray-600 dark:text-gray-400">
                 {numerology.lifePathNumber}
@@ -131,7 +131,7 @@ export function HarmonicProfileCard({
               >
                 <Moon className="w-5 h-5 mx-auto mb-1 text-blue-600 dark:text-blue-400" />
                 <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                  {currentMoon.phase.phaseNameJa}
+                  {currentMoon.phase?.phaseNameJa || '月相'}
                 </div>
                 <div className="text-xs text-gray-600 dark:text-gray-400">
                   エネルギー {currentMoon.energy}/10
