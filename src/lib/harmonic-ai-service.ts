@@ -188,25 +188,25 @@ export async function getHarmonicProfile(userId: string): Promise<HarmonicAIProf
 export async function generateDailyHarmonicGuidance(
   profile: HarmonicAIProfile
 ): Promise<DailyHarmonicGuidance> {
-  
-  // コズミック・ガイダンス生成
-  const cosmicGuidance = generateTodayCosmicGuidance(
-    profile.astrologyProfile,
-    profile.selectedAiPersonality
-  );
-  
-  // TypeMate統合アドバイス生成
-  const typeMateIntegration = generateTypeMateIntegration(
-    profile.userType,
-    profile.selectedAiPersonality,
-    profile.relationshipType,
-    profile.astrologyProfile
-  );
-  
-  // 時間帯別アクションアイテム
-  const actionItems = generateTimeBasedActions(
-    cosmicGuidance,
-    profile.astrologyProfile.currentMoon.energy
+  try {
+    // コズミック・ガイダンス生成
+    const cosmicGuidance = generateTodayCosmicGuidance(
+      profile.astrologyProfile,
+      profile.selectedAiPersonality
+    );
+    
+    // TypeMate統合アドバイス生成
+    const typeMateIntegration = generateTypeMateIntegration(
+      profile.userType,
+      profile.selectedAiPersonality,
+      profile.relationshipType,
+      profile.astrologyProfile
+    );
+    
+    // 時間帯別アクションアイテム
+    const actionItems = generateTimeBasedActions(
+      cosmicGuidance,
+      profile.astrologyProfile.currentMoon.energy
   );
   
   // アファメーション生成
@@ -216,16 +216,57 @@ export async function generateDailyHarmonicGuidance(
     profile.selectedAiPersonality
   );
   
-  return {
-    date: new Date(),
-    profile,
-    cosmicGuidance,
-    typeMateIntegration,
-    actionItems,
-    affirmations,
-    challenges: cosmicGuidance.challenges,
-    opportunities: cosmicGuidance.opportunities
-  };
+    return {
+      date: new Date(),
+      profile,
+      cosmicGuidance,
+      typeMateIntegration,
+      actionItems,
+      affirmations,
+      challenges: cosmicGuidance.challenges,
+      opportunities: cosmicGuidance.opportunities
+    };
+  } catch (error) {
+    console.error('Error generating daily harmonic guidance:', error);
+    
+    // フォールバック・ガイダンスを返す
+    return {
+      date: new Date(),
+      profile,
+      cosmicGuidance: {
+        cosmicWeather: '今日は穏やかな宇宙エネルギーに包まれています',
+        personalMessage: `${profile.selectedAiPersonality}の私から、あなたに特別なメッセージをお届けします。`,
+        energyForecast: {
+          morning: 7,
+          afternoon: 6,
+          evening: 8
+        },
+        luckyElements: {
+          color: '青',
+          number: 7,
+          direction: '東'
+        }
+      },
+      typeMateIntegration: {
+        archetypeAdvice: 'あなたらしさを大切にして過ごしましょう',
+        relationshipTip: '心のつながりを意識してください',
+        personalGrowth: '新しい発見があるかもしれません',
+        energyAlignment: '自然のリズムに合わせて行動しましょう'
+      },
+      actionItems: {
+        morning: ['深呼吸をする', '感謝の気持ちを思い出す'],
+        afternoon: ['創造的な活動をする', '人とのつながりを大切にする'],
+        evening: ['今日を振り返る', 'リラックスタイムを作る']
+      },
+      affirmations: [
+        '私は自分らしく輝いています',
+        '今日という日に感謝します',
+        '私には無限の可能性があります'
+      ],
+      challenges: ['エラーが発生しましたが、今日も素晴らしい一日です'],
+      opportunities: ['新しい気づきを得るチャンスがあります']
+    };
+  }
 }
 
 /**

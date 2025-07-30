@@ -32,6 +32,7 @@ export default function HarmonicSetupPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [showWizard, setShowWizard] = useState(false);
   const [setupComplete, setSetupComplete] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   // ユーザー情報を取得
   useEffect(() => {
@@ -67,6 +68,7 @@ export default function HarmonicSetupPage() {
         
       } catch (error) {
         console.error('Error loading user data:', error);
+        setError(`ユーザーデータの読み込みエラー: ${error instanceof Error ? error.message : 'Unknown error'}`);
       } finally {
         setIsLoading(false);
       }
@@ -95,7 +97,7 @@ export default function HarmonicSetupPage() {
       
     } catch (error) {
       console.error('Error creating harmonic profile:', error);
-      alert('ハーモニックAIの作成中にエラーが発生しました。もう一度お試しください。');
+      setError(`ハーモニックAI作成エラー: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsLoading(false);
     }
@@ -110,6 +112,35 @@ export default function HarmonicSetupPage() {
         >
           <Sparkles className="w-8 h-8 text-purple-600 dark:text-purple-400" />
         </motion.div>
+      </div>
+    );
+  }
+  
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950 dark:to-pink-950 flex items-center justify-center">
+        <div className="max-w-md mx-auto p-6">
+          <Card className="p-6 text-center">
+            <div className="text-red-500 mb-4">
+              <Zap className="w-12 h-12 mx-auto" />
+            </div>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+              エラーが発生しました
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              {error}
+            </p>
+            <Button 
+              onClick={() => {
+                setError(null);
+                window.location.reload();
+              }}
+              className="bg-purple-600 hover:bg-purple-700"
+            >
+              再試行
+            </Button>
+          </Card>
+        </div>
       </div>
     );
   }
