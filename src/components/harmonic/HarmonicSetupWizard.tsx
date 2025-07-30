@@ -350,7 +350,7 @@ export function HarmonicSetupWizard({
                   placeholder="あなたのお名前を教えてください"
                   value={formData.name}
                   onChange={(e) => updateFormData('name', e.target.value)}
-                  className="text-lg"
+                  className="text-lg bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 border-gray-300 dark:border-gray-600"
                   maxLength={50}
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -377,7 +377,7 @@ export function HarmonicSetupWizard({
                   type="date"
                   value={formData.birthDate}
                   onChange={(e) => updateFormData('birthDate', e.target.value)}
-                  className="text-lg"
+                  className="text-lg bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 border-gray-300 dark:border-gray-600"
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   🌟 星座と数秘術の計算に使用します
@@ -392,7 +392,7 @@ export function HarmonicSetupWizard({
                   type="time"
                   value={formData.birthTime}
                   onChange={(e) => updateFormData('birthTime', e.target.value)}
-                  className="text-lg"
+                  className="text-lg bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 border-gray-300 dark:border-gray-600"
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   🌙 より精密な占星術分析のために（任意）
@@ -408,7 +408,7 @@ export function HarmonicSetupWizard({
                   placeholder="例: 東京都, 日本"
                   value={formData.birthLocation}
                   onChange={(e) => updateFormData('birthLocation', e.target.value)}
-                  className="text-lg"
+                  className="text-lg bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 border-gray-300 dark:border-gray-600"
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   🗺️ 詳細な占星術チャート作成のために（任意）
