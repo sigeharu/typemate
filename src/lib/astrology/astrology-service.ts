@@ -130,7 +130,7 @@ export async function generateIntegratedProfile(
   const currentMoon = getCurrentMoonPhase();
   const moonZodiacInfluence = getMoonZodiacInfluence(
     currentMoon.phase, 
-    zodiacDetails.nameJa
+    zodiacDetails?.nameJa || '星座'
   );
   
   // TypeMate統合分析

@@ -212,7 +212,7 @@ export async function generateDailyHarmonicGuidance(
   // アファメーション生成
   const affirmations = generatePersonalizedAffirmations(
     profile.astrologyProfile.zodiac.sign,
-    profile.astrologyProfile.numerology.info.name,
+    profile.astrologyProfile.numerology.info?.name || '数秘術',
     profile.selectedAiPersonality
   );
   
@@ -348,8 +348,8 @@ function generateTypeMateIntegration(
   astrologyProfile: IntegratedAstrologyProfile
 ): DailyHarmonicGuidance['typeMateIntegration'] {
   
-  const zodiacName = astrologyProfile.zodiac.details.nameJa;
-  const numerologyName = astrologyProfile.numerology.info.name;
+  const zodiacName = astrologyProfile.zodiac.details?.nameJa || '星座';
+  const numerologyName = astrologyProfile.numerology.info?.name || '数秘術';
   
   return {
     archetypeAdvice: `${aiPersonality}として、${zodiacName}の特質を活かしましょう`,

@@ -18,6 +18,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { HarmonicSetupWizard } from '@/components/harmonic/HarmonicSetupWizard';
+import { HarmonicProfileCard } from '@/components/harmonic/HarmonicProfileCard';
 import { createHarmonicProfile, getHarmonicProfile } from '@/lib/harmonic-ai-service';
 import { supabase } from '@/lib/supabase-simple';
 import type { BaseArchetype, Type64 } from '@/types';
@@ -195,34 +196,37 @@ export default function HarmonicSetupPage() {
             
             {/* プロファイル表示 */}
             <div className="mb-8">
-              {/* HarmonicProfileCard component would go here */}
-              <Card className="p-8 text-center bg-white/80 dark:bg-gray-800/80 backdrop-blur">
-                <Sparkles className="w-12 h-12 mx-auto mb-4 text-purple-600 dark:text-purple-400" />
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                  ハーモニックレゾナンス: {existingProfile.harmonicResonance?.overall || 85}%
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-6">
-                  TypeMate64診断と占星術が美しく統合されました
-                </p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                  <div className="text-center">
-                    <div className="text-2xl mb-1">🌟</div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">星座統合</p>
+              {existingProfile && Object.keys(existingProfile).length > 0 ? (
+                <HarmonicProfileCard profile={existingProfile} showDetails={true} />
+              ) : (
+                <Card className="p-8 text-center bg-white/80 dark:bg-gray-800/80 backdrop-blur">
+                  <Sparkles className="w-12 h-12 mx-auto mb-4 text-purple-600 dark:text-purple-400" />
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                    ハーモニックレゾナンス: 準備中...
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-400 mb-6">
+                    TypeMate64診断と占星術が美しく統合されました
+                  </p>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div className="text-center">
+                      <div className="text-2xl mb-1">🌟</div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">星座統合</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl mb-1">🔢</div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">数秘術</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl mb-1">🌙</div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">月位相</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl mb-1">🤖</div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">AI人格</p>
+                    </div>
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl mb-1">🔢</div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">数秘術</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl mb-1">🌙</div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">月位相</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl mb-1">🤖</div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">AI人格</p>
-                  </div>
-                </div>
-              </Card>
+                </Card>
+              )}
             </div>
             
             {/* アクションボタン */}
