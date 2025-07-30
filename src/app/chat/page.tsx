@@ -376,7 +376,7 @@ export default function ChatPage() {
         content: aiResponse,
         isUser: false,
         sender: 'ai',
-        timestamp: new Date(),
+        timestamp: new Date(Date.now() + 1), // +1ms to ensure proper ordering after user message
         sessionId: currentSessionId
       };
       
@@ -433,7 +433,7 @@ export default function ChatPage() {
         content: 'すみません、少し調子が悪いようです。もう一度お話しいただけますか？',
         isUser: false,
         sender: 'ai',
-        timestamp: new Date(),
+        timestamp: new Date(Date.now() + 1), // +1ms to ensure proper ordering after user message
         sessionId: currentSessionId
       };
       
