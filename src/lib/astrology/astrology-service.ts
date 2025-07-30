@@ -168,9 +168,9 @@ export async function generateIntegratedProfile(
     },
     currentMoon: {
       phase: currentMoon,
-      energy: currentMoon.energy.level,
-      influence: currentMoon.influence,
-      zodiacCombination: moonZodiacInfluence
+      energy: currentMoon.energy?.level || 5,
+      influence: currentMoon.influence || {},
+      zodiacCombination: moonZodiacInfluence || {}
     },
     typeMateIntegration: {
       zodiacArchetypes,

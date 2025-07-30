@@ -90,12 +90,21 @@ export async function createHarmonicProfile(
   selectedAiPersonality?: BaseArchetype,
   relationshipType: 'friend' | 'counselor' | 'romantic' | 'mentor' = 'friend'
 ): Promise<HarmonicAIProfile> {
-  
-  // 占星術プロファイル生成
-  const astrologyProfile = await generateIntegratedProfile(
-    birthDate,
-    selectedAiPersonality
-  );
+  try {
+    console.log('🌟 Creating harmonic profile:', { userId, birthDate, userType, selectedAiPersonality });
+    
+    // 占星術プロファイル生成
+    const astrologyProfile = await generateIntegratedProfile(
+      birthDate,
+      selectedAiPersonality
+    );
+    
+    console.log('🔮 Astrology profile generated:', {
+      hasZodiac: !!astrologyProfile?.zodiac,
+      hasNumerology: !!astrologyProfile?.numerology,
+      zodiacSign: astrologyProfile?.zodiac?.sign,
+      zodiacDetails: astrologyProfile?.zodiac?.details
+    });
   
   // ハーモニックスコア計算
   const harmonicResonance = calculateHarmonicResonance(
@@ -124,10 +133,14 @@ export async function createHarmonicProfile(
     lastGuidanceUpdate: new Date()
   };
   
-  // データベースに保存
-  await saveHarmonicProfile(profile);
-  
-  return profile;
+    // データベースに保存
+    await saveHarmonicProfile(profile);
+    
+    return profile;
+  } catch (error) {
+    console.error('❌ Error in createHarmonicProfile:', error);
+    throw error;
+  }
 }
 
 /**
