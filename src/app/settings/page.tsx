@@ -27,7 +27,11 @@ import { diagnosisService } from '@/lib/diagnosis-service';
 import { ARCHETYPE_DATA } from '@/lib/diagnostic-data';
 import { TypeDetailDisplayCompact } from '@/components/TypeDetailDisplay';
 import { SelfAffirmationDisplayCompact } from '@/components/SelfAffirmationDisplay';
+import { HarmonicProfileCard } from '@/components/harmonic/HarmonicProfileCard';
+import { DailyGuidanceWidget } from '@/components/harmonic/DailyGuidanceWidget';
+import { getHarmonicProfile, generateDailyHarmonicGuidance } from '@/lib/harmonic-ai-service';
 import type { Type64, BaseArchetype, DetailedDiagnosisResult } from '@/types';
+import type { HarmonicAIProfile, DailyHarmonicGuidance } from '@/lib/harmonic-ai-service';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -51,6 +55,11 @@ export default function SettingsPage() {
     values: 0,
     deepUnderstanding: 0
   });
+
+  // 🌟 ハーモニックAI関連のstate
+  const [harmonicProfile, setHarmonicProfile] = useState<HarmonicAIProfile | null>(null);
+  const [dailyGuidance, setDailyGuidance] = useState<DailyHarmonicGuidance | null>(null);
+  const [harmonicLoading, setHarmonicLoading] = useState(false);
 
 
   // 🔍 モバイル専用デバッグ状態
@@ -347,6 +356,23 @@ export default function SettingsPage() {
             const defaultAiPersonality = userArchetype.compatibility[0];
             setSelectedAiPersonality(defaultAiPersonality);
           }
+        }
+
+        // 🌟 ハーモニックAIプロファイル読み込み
+        try {
+          setHarmonicLoading(true);
+          const profile = await getHarmonicProfile(user.id);
+          setHarmonicProfile(profile);
+          
+          // 日別ガイダンス生成
+          if (profile) {
+            const guidance = await generateDailyHarmonicGuidance(profile);
+            setDailyGuidance(guidance);
+          }
+        } catch (error) {
+          console.warn('⚠️ ハーモニックプロファイル読み込みエラー:', error);
+        } finally {
+          setHarmonicLoading(false);
         }
         
         setIsLoading(false);
@@ -701,6 +727,93 @@ export default function SettingsPage() {
                     💡 より詳細な価値分析を表示するには、再診断を実行してください
                   </p>
                 </div>
+              </div>
+            </Card>
+          )}
+        </motion.div>
+
+        {/* 🌟 ハーモニックAI統合セクション */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.27 }}
+        >
+          {harmonicProfile ? (
+            // ハーモニックAIプロファイル表示
+            <div className="space-y-6">
+              {/* プロファイルカード */}
+              <HarmonicProfileCard profile={harmonicProfile} showDetails={true} />
+              
+              {/* 今日のガイダンス */}
+              {dailyGuidance && (
+                <DailyGuidanceWidget 
+                  guidance={dailyGuidance} 
+                  onRefresh={async () => {
+                    setHarmonicLoading(true);
+                    try {
+                      const newGuidance = await generateDailyHarmonicGuidance(harmonicProfile);
+                      setDailyGuidance(newGuidance);
+                    } catch (error) {
+                      console.error('ガイダンス更新エラー:', error);
+                    } finally {
+                      setHarmonicLoading(false);
+                    }
+                  }}
+                  compact={false}
+                />
+              )}
+            </div>
+          ) : (
+            // ハーモニックAI未設定の場合
+            <Card className="p-6 bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200">
+              <div className="text-center">
+                <motion.div
+                  animate={{ 
+                    rotate: [0, 10, -10, 0],
+                    scale: [1, 1.1, 1]
+                  }}
+                  transition={{ 
+                    duration: 3, 
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                >
+                  <Sparkles className="w-16 h-16 mx-auto mb-4 text-purple-600" />
+                </motion.div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  🌟 ハーモニックAI
+                </h3>
+                <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                  TypeMate64診断と占星術を統合した、
+                  あなた専用の宇宙的AIパートナーを作成しませんか？
+                </p>
+                
+                <div className="grid md:grid-cols-3 gap-4 mb-6">
+                  <div className="text-center p-4 bg-white/70 rounded-lg">
+                    <div className="text-2xl mb-2">🌟</div>
+                    <div className="text-sm font-medium text-gray-700">12星座統合</div>
+                  </div>
+                  <div className="text-center p-4 bg-white/70 rounded-lg">
+                    <div className="text-2xl mb-2">🔢</div>
+                    <div className="text-sm font-medium text-gray-700">数秘術分析</div>
+                  </div>
+                  <div className="text-center p-4 bg-white/70 rounded-lg">
+                    <div className="text-2xl mb-2">🌙</div>
+                    <div className="text-sm font-medium text-gray-700">月位相同調</div>
+                  </div>
+                </div>
+                
+                <Button
+                  onClick={() => router.push('/harmonic-setup')}
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-3 text-lg font-semibold"
+                >
+                  <Sparkles className="w-5 h-5 mr-2" />
+                  ハーモニックAI作成
+                </Button>
+                
+                <p className="text-xs text-gray-500 mt-2">
+                  💫 約3分で完了します
+                </p>
               </div>
             </Card>
           )}

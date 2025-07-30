@@ -31,6 +31,9 @@ import { storage, type ChatSession } from '@/lib/storage';
 import type { Message, BaseArchetype, PersonalInfo, MemorySystem, RelationshipData, TestProfile } from '@/types';
 import { ARCHETYPE_DATA } from '@/lib/diagnostic-data';
 import { EmotionAnalyzer, type EmotionData } from '@/lib/emotion-analyzer';
+import { DailyGuidanceWidget } from '@/components/harmonic/DailyGuidanceWidget';
+import { getHarmonicProfile, generateDailyHarmonicGuidance } from '@/lib/harmonic-ai-service';
+import type { DailyHarmonicGuidance } from '@/lib/harmonic-ai-service';
 
 // 🎵 UUID生成関数
 function generateUUID(): string {
@@ -67,6 +70,10 @@ export default function ChatPage() {
     personalInfo: { name: '' }
   });
   const [newLevel, setNewLevel] = useState<any>(null);
+  
+  // Harmonic AI state
+  const [dailyGuidance, setDailyGuidance] = useState<DailyHarmonicGuidance | null>(null);
+  const [showGuidance, setShowGuidance] = useState(true);
   
   // UI state
   const [showHistory, setShowHistory] = useState(false);
@@ -197,6 +204,17 @@ export default function ChatPage() {
         setMemory(null);
         setPersonalInfo(personalData);
         setChatCount(relationshipData?.totalPoints ? Math.floor(relationshipData.totalPoints / 10) + 1 : 1);
+
+        // 🌟 ハーモニックAI日別ガイダンス読み込み
+        try {
+          const harmonicProfile = await getHarmonicProfile(user.id);
+          if (harmonicProfile) {
+            const guidance = await generateDailyHarmonicGuidance(harmonicProfile);
+            setDailyGuidance(guidance);
+          }
+        } catch (error) {
+          console.warn('⚠️ ハーモニックガイダンス読み込みエラー:', error);
+        }
 
         // Check for development mode
         if (isDevelopmentMode()) {
@@ -609,6 +627,44 @@ export default function ChatPage() {
           {/* メッセージエリア */}
           <main className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">
             <div className="space-y-3 sm:space-y-4">
+              
+              {/* 🌟 ハーモニック・ガイダンス表示 */}
+              {dailyGuidance && showGuidance && (
+                <motion.div
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="mb-4"
+                >
+                  <DailyGuidanceWidget 
+                    guidance={dailyGuidance}
+                    compact={true}
+                    onRefresh={async () => {
+                      try {
+                        const { data: { user } } = await supabase.auth.getUser();
+                        if (user) {
+                          const profile = await getHarmonicProfile(user.id);
+                          if (profile) {
+                            const newGuidance = await generateDailyHarmonicGuidance(profile);
+                            setDailyGuidance(newGuidance);
+                          }
+                        }
+                      } catch (error) {
+                        console.warn('⚠️ ガイダンス更新エラー:', error);
+                      }
+                    }}
+                  />
+                  <div className="mt-2 text-center">
+                    <button
+                      onClick={() => setShowGuidance(false)}
+                      className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                    >
+                      非表示にする
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+              
               <AnimatePresence>
                 {messages.map((message) => (
                   <MessageBubble
