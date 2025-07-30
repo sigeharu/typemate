@@ -69,8 +69,8 @@ export const SecureConnectionStatus = ({
           </p>
           <p className="text-xs text-gray-600">
             {securityEnhanced 
-              ? 'マスターパスワード + 100,000回反復で完全保護'
-              : 'あなたの会話は完全に保護されています'
+              ? '最高レベルの暗号化で保護中 - タップして詳細を確認'
+              : 'あなたの会話は完全に保護されています - タップして詳細を確認'
             }
           </p>
         </div>
