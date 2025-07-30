@@ -279,7 +279,12 @@ function reduceToSingleDigitChaldean(number: number): number {
  * 🔢 ライフパスナンバーの詳細情報を取得
  */
 export function getLifePathInfo(number: number): LifePathInfo {
-  return LIFE_PATH_DATA[number] || LIFE_PATH_DATA[1];
+  const info = LIFE_PATH_DATA[number];
+  if (!info) {
+    console.warn(`⚠️ ライフパス${number}の情報が見つかりません。デフォルト値を使用します。`);
+    return LIFE_PATH_DATA[1];
+  }
+  return info;
 }
 
 /**

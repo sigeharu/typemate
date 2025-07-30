@@ -115,16 +115,28 @@ export async function generateIntegratedProfile(
   birthDate: Date,
   userArchetype?: BaseArchetype
 ): Promise<IntegratedAstrologyProfile> {
+  console.log('🔮 generateIntegratedProfile started:', { birthDate, userArchetype });
   
-  // 西洋占星術計算
-  const zodiacResult = calculateZodiacSign(birthDate);
-  const zodiacDetails = getZodiacDetails(zodiacResult.zodiac.sign);
-  const dailyZodiacEnergy = getDailyZodiacEnergy(zodiacResult.zodiac.sign);
+  try {
+    // 西洋占星術計算
+    const zodiacResult = calculateZodiacSign(birthDate);
+    console.log('🌟 zodiacResult:', zodiacResult);
+    
+    const zodiacDetails = getZodiacDetails(zodiacResult.zodiac.sign);
+    console.log('🌟 zodiacDetails:', zodiacDetails);
+    
+    const dailyZodiacEnergy = getDailyZodiacEnergy(zodiacResult.zodiac.sign);
+    console.log('🌟 dailyZodiacEnergy:', dailyZodiacEnergy);
   
-  // 数秘術計算
-  const numerologyResult = calculateLifePathNumber(birthDate);
-  const numerologyInfo = getLifePathInfo(numerologyResult.lifePathNumber);
-  const personalYear = calculatePersonalYear(birthDate);
+    // 数秘術計算
+    const numerologyResult = calculateLifePathNumber(birthDate);
+    console.log('🔢 numerologyResult:', numerologyResult);
+    
+    const numerologyInfo = getLifePathInfo(numerologyResult.lifePathNumber);
+    console.log('🔢 numerologyInfo:', numerologyInfo);
+    
+    const personalYear = calculatePersonalYear(birthDate);
+    console.log('🔢 personalYear:', personalYear);
   
   // 月の位相計算
   const currentMoon = getCurrentMoonPhase();
@@ -152,20 +164,20 @@ export async function generateIntegratedProfile(
     personalYear
   );
   
-  return {
-    birthDate,
-    zodiac: {
-      sign: zodiacResult.zodiac.sign,
-      element: zodiacResult.zodiac.element,
-      details: zodiacDetails,
-      confidence: zodiacResult.confidence
-    },
-    numerology: {
-      lifePathNumber: numerologyResult.lifePathNumber,
-      info: numerologyInfo,
-      calculation: numerologyResult.calculation,
-      isMasterNumber: numerologyResult.isMasterNumber
-    },
+    return {
+      birthDate,
+      zodiac: {
+        sign: zodiacResult.zodiac.sign,
+        element: zodiacResult.zodiac.element,
+        details: zodiacDetails || { nameJa: '星座', name: 'Zodiac' },
+        confidence: zodiacResult.confidence
+      },
+      numerology: {
+        lifePathNumber: numerologyResult.lifePathNumber,
+        info: numerologyInfo || { name: `ライフパス${numerologyResult.lifePathNumber}` },
+        calculation: numerologyResult.calculation,
+        isMasterNumber: numerologyResult.isMasterNumber
+      },
     currentMoon: {
       phase: currentMoon,
       energy: currentMoon.energy?.level || 5,
@@ -180,6 +192,52 @@ export async function generateIntegratedProfile(
     },
     dailyGuidance
   };
+  } catch (error) {
+    console.error('❌ Error in generateIntegratedProfile:', error);
+    
+    // フォールバック：基本的なプロファイルを返す
+    return {
+      birthDate,
+      zodiac: {
+        sign: 'aries',
+        element: 'fire',
+        details: { nameJa: '牡羊座', name: 'Aries' },
+        confidence: 50
+      },
+      numerology: {
+        lifePathNumber: 1,
+        info: { name: 'リーダー' },
+        calculation: 'エラーのため計算不可',
+        isMasterNumber: false
+      },
+      currentMoon: {
+        phase: { phaseNameJa: '新月' },
+        energy: 5,
+        influence: {},
+        zodiacCombination: {}
+      },
+      typeMateIntegration: {
+        zodiacArchetypes: ['ARC'],
+        numerologyArchetypes: ['ARC'],
+        resonanceScore: 50,
+        spiritualAlignment: 'Basic'
+      },
+      dailyGuidance: {
+        date: new Date(),
+        overallEnergy: 5,
+        primaryMessage: '基本的なガイダンス',
+        zodiacAdvice: 'あなたらしく過ごしましょう',
+        numerologyTheme: '新しい始まり',
+        moonInfluence: '穏やかなエネルギー',
+        actionRecommendations: ['深呼吸をする'],
+        luckyElements: {
+          color: '白',
+          number: 1,
+          timeOfDay: '朝'
+        }
+      }
+    };
+  }
 }
 
 /**

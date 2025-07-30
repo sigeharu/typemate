@@ -259,7 +259,12 @@ function calculateConfidence(month: number, day: number, zodiac: ZodiacInfo): nu
  * 🌟 星座から詳細情報を取得
  */
 export function getZodiacDetails(sign: ZodiacSign): ZodiacInfo {
-  return ZODIAC_DATA.find(z => z.sign === sign) || ZODIAC_DATA[0];
+  const details = ZODIAC_DATA.find(z => z.sign === sign);
+  if (!details) {
+    console.warn(`⚠️ 星座${sign}の情報が見つかりません。デフォルト値を使用します。`);
+    return ZODIAC_DATA[0]; // 牡羊座をデフォルトとして使用
+  }
+  return details;
 }
 
 /**
