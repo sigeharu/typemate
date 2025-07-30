@@ -65,7 +65,7 @@ export const SecureConnectionStatus = ({
         </div>
         <div className="flex-1">
           <p className="text-sm font-medium text-gray-800">
-            セキュア接続中 {securityEnhanced && <span className="text-red-600 font-bold">強化版</span>}
+            セキュア接続中
           </p>
           <p className="text-xs text-gray-600">
             {securityEnhanced 
