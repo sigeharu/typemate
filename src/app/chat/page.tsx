@@ -17,6 +17,7 @@ import { ChatInputClaude } from '@/components/chat/ChatInputClaude';
 import { ChatHistory } from '@/components/chat/ChatHistory';
 import { LevelUpModal } from '@/components/relationship/LevelUpModal';
 import { PersonalInfoModal } from '@/components/typemate/PersonalInfoModal';
+import { PrivacyIndicator, SecureConnectionStatus } from '@/components/privacy/PrivacyIndicator';
 // import { SpecialMoments } from '@/components/relationship/SpecialMoments';
 // import { personalityEngine } from '@/lib/personality-engine';
 import { loadRelationshipData } from '@/lib/relationship-storage';
@@ -547,6 +548,10 @@ export default function ChatPage() {
               </div>
             </div>
 
+            {/* 🔐 プライバシー表示 */}
+            <div className="mt-3">
+              <SecureConnectionStatus />
+            </div>
             
             {/* 関係性レベル表示 */}
             {relationship && typeof relationship.currentLevel === 'object' && relationship.currentLevel.level > 1 && (

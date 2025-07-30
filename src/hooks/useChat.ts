@@ -13,6 +13,7 @@ import { useRelationship } from './useRelationship';
 import { useAstrology } from './useAstrology';
 import { useMemory, extractMemoryCandidate } from './useMemory';
 import { useSpecialEvents } from './useSpecialEvents';
+import { PrivacyEngine, createEncryptedMessage } from '@/lib/privacy-encryption';
 
 interface UseChatOptions {
   userType: Type64;
@@ -178,6 +179,17 @@ export function useChat({
     // Option B: チャット回数を増加
     const chatCount = storage.incrementChatCount();
 
+    // 🔐 プライバシー暗号化処理
+    const sessionKey = PrivacyEngine.generateSessionKey();
+    const userKey = PrivacyEngine.generateUserKey(currentSessionId, sessionKey);
+    const encryptedMessageData = createEncryptedMessage(content.trim(), userKey);
+    
+    console.log('🔐 メッセージ暗号化完了:', {
+      original: content.trim().substring(0, 20) + '...',
+      encrypted: encryptedMessageData.encrypted.substring(0, 32) + '...',
+      privacyLevel: encryptedMessageData.privacyLevel
+    });
+
     const userMessage: Message = {
       id: uuidv4(),
       content: content.trim(),
@@ -260,6 +272,11 @@ export function useChat({
           relationshipLevel: relationship.currentLevel.level,
           chatCount, // Option B: チャット回数を追加
           personalInfo, // Option B: 個人情報を追加
+          // 🔐 暗号化データの追加
+          encryptedMessage: encryptedMessageData.encrypted,
+          contentHash: encryptedMessageData.hash,
+          privacyLevel: encryptedMessageData.privacyLevel,
+          sessionKey: sessionKey,
           importantMemories: importantMemories.map(m => ({
             content: m.content,
             emotionScore: m.emotionScore,

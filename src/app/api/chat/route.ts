@@ -30,6 +30,12 @@ export async function POST(request: NextRequest) {
   // 🎵 Phase 2: 気分連動データ
   let currentMood: string = '😊';
   let moodContext: string = '';
+  
+  // 🔐 暗号化データ
+  let encryptedMessage: string = '';
+  let contentHash: string = '';
+  let privacyLevel: number = 1;
+  let sessionKey: string = '';
 
   try {
     const body = await request.json();
@@ -50,7 +56,12 @@ export async function POST(request: NextRequest) {
       personalInfo = {},
       // 🎵 Phase 2: 気分データ
       currentMood = '😊',
-      moodContext = ''
+      moodContext = '',
+      // 🔐 暗号化データ
+      encryptedMessage = '',
+      contentHash = '',
+      privacyLevel = 1,
+      sessionKey = ''
     } = body);
 
     if (!message || !userType || !aiPersonality) {
@@ -58,6 +69,16 @@ export async function POST(request: NextRequest) {
         { error: 'Required fields missing' },
         { status: 400 }
       );
+    }
+
+    // 🔐 暗号化データ受信確認
+    if (encryptedMessage && contentHash) {
+      console.log('🔐 暗号化データ受信:', {
+        hasEncrypted: !!encryptedMessage,
+        hashLength: contentHash.length,
+        privacyLevel,
+        originalLength: message.length
+      });
     }
 
     // AI個性の詳細情報取得
