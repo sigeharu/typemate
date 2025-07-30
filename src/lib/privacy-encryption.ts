@@ -10,6 +10,23 @@ export class PrivacyEngine {
    * @param sessionKey セッション固有キー
    * @returns 256bit暗号化キー
    */
+  /**
+   * マスターパスワードから強力なユーザーキーを生成
+   * @param masterPassword ユーザーのマスターパスワード
+   * @param userId ユーザーID（Salt用）
+   * @returns 256bit暗号化キー (100,000回反復強化)
+   */
+  static generateUserKeyFromMaster(masterPassword: string, userId: string): string {
+    return CryptoJS.PBKDF2(masterPassword, userId, {
+      keySize: 256/32,
+      iterations: 100000 // 10,000 → 100,000 (10倍強化)
+    }).toString();
+  }
+
+  /**
+   * @deprecated 旧sessionKey方式（非推奨）
+   * 新しいマスターパスワード方式を使用してください
+   */
   static generateUserKey(userId: string, sessionKey: string): string {
     return CryptoJS.PBKDF2(sessionKey, userId, {
       keySize: 256/32,

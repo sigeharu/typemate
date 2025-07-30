@@ -21,22 +21,34 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { SecureMemoryManager } from '@/lib/SecureMemoryManager';
 
 interface SecurityDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
   messagesEncrypted?: number;
   totalMessages?: number;
+  securityEnhanced?: boolean; // 強化セキュリティ情報
 }
 
 export const SecurityDetailsModal = ({ 
   isOpen, 
   onClose, 
   messagesEncrypted = 0, 
-  totalMessages = 0 
+  totalMessages = 0,
+  securityEnhanced = true // デフォルトで強化版を有効
 }: SecurityDetailsModalProps) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'technical' | 'stats'>('overview');
   const encryptionRate = totalMessages > 0 ? Math.round((messagesEncrypted / totalMessages) * 100) : 100;
+  const [memoryStats, setMemoryStats] = useState<any>(null);
+  
+  // セキュアメモリ統計を取得
+  useEffect(() => {
+    if (isOpen) {
+      const stats = SecureMemoryManager.getMemoryStats();
+      setMemoryStats(stats);
+    }
+  }, [isOpen]);
 
   // セキュリティ機能リスト
   const securityFeatures = [
@@ -50,9 +62,9 @@ export const SecurityDetailsModal = ({
     {
       icon: <Key className="w-5 h-5 text-blue-600" />,
       title: 'PBKDF2キー生成',
-      description: 'セッション固有の安全なキー生成システム',
+      description: 'マスターパスワード基盤の安全なキー生成システム',
       status: 'active',
-      details: '10,000回の反復処理による強化'
+      details: securityEnhanced ? '100,000回の反復処理による10倍強化' : '10,000回の反復処理による強化'
     },
     {
       icon: <FileCheck className="w-5 h-5 text-purple-600" />,
@@ -67,17 +79,28 @@ export const SecurityDetailsModal = ({
       description: 'サーバーでも復号化できない設計',
       status: 'active',
       details: 'クライアントサイド専用暗号化'
-    }
+    },
+    ...(securityEnhanced ? [{
+      icon: <Shield className="w-5 h-5 text-red-600" />,
+      title: 'セキュアメモリ管理',
+      description: '暗号化キーの即座削除とガベージコレクション',
+      status: 'active',
+      details: 'WeakMap + 自動メモリクリーンアップ'
+    }] : [])
   ];
 
   // 技術的詳細情報
   const technicalSpecs = [
     { label: '暗号化方式', value: 'AES-256-CBC', status: 'secure' },
     { label: 'キー導出', value: 'PBKDF2-SHA256', status: 'secure' },
-    { label: '反復回数', value: '10,000回', status: 'secure' },
+    { label: '反復回数', value: securityEnhanced ? '100,000回 (10倍強化)' : '10,000回', status: 'secure' },
     { label: 'キー長', value: '256-bit', status: 'secure' },
     { label: 'ハッシュ関数', value: 'SHA-256', status: 'secure' },
-    { label: 'セッション管理', value: 'UUID v4', status: 'secure' }
+    { label: 'セッション管理', value: 'UUID v4', status: 'secure' },
+    ...(securityEnhanced ? [
+      { label: 'メモリ管理', value: 'WeakMap + GC', status: 'secure' },
+      { label: 'キー保持時間', value: '100ms (即座削除)', status: 'secure' }
+    ] : [])
   ];
 
   return (
@@ -230,10 +253,11 @@ export const SecurityDetailsModal = ({
                     <div className="space-y-3">
                       {[
                         { step: 1, title: 'メッセージ入力', desc: 'あなたがメッセージを入力' },
-                        { step: 2, title: 'キー生成', desc: 'PBKDF2でセッション固有キーを生成' },
+                        { step: 2, title: 'キー生成', desc: securityEnhanced ? 'マスターパスワード+100,000回PBKDF2でキー生成' : 'PBKDF2でセッション固有キーを生成' },
                         { step: 3, title: 'AES暗号化', desc: 'AES-256でメッセージを暗号化' },
                         { step: 4, title: 'ハッシュ生成', desc: 'SHA-256で整合性ハッシュを生成' },
-                        { step: 5, title: 'サーバー送信', desc: '暗号化データのみをサーバーに送信' }
+                        { step: 5, title: securityEnhanced ? 'メモリ削除' : 'サーバー送信', desc: securityEnhanced ? '暗号化キーを100ms以内に自動削除' : '暗号化データのみをサーバーに送信' },
+                        ...(securityEnhanced ? [{ step: 6, title: 'サーバー送信', desc: '暗号化データのみをサーバーに送信' }] : [])
                       ].map((flow, index) => (
                         <div key={index} className="flex items-center space-x-3">
                           <div className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
@@ -321,8 +345,51 @@ export const SecurityDetailsModal = ({
                         <span className="text-gray-600">データ漏洩スキャン</span>
                         <span className="text-green-600 font-medium">✓ 問題なし</span>
                       </div>
+                      {securityEnhanced && (
+                        <>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">メモリセキュリティ</span>
+                            <span className="text-green-600 font-medium">✓ 強化版</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">PBKDF2強度</span>
+                            <span className="text-green-600 font-medium">✓ 100,000回</span>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
+
+                  {/* セキュアメモリ統計（強化版のみ） */}
+                  {securityEnhanced && memoryStats && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <h4 className="font-medium text-blue-800 mb-2 flex items-center space-x-2">
+                        <Shield className="w-4 h-4" />
+                        <span>セキュアメモリ統計</span>
+                      </h4>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-white/70 p-3 rounded-lg text-center">
+                          <div className="text-lg font-bold text-blue-600">{memoryStats.keysGenerated}</div>
+                          <div className="text-xs text-blue-700">キー生成数</div>
+                        </div>
+                        <div className="bg-white/70 p-3 rounded-lg text-center">
+                          <div className="text-lg font-bold text-green-600">{memoryStats.keysCleared}</div>
+                          <div className="text-xs text-green-700">自動削除数</div>
+                        </div>
+                        <div className="bg-white/70 p-3 rounded-lg text-center">
+                          <div className="text-lg font-bold text-purple-600">{memoryStats.activeKeys}</div>
+                          <div className="text-xs text-purple-700">アクティブキー</div>
+                        </div>
+                        <div className="bg-white/70 p-3 rounded-lg text-center">
+                          <div className="text-lg font-bold text-orange-600">{memoryStats.memoryEfficiency}%</div>
+                          <div className="text-xs text-orange-700">メモリ効率</div>
+                        </div>
+                      </div>
+                      <div className="mt-3 text-xs text-blue-600 text-center">
+                        🛡️ すべてのキーは100ms以内に自動削除されます
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

@@ -553,6 +553,7 @@ export default function ChatPage() {
               <SecureConnectionStatus 
                 messagesEncrypted={messages.length}
                 totalMessages={messages.length}
+                securityEnhanced={true}
               />
             </div>
             

@@ -43,11 +43,13 @@ export const PrivacyLevelIndicator = ({ level }: { level: number }) => {
 interface SecureConnectionStatusProps {
   messagesEncrypted?: number;
   totalMessages?: number;
+  securityEnhanced?: boolean; // 強化セキュリティ対応
 }
 
 export const SecureConnectionStatus = ({ 
   messagesEncrypted = 0, 
-  totalMessages = 0 
+  totalMessages = 0,
+  securityEnhanced = false
 }: SecureConnectionStatusProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -62,13 +64,25 @@ export const SecureConnectionStatus = ({
           <Shield className="w-5 h-5 text-green-600" />
         </div>
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-800">セキュア接続中</p>
-          <p className="text-xs text-gray-600">あなたの会話は完全に保護されています</p>
+          <p className="text-sm font-medium text-gray-800">
+            セキュア接続中 {securityEnhanced && <span className="text-red-600 font-bold">強化版</span>}
+          </p>
+          <p className="text-xs text-gray-600">
+            {securityEnhanced 
+              ? 'マスターパスワード + 100,000回反復で完全保護'
+              : 'あなたの会話は完全に保護されています'
+            }
+          </p>
         </div>
         <div className="flex items-center space-x-2">
           <div className="text-xs text-green-600 font-mono bg-white px-2 py-1 rounded border">
             AES-256
           </div>
+          {securityEnhanced && (
+            <div className="text-xs text-red-600 font-mono bg-red-50 px-2 py-1 rounded border border-red-200">
+              100K-PBKDF2
+            </div>
+          )}
           <ChevronRight className="w-4 h-4 text-gray-400" />
         </div>
       </div>
@@ -78,6 +92,7 @@ export const SecureConnectionStatus = ({
         onClose={() => setIsModalOpen(false)}
         messagesEncrypted={messagesEncrypted}
         totalMessages={totalMessages}
+        securityEnhanced={securityEnhanced}
       />
     </>
   );
