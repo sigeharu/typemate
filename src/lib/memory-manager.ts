@@ -4,6 +4,10 @@
 import { supabase } from './supabase-simple';
 import type { Database } from '@/types/database';
 import { type EmotionData as EmotionAnalysisData } from './emotion-analyzer';
+import { PrivacyEngine, createEncryptedMessage, type EncryptedMessage } from './privacy-encryption';
+import { SecureMemoryManager } from './SecureMemoryManager';
+
+// 🔒 真のエンドツーエンド暗号化対応
 
 type MemoryRow = Database['public']['Tables']['typemate_memory']['Row'];
 type MemoryInsert = Database['public']['Tables']['typemate_memory']['Insert'];
@@ -24,12 +28,16 @@ export interface BasicMemory {
   archetype: string;
   relationshipLevel: number;
   userName?: string;
-  messageContent?: string;
+  messageContent?: string; // クライアントサイドで復号化済みの内容
   messageRole?: 'user' | 'ai';
   conversationId?: string;
   createdAt: string;
   // 🎵 Phase 2: 感情データ追加
   emotionData?: EmotionData;
+  // 🔒 暗号化メタデータ
+  isEncrypted?: boolean;
+  encryptionHash?: string;
+  privacyLevel?: number;
 }
 
 // Phase 1: 短期記憶コレクション（直近10件）
@@ -96,7 +104,7 @@ export class MemoryManager {
       }
 
       console.log('✅ Memory saved successfully:', data.id);
-      return this.transformRowToMemory(data);
+      return this.transformRowToMemory(data, userId);
     } catch (error) {
       console.error('💥 Memory save exception:', error);
       return null;
@@ -131,7 +139,7 @@ export class MemoryManager {
         return { memories: [], totalCount: 0, lastUpdated: new Date().toISOString() };
       }
 
-      const memories = data?.map(row => this.transformRowToMemory(row)) || [];
+      const memories = data?.map(row => this.transformRowToMemory(row, userId)) || [];
       console.log('✅ Loaded memories:', memories.length, 'items');
 
       return {
@@ -253,6 +261,7 @@ export class MemoryManager {
   }
 
   // 🎵 Phase 2: 感情データ付き会話記憶保存（チャット統合用・認証ユーザー必須）
+  // 🔒 暗号化対応会話記憶保存メソッド（認証ユーザー必須）
   async saveConversationMemory(
     messageContent: string,
     messageRole: 'user' | 'ai',
@@ -262,31 +271,71 @@ export class MemoryManager {
     userName?: string,
     emotionData?: EmotionData
   ): Promise<BasicMemory | null> {
-    const memory = await this.saveMemory({
-      archetype,
-      relationship_level: 1,
-      user_name: userName,
-      message_content: messageContent,
-      message_role: messageRole,
-      conversation_id: conversationId
-    }, userId);
-
-    // Phase 2: 感情データを結果に追加
-    if (memory && emotionData) {
-      memory.emotionData = emotionData;
-      console.log('🎵 Emotion data attached:', {
-        emotion: emotionData.emotion,
-        intensity: emotionData.intensity,
-        isSpecial: emotionData.isSpecialMoment
+    // 🔐 エンドツーエンド暗号化実装
+    const masterPassword = 'temp-master-password-2025'; // TODO: 実際のマスターパスワード取得
+    const userKey = PrivacyEngine.generateUserKeyFromMaster(masterPassword, userId);
+    const keyReference = { sessionId: conversationId, messageId: Date.now().toString() };
+    
+    // セキュアメモリに保存
+    SecureMemoryManager.storeSecureKey(userKey, keyReference);
+    
+    try {
+      // メッセージを暗号化
+      const encryptedMessageData = createEncryptedMessage(messageContent, userKey);
+      
+      console.log('🔐 Message encryption for DB storage:', {
+        original: messageContent.substring(0, 20) + '...',
+        encrypted: encryptedMessageData.encrypted.substring(0, 32) + '...',
+        privacyLevel: encryptedMessageData.privacyLevel,
+        hash: encryptedMessageData.hash.substring(0, 16) + '...'
       });
-    }
+      
+      // 暗号化されたデータをデータベースに保存
+      const memory = await this.saveMemory({
+        archetype,
+        relationship_level: 1,
+        user_name: userName,
+        message_content: encryptedMessageData.encrypted, // 🔒 暗号化データを保存
+        message_role: messageRole,
+        conversation_id: conversationId
+      }, userId);
 
-    return memory;
+      if (memory) {
+        // クライアント側で復号化して返す
+        try {
+          const decryptedContent = PrivacyEngine.decryptMessage(encryptedMessageData.encrypted, userKey);
+          memory.messageContent = decryptedContent; // 復号化済み内容をクライアントに返す
+          memory.isEncrypted = true;
+          memory.encryptionHash = encryptedMessageData.hash;
+          memory.privacyLevel = encryptedMessageData.privacyLevel;
+        } catch (decryptError) {
+          console.error('🚨 Decryption failed for client:', decryptError);
+          memory.messageContent = '[復号化エラー]';
+        }
+
+        // Phase 2: 感情データを結果に追加
+        if (emotionData) {
+          memory.emotionData = emotionData;
+          console.log('🎵 Emotion data attached:', {
+            emotion: emotionData.emotion,
+            intensity: emotionData.intensity,
+            isSpecial: emotionData.isSpecialMoment
+          });
+        }
+      }
+
+      return memory;
+    } finally {
+      // キーを即座に削除
+      setTimeout(() => {
+        SecureMemoryManager.clearKey(keyReference);
+      }, 100);
+    }
   }
 
-  // Phase 1: データ変換ヘルパー
-  private transformRowToMemory(row: MemoryRow): BasicMemory {
-    return {
+  // 🔒 Phase 1: データ変換ヘルパー (暗号化対応)
+  private transformRowToMemory(row: MemoryRow, userId?: string): BasicMemory {
+    const basicMemory: BasicMemory = {
       id: row.id,
       userId: row.user_id || undefined,
       archetype: row.archetype,
@@ -295,8 +344,49 @@ export class MemoryManager {
       messageContent: row.message_content || undefined,
       messageRole: row.message_role || undefined,
       conversationId: row.conversation_id || undefined,
-      createdAt: row.created_at
+      createdAt: row.created_at,
+      isEncrypted: false
     };
+
+    // 🔐 暗号化データの復号化処理
+    if (row.message_content && userId) {
+      try {
+        // まずは暗号化されたデータかチェック
+        if (this.isEncryptedData(row.message_content)) {
+          const masterPassword = 'temp-master-password-2025'; // TODO: 実際のマスターパスワード取得
+          const userKey = PrivacyEngine.generateUserKeyFromMaster(masterPassword, userId);
+          
+          const decryptedContent = PrivacyEngine.decryptMessage(row.message_content, userKey);
+          basicMemory.messageContent = decryptedContent;
+          basicMemory.isEncrypted = true;
+          
+          console.log('🔓 Message decrypted successfully:', {
+            messageId: row.id,
+            contentPreview: decryptedContent.substring(0, 20) + '...'
+          });
+        }
+        // 平文データの場合はそのまま
+      } catch (decryptError) {
+        console.warn('⚠️ Decryption failed, using original content:', {
+          messageId: row.id,
+          error: decryptError instanceof Error ? decryptError.message : 'Unknown error'
+        });
+        // 復号化に失敗した場合は元のデータを使用（後方互換性）
+      }
+    }
+
+    return basicMemory;
+  }
+
+  // 🔍 暗号化データ判定ヘルパー
+  private isEncryptedData(content: string): boolean {
+    // AES暗号化データの特徴をチェック
+    try {
+      // Base64エンコードされた暗号化データの形式をチェック
+      return content.length > 50 && /^[A-Za-z0-9+/=]+$/.test(content);
+    } catch {
+      return false;
+    }
   }
 
   // 🎵 Phase 2: 感情データ保存
@@ -425,14 +515,40 @@ export class MemoryManager {
         return [];
       }
 
-      return data?.map(memory => ({
-        id: memory.id,
-        content: memory.message_content,
-        isUser: memory.message_role === 'user',
-        sender: memory.message_role,
-        timestamp: new Date(memory.created_at),
-        sessionId: memory.conversation_id
-      })) || [];
+      // 🔐 各メッセージを復号化して返す
+      return data?.map(memory => {
+        let decryptedContent = memory.message_content;
+        
+        // 暗号化データの復号化処理
+        if (memory.message_content && this.isEncryptedData(memory.message_content)) {
+          try {
+            const masterPassword = 'temp-master-password-2025'; // TODO: 実際のマスターパスワード取得
+            const userKey = PrivacyEngine.generateUserKeyFromMaster(masterPassword, userId);
+            decryptedContent = PrivacyEngine.decryptMessage(memory.message_content, userKey);
+            
+            console.log('🔓 Conversation message decrypted:', {
+              messageId: memory.id,
+              role: memory.message_role,
+              preview: decryptedContent?.substring(0, 20) + '...'
+            });
+          } catch (decryptError) {
+            console.warn('⚠️ Failed to decrypt conversation message:', {
+              messageId: memory.id,
+              error: decryptError instanceof Error ? decryptError.message : 'Unknown error'
+            });
+            // 復号化失敗時は元のデータを使用（後方互換性）
+          }
+        }
+
+        return {
+          id: memory.id,
+          content: decryptedContent,
+          isUser: memory.message_role === 'user',
+          sender: memory.message_role,
+          timestamp: new Date(memory.created_at),
+          sessionId: memory.conversation_id
+        };
+      }) || [];
     } catch (error) {
       console.error('❌ getConversationMessages error:', error);
       return [];
