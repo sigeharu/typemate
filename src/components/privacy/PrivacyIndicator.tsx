@@ -1,7 +1,11 @@
 // 🎵 TypeMate Privacy Indicator
 // エレガントなプライバシー保護UI表示コンポーネント
 
-import { Shield, Lock, Eye } from 'lucide-react';
+'use client';
+
+import { useState } from 'react';
+import { Shield, Lock, Eye, ChevronRight } from 'lucide-react';
+import { SecurityDetailsModal } from './SecurityDetailsModal';
 
 export const PrivacyIndicator = () => (
   <div className="flex items-center space-x-2 text-green-600 bg-green-50 px-3 py-1 rounded-full shadow-sm border border-green-200">
@@ -36,21 +40,48 @@ export const PrivacyLevelIndicator = ({ level }: { level: number }) => {
   );
 };
 
-export const SecureConnectionStatus = () => (
-  <div className="flex items-center space-x-3 p-3 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200 shadow-sm">
-    <div className="flex items-center space-x-2">
-      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-      <Shield className="w-5 h-5 text-green-600" />
-    </div>
-    <div className="flex-1">
-      <p className="text-sm font-medium text-gray-800">セキュア接続中</p>
-      <p className="text-xs text-gray-600">あなたの会話は完全に保護されています</p>
-    </div>
-    <div className="text-xs text-green-600 font-mono bg-white px-2 py-1 rounded border">
-      AES-256
-    </div>
-  </div>
-);
+interface SecureConnectionStatusProps {
+  messagesEncrypted?: number;
+  totalMessages?: number;
+}
+
+export const SecureConnectionStatus = ({ 
+  messagesEncrypted = 0, 
+  totalMessages = 0 
+}: SecureConnectionStatusProps) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  return (
+    <>
+      <div 
+        className="flex items-center space-x-3 p-3 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer hover:bg-gradient-to-r hover:from-green-100 hover:to-blue-100"
+        onClick={() => setIsModalOpen(true)}
+      >
+        <div className="flex items-center space-x-2">
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+          <Shield className="w-5 h-5 text-green-600" />
+        </div>
+        <div className="flex-1">
+          <p className="text-sm font-medium text-gray-800">セキュア接続中</p>
+          <p className="text-xs text-gray-600">あなたの会話は完全に保護されています</p>
+        </div>
+        <div className="flex items-center space-x-2">
+          <div className="text-xs text-green-600 font-mono bg-white px-2 py-1 rounded border">
+            AES-256
+          </div>
+          <ChevronRight className="w-4 h-4 text-gray-400" />
+        </div>
+      </div>
+
+      <SecurityDetailsModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        messagesEncrypted={messagesEncrypted}
+        totalMessages={totalMessages}
+      />
+    </>
+  );
+};
 
 interface PrivacyStatsProps {
   messagesEncrypted: number;

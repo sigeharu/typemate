@@ -550,7 +550,10 @@ export default function ChatPage() {
 
             {/* 🔐 プライバシー表示 */}
             <div className="mt-3">
-              <SecureConnectionStatus />
+              <SecureConnectionStatus 
+                messagesEncrypted={messages.length}
+                totalMessages={messages.length}
+              />
             </div>
             
             {/* 関係性レベル表示 */}
