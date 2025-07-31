@@ -8,6 +8,7 @@ export interface Message {
   timestamp: Date;
   isUser: boolean;
   sessionId: string;
+  sequenceNumber: number; // 👈 NEW: 順序保証用
   archetypeType?: string;
   emotion?: 'happy' | 'excited' | 'calm' | 'thoughtful' | 'caring' | 'playful' | 'focused' | 'supportive';
 }

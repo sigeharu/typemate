@@ -114,6 +114,7 @@ export default function ChatPage() {
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
   const [chatCount, setChatCount] = useState(1);
   const [sessionStartTime, setSessionStartTime] = useState<Date>(new Date());
+  const [nextSequenceNumber, setNextSequenceNumber] = useState(1); // 👈 NEW: 順序保証用
   
   // Development mode
   const [testProfile, setTestProfile] = useState<TestProfile | null>(null);
@@ -281,7 +282,35 @@ export default function ChatPage() {
           // 既存メッセージを読み込み
           const existingMessages = await memoryManager.getConversationMessages(sessionId, user.id);
           console.log('📋 既存メッセージ読み込み:', existingMessages.length + '件');
-          setMessages(existingMessages);
+          
+          // sequence番号が未設定のメッセージがある場合は復旧実行
+          const hasUnsequencedMessages = existingMessages.some(m => !m.sequenceNumber || m.sequenceNumber === 0);
+          if (hasUnsequencedMessages && existingMessages.length > 0) {
+            console.log('🔧 Detected messages without sequence numbers, running repair...');
+            const repairSuccess = await memoryManager.repairSequenceNumbers(sessionId, user.id);
+            if (repairSuccess) {
+              // 修復後に再読み込み
+              const repairedMessages = await memoryManager.getConversationMessages(sessionId, user.id);
+              setMessages(repairedMessages);
+              console.log('✅ Messages repaired and reloaded:', repairedMessages.length + '件');
+            } else {
+              console.warn('⚠️ Failed to repair sequence numbers, using original messages');
+              setMessages(existingMessages);
+            }
+          } else {
+            setMessages(existingMessages);
+          }
+          
+          // 次のsequenceNumberを設定（既存メッセージの最大値+1）
+          const finalMessages = hasUnsequencedMessages && existingMessages.length > 0 
+            ? await memoryManager.getConversationMessages(sessionId, user.id)
+            : existingMessages;
+          
+          if (finalMessages.length > 0) {
+            const maxSequence = Math.max(...finalMessages.map(m => m.sequenceNumber || 0));
+            setNextSequenceNumber(maxSequence + 1);
+            console.log('🔢 Next sequence number set to:', maxSequence + 1);
+          }
         } else {
           sessionId = generateUUID();
           console.log('🆕 新規セッション作成:', sessionId);
@@ -332,6 +361,7 @@ export default function ChatPage() {
     setCurrentSessionId(newSessionId);
     setMessages([]);
     setSessionStartTime(new Date());
+    setNextSequenceNumber(1); // 👈 NEW: 新しいセッションではsequence番号をリセット
     setShowHistory(false);
   };
 
@@ -372,7 +402,8 @@ export default function ChatPage() {
       isUser: true,
       sender: 'user',
       timestamp: new Date(),
-      sessionId: currentSessionId
+      sessionId: currentSessionId,
+      sequenceNumber: nextSequenceNumber // 👈 NEW: 順序保証用
     };
 
     const updatedMessagesWithUser = [...messages, userMessage];
@@ -436,8 +467,9 @@ export default function ChatPage() {
         content: aiResponse,
         isUser: false,
         sender: 'ai',
-        timestamp: new Date(Date.now() + 1), // +1ms to ensure proper ordering after user message
-        sessionId: currentSessionId
+        timestamp: new Date(),
+        sessionId: currentSessionId,
+        sequenceNumber: nextSequenceNumber + 1 // 👈 NEW: 順序保証用（+1で確実に後に配置）
       };
       
       const updatedMessagesWithAI = [...updatedMessagesWithUser, aiMessage];
@@ -467,7 +499,8 @@ export default function ChatPage() {
         isValidUUID: /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(currentSessionId)
       });
       
-      saveMessage(content, 'user', personalInfo.name, emotionData).then(success => {
+      // ユーザーメッセージ保存（sequenceNumber付き）
+      saveMessage(content, 'user', personalInfo.name, emotionData, nextSequenceNumber).then(success => {
         console.log(success ? '✅ User message saved successfully' : '❌ User message save failed');
       }).catch(error => 
         console.warn('❌ User message save failed:', error)
@@ -479,11 +512,16 @@ export default function ChatPage() {
         userId
       });
       
-      saveMessage(aiResponse, 'ai', undefined, emotionData).then(success => {
+      // AIメッセージ保存（sequenceNumber+1付き）
+      saveMessage(aiResponse, 'ai', undefined, emotionData, nextSequenceNumber + 1).then(success => {
         console.log(success ? '✅ AI message saved successfully' : '❌ AI message save failed');
       }).catch(error => 
         console.warn('❌ AI message save failed:', error)
       );
+      
+      // sequence番号を更新（+2で次のユーザーメッセージ用）
+      setNextSequenceNumber(prev => prev + 2);
+      console.log('🔢 Next sequence number updated to:', nextSequenceNumber + 2);
     } catch (error) {
       console.error('Error sending message:', error);
       
@@ -493,8 +531,9 @@ export default function ChatPage() {
         content: 'すみません、少し調子が悪いようです。もう一度お話しいただけますか？',
         isUser: false,
         sender: 'ai',
-        timestamp: new Date(Date.now() + 1), // +1ms to ensure proper ordering after user message
-        sessionId: currentSessionId
+        timestamp: new Date(),
+        sessionId: currentSessionId,
+        sequenceNumber: nextSequenceNumber + 1 // 👈 NEW: 順序保証用
       };
       
       setMessages(prev => [...prev, fallbackMessage]);

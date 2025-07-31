@@ -20,7 +20,7 @@ interface UseMemoryManagerReturn {
   error: string | null;
   
   // 🎵 Phase 2: 感情データ付き記憶操作
-  saveMessage: (content: string, role: 'user' | 'ai', userName?: string, emotionData?: EmotionAnalysisData) => Promise<boolean>;
+  saveMessage: (content: string, role: 'user' | 'ai', userName?: string, emotionData?: EmotionAnalysisData, sequenceNumber?: number) => Promise<boolean>;
   loadShortTermMemory: () => Promise<void>;
   updateUserName: (name: string) => Promise<boolean>;
   updateRelationshipLevel: (level: number) => Promise<boolean>;
@@ -74,7 +74,8 @@ export function useMemoryManager({
     content: string, 
     role: 'user' | 'ai', 
     userName?: string,
-    emotionData?: EmotionAnalysisData
+    emotionData?: EmotionAnalysisData,
+    sequenceNumber?: number // 👈 NEW: 順序保証用
   ): Promise<boolean> => {
     if (!conversationId) {
       console.warn('No conversation ID provided for memory save');
@@ -89,7 +90,9 @@ export function useMemoryManager({
         archetype,
         conversationId,
         userId,
-        userName
+        userName,
+        undefined, // emotionData
+        sequenceNumber // 👈 NEW: 順序保証用
       );
 
       if (memory) {
@@ -183,7 +186,8 @@ export function useMemorySaver(conversationId: string, archetype: string, userId
     content: string, 
     role: 'user' | 'ai', 
     userName?: string,
-    emotionData?: EmotionAnalysisData
+    emotionData?: EmotionAnalysisData,
+    sequenceNumber?: number // 👈 NEW: 順序保証用
   ): Promise<boolean> => {
     if (!userId) {
       console.error('❌ Memory save failed: userId is required for authenticated users');
@@ -198,7 +202,9 @@ export function useMemorySaver(conversationId: string, archetype: string, userId
         archetype,
         conversationId,
         userId,
-        userName
+        userName,
+        emotionData, // emotionData
+        sequenceNumber // 👈 NEW: 順序保証用
       );
 
       if (memory && emotionData) {

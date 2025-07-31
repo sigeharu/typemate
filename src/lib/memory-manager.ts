@@ -269,7 +269,8 @@ export class MemoryManager {
     conversationId: string,
     userId: string,
     userName?: string,
-    emotionData?: EmotionData
+    emotionData?: EmotionData,
+    sequenceNumber?: number // 👈 NEW: 順序保証用
   ): Promise<BasicMemory | null> {
     // 🔐 エンドツーエンド暗号化実装
     const masterPassword = 'temp-master-password-2025'; // TODO: 実際のマスターパスワード取得
@@ -297,7 +298,8 @@ export class MemoryManager {
         user_name: userName,
         message_content: encryptedMessageData.encrypted, // 🔒 暗号化データを保存
         message_role: messageRole,
-        conversation_id: conversationId
+        conversation_id: conversationId,
+        sequence_number: sequenceNumber || 0 // 👈 NEW: 順序保証用
       }, userId);
 
       if (memory) {
@@ -504,10 +506,11 @@ export class MemoryManager {
     try {
       const { data, error } = await supabase
         .from('typemate_memory')
-        .select('id, message_content, message_role, created_at, conversation_id')
+        .select('id, message_content, message_role, created_at, conversation_id, sequence_number')
         .eq('conversation_id', conversationId)
         .eq('user_id', userId)
         .not('message_content', 'is', null)
+        .order('sequence_number', { ascending: true })
         .order('created_at', { ascending: true });
 
       if (error) {
@@ -546,12 +549,71 @@ export class MemoryManager {
           isUser: memory.message_role === 'user',
           sender: memory.message_role,
           timestamp: new Date(memory.created_at),
-          sessionId: memory.conversation_id
+          sessionId: memory.conversation_id,
+          sequenceNumber: memory.sequence_number || 0 // 👈 NEW: 順序保証用
         };
       }) || [];
     } catch (error) {
       console.error('❌ getConversationMessages error:', error);
       return [];
+    }
+  }
+
+  // 🔄 既存データ復旧: sequence番号を created_at 順で自動採番
+  async repairSequenceNumbers(conversationId: string, userId: string): Promise<boolean> {
+    if (!userId || !conversationId) {
+      console.error('❌ repairSequenceNumbers: userId and conversationId are required');
+      return false;
+    }
+
+    try {
+      console.log('🔧 Repairing sequence numbers for conversation:', conversationId);
+      
+      // 既存メッセージを created_at 順で取得
+      const { data: messages, error } = await supabase
+        .from('typemate_memory')
+        .select('id, created_at')
+        .eq('conversation_id', conversationId)
+        .eq('user_id', userId)
+        .not('message_content', 'is', null)
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        console.error('❌ Failed to fetch messages for repair:', error);
+        return false;
+      }
+
+      if (!messages || messages.length === 0) {
+        console.log('ℹ️ No messages found to repair');
+        return true;
+      }
+
+      // sequence番号を順番に割り当て（1から開始）
+      const updates = messages.map((message, index) => ({
+        id: message.id,
+        sequence_number: index + 1
+      }));
+
+      console.log(`🔧 Updating ${updates.length} messages with sequence numbers`);
+
+      // バッチ更新実行
+      for (const update of updates) {
+        const { error: updateError } = await supabase
+          .from('typemate_memory')
+          .update({ sequence_number: update.sequence_number })
+          .eq('id', update.id);
+
+        if (updateError) {
+          console.error(`❌ Failed to update message ${update.id}:`, updateError);
+          return false;
+        }
+      }
+
+      console.log('✅ Successfully repaired sequence numbers');
+      return true;
+    } catch (error) {
+      console.error('💥 repairSequenceNumbers exception:', error);
+      return false;
     }
   }
 }
