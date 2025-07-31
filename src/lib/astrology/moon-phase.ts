@@ -1,7 +1,7 @@
 // 🌙 Moon Phase Calculator
 // 月の位相とエネルギー計算システム
 
-import SunCalc from 'suncalc';
+// SunCalcライブラリの代替 - 軽量計算で対応
 import { addDays, differenceInDays, format } from 'date-fns';
 import { MoonPhase } from '../../types';
 
@@ -41,14 +41,38 @@ export interface MoonInfluence {
 // 月のサイクル期間（約29.5日）
 const MOON_CYCLE_DAYS = 29.530588853;
 
-// 新月の基準日（2000年1月6日 18:14 UTC）
+// 新月the基準日（2000年1月6日 18:14 UTC）
 const NEW_MOON_REFERENCE = new Date('2000-01-06T18:14:00.000Z');
+
+/**
+ * 🌙 月の照明率を軽量計算（SunCalc代替）
+ */
+function calculateMoonIllumination(date: Date): { fraction: number; angle: number } {
+  const moonAge = calculateMoonAge(date);
+  
+  // 月齢から照明率を計算（簡略版）
+  let fraction: number;
+  if (moonAge < MOON_CYCLE_DAYS / 2) {
+    // 満ちていく
+    fraction = (moonAge / (MOON_CYCLE_DAYS / 2));
+  } else {
+    // 欠けていく
+    fraction = 2 - (moonAge / (MOON_CYCLE_DAYS / 2));
+  }
+  
+  fraction = Math.max(0, Math.min(1, fraction));
+  
+  return {
+    fraction,
+    angle: (moonAge / MOON_CYCLE_DAYS) * 2 * Math.PI
+  };
+}
 
 /**
  * 🌙 現在の月の位相を計算
  */
 export function getCurrentMoonPhase(date: Date = new Date()): MoonPhaseInfo {
-  const moonIllumination = SunCalc.getMoonIllumination(date);
+  const moonIllumination = calculateMoonIllumination(date);
   const moonAge = calculateMoonAge(date);
   const phase = determineMoonPhase(moonAge);
   
@@ -413,7 +437,7 @@ export function getMoon28DayCycle(startDate: Date = new Date()): Array<{
       date,
       moonPhase: moonInfo.phase,
       dayOfCycle: i + 1,
-      energy: moonInfo.energy.level,
+      energy: moonInfo.energy?.level || 5,
       focus: getFocusForDay(i + 1),
       recommendation: getRecommendationForDay(i + 1, moonInfo.phase)
     });

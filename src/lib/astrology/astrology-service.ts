@@ -314,16 +314,16 @@ export function generateTodayCosmicGuidance(
   
   // コズミック天気予報
   const cosmicWeather = generateCosmicWeather(
-    currentMoon.phase.phase,
+    currentMoon.phase?.phase || 'new_moon',
     zodiac.sign,
     currentMoon.energy
   );
   
   // 個人メッセージ
   const personalMessage = generatePersonalMessage(
-    zodiac.details.nameJa,
-    numerology.info.name,
-    currentMoon.phase.phaseNameJa,
+    zodiac.details?.nameJa || '星座',
+    numerology.info?.name || 'ライフパス',
+    currentMoon.phase?.phaseNameJa || '月相',
     userArchetype
   );
   
@@ -419,23 +419,23 @@ function generateDailyGuidance(
   personalYear: any
 ): IntegratedAstrologyProfile['dailyGuidance'] {
   
-  const overallEnergy = Math.round((moon.energy.level + 5) / 2 * 10) / 10;
+  const overallEnergy = Math.round(((moon.energy?.level || 5) + 5) / 2 * 10) / 10;
   
   return {
     date: new Date(),
     overallEnergy,
-    primaryMessage: `${zodiac.nameJa}の${moon.phaseNameJa}、${numerology.info.name}としての一日`,
-    zodiacAdvice: zodiac.traits[0] + 'を活かしましょう',
-    numerologyTheme: personalYear.theme,
-    moonInfluence: moon.energy.description,
+    primaryMessage: `${zodiac.nameJa || '星座'}の${moon.phaseNameJa || '月相'}、${numerology.info?.name || 'ライフパス'}としての一日`,
+    zodiacAdvice: (zodiac.traits?.[0] || 'あなたらしさ') + 'を活かしましょう',
+    numerologyTheme: personalYear?.theme || '新しい始まり',
+    moonInfluence: moon.energy?.description || '穏やかなエネルギー',
     actionRecommendations: [
-      ...moon.energy.recommendations.slice(0, 2),
-      numerology.info.strengths[0] + 'を発揮する'
+      ...(moon.energy?.recommendations?.slice(0, 2) || ['今日を大切に過ごす']),
+      (numerology.info?.strengths?.[0] || 'あなたの強み') + 'を発揮する'
     ],
     luckyElements: {
-      color: generateLuckyColor(zodiac.element),
-      number: numerology.lifePathNumber,
-      timeOfDay: generateLuckyTime(moon.phase)
+      color: generateLuckyColor(zodiac.element || 'fire'),
+      number: numerology.lifePathNumber || 1,
+      timeOfDay: generateLuckyTime(moon.phase || {})
     }
   };
 }
@@ -591,17 +591,17 @@ function generateLuckyDirection(element: ZodiacElement): string {
 
 function generateDailyChallenges(zodiac: any, numerology: any, moon: any): string[] {
   return [
-    zodiac.details.challenges[0],
-    numerology.info.challenges[0],
+    zodiac.details?.challenges?.[0] || 'バランスの調整',
+    numerology.info?.challenges?.[0] || '内面の成長',
     '月のエネルギーの過剰または不足'
   ].slice(0, 2);
 }
 
 function generateDailyOpportunities(zodiac: any, numerology: any, moon: any): string[] {
   return [
-    zodiac.details.strengths[0] + 'の発揮',
-    numerology.info.strengths[0] + 'の活用',
-    moon.influence.spiritual
+    (zodiac.details?.strengths?.[0] || 'あなたの強み') + 'の発揮',
+    (numerology.info?.strengths?.[0] || 'ライフパスの力') + 'の活用',
+    moon.influence?.spiritual || '精神的な成長'
   ].slice(0, 2);
 }
 

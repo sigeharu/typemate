@@ -148,46 +148,75 @@ export async function createHarmonicProfile(
  */
 export async function getHarmonicProfile(userId: string): Promise<HarmonicAIProfile | null> {
   try {
+    console.log('🔍 getHarmonicProfile called with userId:', userId);
+    
     const { data, error } = await supabase
       .from('user_profiles')
       .select('*')
       .eq('user_id', userId)
-      .single();
+      .order('updated_at', { ascending: false })
+      .limit(1);
     
-    if (error || !data) return null;
+    console.log('🔍 Supabase query result:', { data, error });
+    
+    if (error) {
+      console.log('❌ Supabase error:', error);
+      return null;
+    }
+    
+    if (!data || data.length === 0) {
+      console.log('⚠️ No data returned from user_profiles');
+      return null;
+    }
+    
+    // 最新のレコードを取得（配列の最初の要素）
+    const profileData = data[0];
+    console.log('✅ Found user profile:', profileData.id);
     
     // 占星術データがない場合はnullを返す
-    if (!data.birth_date) return null;
+    if (!profileData.birth_date) {
+      console.log('⚠️ No birth_date found in profile:', profileData);
+      return null;
+    }
+    
+    console.log('✅ Found user profile with birth_date:', profileData.birth_date);
     
     // プロファイルを復元
+    console.log('🔮 Generating astrology profile for restoration...');
     const astrologyProfile = await generateIntegratedProfile(
-      new Date(data.birth_date),
-      data.selected_ai_personality
+      new Date(profileData.birth_date),
+      profileData.selected_ai_personality
     );
     
+    console.log('✅ Astrology profile generated for restoration:', {
+      hasZodiac: !!astrologyProfile?.zodiac,
+      hasNumerology: !!astrologyProfile?.numerology
+    });
+    
     const profile: HarmonicAIProfile = {
-      id: data.id,
-      userId: data.user_id,
-      userType: data.user_type,
-      fullArchetype64: `HARMONIC_${data.selected_ai_personality}` as FullArchetype64,
-      selectedAiPersonality: data.selected_ai_personality,
-      relationshipType: data.relationship_type || 'friend',
+      id: profileData.id,
+      userId: profileData.user_id,
+      userType: profileData.user_type,
+      fullArchetype64: `HARMONIC_${profileData.selected_ai_personality}` as FullArchetype64,
+      selectedAiPersonality: profileData.selected_ai_personality,
+      relationshipType: profileData.relationship_type || 'friend',
       astrologyProfile,
       harmonicResonance: calculateHarmonicResonance(
         astrologyProfile,
-        data.user_type,
-        data.selected_ai_personality
+        profileData.user_type,
+        profileData.selected_ai_personality
       ),
       privacySettings: {
-        shareAstrologyData: data.astrology_privacy !== 'private',
+        shareAstrologyData: profileData.astrology_privacy !== 'private',
         showDailyGuidance: true,
         enableCosmicNotifications: true
       },
-      createdAt: new Date(data.created_at),
-      updatedAt: new Date(data.updated_at),
+      createdAt: new Date(profileData.created_at || Date.now()),
+      updatedAt: new Date(profileData.updated_at || Date.now()),
       lastGuidanceUpdate: new Date()
     };
     
+    console.log('🌟 HarmonicProfile restored successfully for userId:', userId);
     return profile;
   } catch (error) {
     console.error('Error fetching harmonic profile:', error);
@@ -367,7 +396,7 @@ function generateTypeMateIntegration(
   return {
     archetypeAdvice: `${aiPersonality}として、${zodiacName}の特質を活かしましょう`,
     relationshipTip: `${relationshipType}関係において、${numerologyName}の道を歩む相手への理解を深めて`,
-    personalGrowth: `今日は${astrologyProfile.currentMoon.phase.phaseNameJa}のエネルギーで内面成長を`,
+    personalGrowth: `今日は${astrologyProfile.currentMoon.phase?.phaseNameJa || '月相'}のエネルギーで内面成長を`,
     energyAlignment: `宇宙のエネルギーレベル${astrologyProfile.currentMoon.energy}に合わせて活動しましょう`
   };
 }
@@ -502,24 +531,51 @@ function generateDailyTypeMateAdvice(day: CycleForecastDay, aiPersonality: BaseA
 
 async function saveHarmonicProfile(profile: HarmonicAIProfile): Promise<void> {
   try {
-    const { error } = await supabase
-      .from('user_profiles')
-      .upsert({
-        user_id: profile.userId,
-        user_type: profile.userType,
-        selected_ai_personality: profile.selectedAiPersonality,
-        relationship_type: profile.relationshipType,
-        birth_date: profile.astrologyProfile.birthDate,
-        zodiac_sign: profile.astrologyProfile.zodiac.sign,
-        zodiac_element: profile.astrologyProfile.zodiac.element,
-        life_path_number: profile.astrologyProfile.numerology.lifePathNumber,
-        astrology_privacy: profile.privacySettings.shareAstrologyData ? 'public' : 'private',
-        updated_at: new Date().toISOString()
-      });
+    console.log('💾 Saving harmonic profile for userId:', profile.userId);
     
-    if (error) throw error;
+    // まず既存のレコードをチェック
+    const { data: existingData } = await supabase
+      .from('user_profiles')
+      .select('id')
+      .eq('user_id', profile.userId)
+      .order('updated_at', { ascending: false })
+      .limit(1);
+    
+    const upsertData = {
+      user_id: profile.userId,
+      user_type: profile.userType,
+      selected_ai_personality: profile.selectedAiPersonality,
+      relationship_type: profile.relationshipType,
+      birth_date: profile.astrologyProfile.birthDate.toISOString(),
+      zodiac_sign: profile.astrologyProfile.zodiac.sign,
+      zodiac_element: profile.astrologyProfile.zodiac.element,
+      life_path_number: profile.astrologyProfile.numerology.lifePathNumber,
+      astrology_privacy: profile.privacySettings.shareAstrologyData ? 'public' : 'private',
+      updated_at: new Date().toISOString()
+    };
+    
+    if (existingData && existingData.length > 0) {
+      // 既存レコードを更新
+      console.log('📝 Updating existing profile:', existingData[0].id);
+      const { error } = await supabase
+        .from('user_profiles')
+        .update(upsertData)
+        .eq('id', existingData[0].id);
+      
+      if (error) throw error;
+    } else {
+      // 新規レコード作成
+      console.log('✨ Creating new profile');
+      const { error } = await supabase
+        .from('user_profiles')
+        .insert(upsertData);
+      
+      if (error) throw error;
+    }
+    
+    console.log('✅ Harmonic profile saved successfully');
   } catch (error) {
-    console.error('Error saving harmonic profile:', error);
+    console.error('❌ Error saving harmonic profile:', error);
     throw error;
   }
 }

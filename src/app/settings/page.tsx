@@ -361,13 +361,19 @@ export default function SettingsPage() {
         // 🌟 ハーモニックAIプロファイル読み込み
         try {
           setHarmonicLoading(true);
+          console.log('🔍 Loading harmonic profile for user:', user.id);
           const profile = await getHarmonicProfile(user.id);
+          console.log('🔍 Harmonic profile loaded:', !!profile);
           setHarmonicProfile(profile);
           
           // 日別ガイダンス生成
           if (profile) {
+            console.log('🌟 Generating daily guidance...');
             const guidance = await generateDailyHarmonicGuidance(profile);
             setDailyGuidance(guidance);
+            console.log('✅ Daily guidance generated');
+          } else {
+            console.log('⚠️ No harmonic profile found - user may need to create one');
           }
         } catch (error) {
           console.warn('⚠️ ハーモニックプロファイル読み込みエラー:', error);
@@ -803,13 +809,38 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 
-                <Button
-                  onClick={() => router.push('/harmonic-setup')}
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-3 text-lg font-semibold"
-                >
-                  <Sparkles className="w-5 h-5 mr-2" />
-                  ハーモニックAI作成
-                </Button>
+                <div className="flex gap-3">
+                  <Button
+                    onClick={() => router.push('/harmonic-setup')}
+                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-3 text-lg font-semibold"
+                  >
+                    <Sparkles className="w-5 h-5 mr-2" />
+                    ハーモニックAI作成
+                  </Button>
+                  
+                  <Button
+                    onClick={async () => {
+                      setHarmonicLoading(true);
+                      try {
+                        const profile = await getHarmonicProfile(user!.id);
+                        setHarmonicProfile(profile);
+                        if (profile) {
+                          const guidance = await generateDailyHarmonicGuidance(profile);
+                          setDailyGuidance(guidance);
+                        }
+                      } catch (error) {
+                        console.warn('リフレッシュエラー:', error);
+                      } finally {
+                        setHarmonicLoading(false);
+                      }
+                    }}
+                    variant="outline"
+                    className="px-4 py-3"
+                    disabled={harmonicLoading}
+                  >
+                    🔄 更新
+                  </Button>
+                </div>
                 
                 <p className="text-xs text-gray-500 mt-2">
                   💫 約3分で完了します
