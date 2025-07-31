@@ -107,7 +107,7 @@ export function DailyGuidanceWidget({
                 <h3 className={`font-bold ${compact ? 'text-lg' : 'text-xl'} text-gray-900 dark:text-white`}>
                   今日のハーモニック・ガイダンス
                 </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-gray-900 dark:text-gray-100 contrast-more:text-black dark:contrast-more:text-white">
                   {guidance.date.toLocaleDateString('ja-JP', { 
                     month: 'long', 
                     day: 'numeric',
@@ -131,7 +131,7 @@ export function DailyGuidanceWidget({
           
           {/* タブナビゲーション */}
           {!compact && (
-            <div className="flex space-x-1 mb-4 bg-white/50 dark:bg-gray-800/50 rounded-lg p-1">
+            <div className="flex space-x-1 mb-4 bg-white/80 dark:bg-gray-800/80 rounded-lg p-1 contrast-more:bg-white dark:contrast-more:bg-gray-800">
               {[
                 { key: 'overview', label: '概要', icon: Target },
                 { key: 'actions', label: 'アクション', icon: Clock },
@@ -145,7 +145,7 @@ export function DailyGuidanceWidget({
                     className={`flex-1 flex items-center justify-center space-x-2 py-2 px-3 rounded-md text-sm font-medium transition-all ${
                       activeTab === tab.key
                         ? 'bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 shadow-sm'
-                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                        : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white contrast-more:text-black dark:contrast-more:text-white'
                     }`}
                   >
                     <Icon className="w-4 h-4" />
@@ -171,23 +171,23 @@ export function DailyGuidanceWidget({
               >
                 
                 {/* コズミック天気 */}
-                <div className="bg-white/70 dark:bg-gray-800/70 rounded-lg p-4">
+                <div className="bg-white/90 dark:bg-gray-800/90 rounded-lg p-4 contrast-more:bg-white dark:contrast-more:bg-gray-800">
                   <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2 flex items-center">
                     <Sparkles className="w-4 h-4 mr-2 text-purple-600 dark:text-purple-400" />
                     コズミック天気
                   </h4>
-                  <p className="text-sm text-gray-700 dark:text-gray-300">
+                  <p className="text-sm text-gray-900 dark:text-gray-100 contrast-more:text-black dark:contrast-more:text-white">
                     {guidance.cosmicGuidance.cosmicWeather}
                   </p>
                 </div>
                 
                 {/* 個人メッセージ */}
-                <div className="bg-gradient-to-r from-pink-100 to-purple-100 dark:from-pink-900/30 dark:to-purple-900/30 rounded-lg p-4">
+                <div className="bg-gradient-to-r from-pink-100 to-purple-100 dark:from-pink-900/50 dark:to-purple-900/50 rounded-lg p-4">
                   <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2 flex items-center">
                     <Heart className="w-4 h-4 mr-2 text-pink-600 dark:text-pink-400" />
                     あなたへのメッセージ
                   </h4>
-                  <p className="text-sm text-gray-700 dark:text-gray-300">
+                  <p className="text-sm text-gray-900 dark:text-gray-100 contrast-more:text-black dark:contrast-more:text-white">
                     {guidance.cosmicGuidance.personalMessage}
                   </p>
                 </div>
@@ -204,18 +204,18 @@ export function DailyGuidanceWidget({
                         className={`text-center p-3 rounded-lg transition-all ${
                           isActive 
                             ? 'bg-white dark:bg-gray-700 shadow-md ring-2 ring-indigo-200 dark:ring-indigo-700' 
-                            : 'bg-white/50 dark:bg-gray-800/50'
+                            : 'bg-white/80 dark:bg-gray-800/80'
                         }`}
                       >
                         <Icon className={`w-5 h-5 mx-auto mb-1 ${
-                          isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500 dark:text-gray-400'
+                          isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-800 dark:text-gray-200'
                         }`} />
                         <div className={`text-lg font-bold ${
-                          isActive ? 'text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400'
+                          isActive ? 'text-gray-900 dark:text-white contrast-more:text-black dark:contrast-more:text-white' : 'text-gray-700 dark:text-gray-300'
                         }`}>
                           {energy}
                         </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                        <div className="text-xs text-gray-800 dark:text-gray-200">
                           {time === 'morning' && '朝'}
                           {time === 'afternoon' && '昼'}
                           {time === 'evening' && '夜'}
@@ -252,7 +252,7 @@ export function DailyGuidanceWidget({
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.1 }}
-                        className="flex items-start space-x-2 text-sm text-gray-700 dark:text-gray-300"
+                        className="flex items-start space-x-2 text-sm text-gray-900 dark:text-gray-100 contrast-more:text-black dark:contrast-more:text-white"
                       >
                         <ChevronRight className="w-4 h-4 mt-0.5 text-indigo-600 dark:text-indigo-400 flex-shrink-0" />
                         <span>{action}</span>
@@ -264,14 +264,14 @@ export function DailyGuidanceWidget({
                 {/* TypeMate統合アドバイス */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {Object.entries(guidance.typeMateIntegration).map(([key, advice]) => (
-                    <div key={key} className="bg-white/70 dark:bg-gray-800/70 rounded-lg p-3">
-                      <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                    <div key={key} className="bg-white/90 dark:bg-gray-800/90 rounded-lg p-3 contrast-more:bg-white dark:contrast-more:bg-gray-800">
+                      <div className="text-xs font-medium text-gray-800 dark:text-gray-200 mb-1">
                         {key === 'archetypeAdvice' && 'アーキタイプ'}
                         {key === 'relationshipTip' && '関係性'}
                         {key === 'personalGrowth' && '成長'}
                         {key === 'energyAlignment' && 'エネルギー'}
                       </div>
-                      <p className="text-sm text-gray-700 dark:text-gray-300">{advice}</p>
+                      <p className="text-sm text-gray-900 dark:text-gray-100 contrast-more:text-black dark:contrast-more:text-white">{advice}</p>
                     </div>
                   ))}
                 </div>
@@ -295,9 +295,9 @@ export function DailyGuidanceWidget({
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="bg-gradient-to-r from-rose-100 to-pink-100 dark:from-rose-900/30 dark:to-pink-900/30 rounded-lg p-4"
+                    className="bg-gradient-to-r from-rose-100 to-pink-100 dark:from-rose-900/50 dark:to-pink-900/50 rounded-lg p-4"
                   >
-                    <p className="text-sm font-medium text-gray-800 dark:text-gray-200 text-center">
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 text-center contrast-more:text-black dark:contrast-more:text-white">
                       ✨ {affirmation}
                     </p>
                   </motion.div>
@@ -311,7 +311,7 @@ export function DailyGuidanceWidget({
           {!compact && (
             <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600 dark:text-gray-400">今日のラッキーエレメント</span>
+                <span className="text-gray-900 dark:text-gray-100 contrast-more:text-black dark:contrast-more:text-white">今日のラッキーエレメント</span>
                 <div className="flex space-x-3">
                   <Badge variant="outline" className="text-xs">
                     🎨 {guidance.cosmicGuidance.luckyElements.color}

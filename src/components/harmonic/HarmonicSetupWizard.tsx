@@ -282,7 +282,7 @@ export function HarmonicSetupWizard({
                       ? 'bg-green-500 text-white' 
                       : isActive 
                         ? 'bg-purple-600 text-white' 
-                        : 'bg-gray-200 dark:bg-gray-700 text-gray-400'
+                        : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
                   }`}
                 >
                   {isCompleted ? (
@@ -525,7 +525,7 @@ export function HarmonicSetupWizard({
               ) : previewProfile ? (
                 <div>
                   <HarmonicProfileCard profile={previewProfile} showDetails={true} />
-                  <div className="mt-4 p-4 bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-lg">
+                  <div className="mt-4 p-4 bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/50 dark:to-emerald-900/50 rounded-lg">
                     <div className="flex items-center space-x-2 mb-2">
                       <Check className="w-5 h-5 text-green-600 dark:text-green-400" />
                       <span className="font-semibold text-green-800 dark:text-green-200">
@@ -540,7 +540,7 @@ export function HarmonicSetupWizard({
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <Zap className="w-8 h-8 mx-auto text-gray-400 mb-4" />
+                  <Zap className="w-8 h-8 mx-auto text-gray-700 dark:text-gray-300 mb-4" />
                   <p className="text-gray-900 dark:text-gray-100">
                     プレビューを生成できませんでした
                   </p>

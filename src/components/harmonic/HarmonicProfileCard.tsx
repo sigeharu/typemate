@@ -173,7 +173,7 @@ export function HarmonicProfileCard({
               </div>
               
               {/* AI人格との関係性 */}
-              <div className="bg-gradient-to-r from-pink-100 to-rose-100 dark:from-pink-900/30 dark:to-rose-900/30 rounded-lg p-4">
+              <div className="bg-gradient-to-r from-pink-100 to-rose-100 dark:from-pink-900/50 dark:to-rose-900/50 rounded-lg p-4">
                 <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2 flex items-center">
                   <Heart className="w-4 h-4 mr-2 text-pink-600 dark:text-pink-400" />
                   AI人格との関係性
