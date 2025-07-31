@@ -266,7 +266,7 @@ export default function SettingsPage() {
         window.removeEventListener('focus', debouncedFocusHandler);
       };
     }
-  }, [detailedDiagnosisResult, loadDetailedDiagnosisResult, userId]);
+  }, [userId]); // 🔧 userIdのみに依存 - 無限ループを防止
 
   useEffect(() => {
     const initializeSettings = async () => {
@@ -305,57 +305,53 @@ export default function SettingsPage() {
           console.warn('⚠️ 個人情報読み込みエラー:', error);
         }
 
-        // user_profilesから現在のAI人格設定を直接取得
+        // 🎯 AI設定の初期化（優先度: 保存データ > デフォルト値）
+        console.log('🔄 AI設定初期化開始');
+        
+        // デフォルト値を先に設定
+        let defaultAiPersonality: BaseArchetype | null = null;
+        if (diagnosisStatus.userType) {
+          const [baseType] = diagnosisStatus.userType.split('-') as [BaseArchetype, string];
+          const userArchetype = ARCHETYPE_DATA[baseType];
+          defaultAiPersonality = userArchetype.compatibility[0];
+        }
+
         try {
-          const { data: profile, error } = await supabase
+          // データベースから保存済み設定を取得
+          const { data: profiles, error } = await supabase
             .from('user_profiles')
-            .select('selected_ai_personality, relationship_type')
+            .select('selected_ai_personality, relationship_type, updated_at')
             .eq('user_id', user.id)
-            .single();
+            .order('updated_at', { ascending: false })
+            .limit(1);
+          
+          const profile = profiles?.[0];
 
           if (error) {
             console.warn('⚠️ user_profiles取得エラー:', error);
-          }
-
-          if (profile) {
-            console.log('✅ user_profilesから設定読み込み:', {
-              savedAiPersonality: profile.selected_ai_personality,
-              relationshipType: profile.relationship_type
-            });
-
-            // 保存されたAI人格設定を使用
-            if (profile.selected_ai_personality) {
-              console.log('📥 保存済みAI人格を設定:', profile.selected_ai_personality);
-              setSelectedAiPersonality(profile.selected_ai_personality);
-            } else if (diagnosisStatus.userType) {
-              // フォールバック: デフォルト値を使用
-              const [baseType] = diagnosisStatus.userType.split('-') as [BaseArchetype, string];
-              const userArchetype = ARCHETYPE_DATA[baseType];
-              const defaultAiPersonality = userArchetype.compatibility[0];
+            // エラー時はデフォルト値を使用
+            if (defaultAiPersonality) {
               setSelectedAiPersonality(defaultAiPersonality);
             }
-
-            // 関係性タイプも復元
-            if (profile.relationship_type) {
-              console.log('💕 保存済み関係性を設定:', profile.relationship_type);
-              setRelationshipType(profile.relationship_type);
-            }
+          } else if (profile?.selected_ai_personality) {
+            // 🎯 保存データが存在する場合は優先使用
+            console.log('✅ 保存済み設定を復元:', {
+              aiPersonality: profile.selected_ai_personality,
+              relationshipType: profile.relationship_type || 'friend'
+            });
+            setSelectedAiPersonality(profile.selected_ai_personality);
+            setRelationshipType(profile.relationship_type || 'friend');
           } else {
-            // プロファイルが存在しない場合のフォールバック
-            if (diagnosisStatus.userType) {
-              const [baseType] = diagnosisStatus.userType.split('-') as [BaseArchetype, string];
-              const userArchetype = ARCHETYPE_DATA[baseType];
-              const defaultAiPersonality = userArchetype.compatibility[0];
+            // 🔄 保存データがない場合のみデフォルト値を使用
+            console.log('🆕 デフォルト設定を適用:', defaultAiPersonality);
+            if (defaultAiPersonality) {
               setSelectedAiPersonality(defaultAiPersonality);
             }
           }
         } catch (error) {
-          console.warn('⚠️ user_profiles設定読み込みエラー:', error);
-          // エラーの場合のフォールバック
-          if (diagnosisStatus.userType) {
-            const [baseType] = diagnosisStatus.userType.split('-') as [BaseArchetype, string];
-            const userArchetype = ARCHETYPE_DATA[baseType];
-            const defaultAiPersonality = userArchetype.compatibility[0];
+          console.warn('⚠️ AI設定初期化エラー:', error);
+          // 完全にエラーの場合はデフォルト値
+          if (defaultAiPersonality) {
             setSelectedAiPersonality(defaultAiPersonality);
           }
         }
@@ -398,7 +394,7 @@ export default function SettingsPage() {
     };
 
     initializeSettings();
-  }, [router, loadDetailedDiagnosisResult]);
+  }, []); // 🔧 初回のみ実行 - ページ戻り時の不要な再初期化を防止
 
 
   const handleSaveSettings = async () => {
@@ -443,12 +439,15 @@ export default function SettingsPage() {
       // 2. 保存成功後の状態更新
       setHasChanges(false);
       
-      // 3. データベースから最新データを取得して整合性確認
-      const { data: verifyData, error: verifyError } = await supabase
+      // 3. データベースから最新データを取得して整合性確認 - 複数行対応
+      const { data: verifyProfiles, error: verifyError } = await supabase
         .from('user_profiles')
-        .select('selected_ai_personality, relationship_type')
+        .select('selected_ai_personality, relationship_type, updated_at')
         .eq('user_id', userId)
-        .single();
+        .order('updated_at', { ascending: false })
+        .limit(1);
+      
+      const verifyData = verifyProfiles?.[0];
       
       if (verifyError) {
         console.warn('⚠️ 保存後の検証に失敗:', verifyError);
