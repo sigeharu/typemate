@@ -510,7 +510,7 @@ export class MemoryManager {
         .eq('conversation_id', conversationId)
         .eq('user_id', userId)
         .not('message_content', 'is', null)
-        .order('sequence_number', { ascending: true })
+        .order('sequence_number', { ascending: true, nullsFirst: false })
         .order('created_at', { ascending: true });
 
       if (error) {
@@ -550,7 +550,7 @@ export class MemoryManager {
           sender: memory.message_role,
           timestamp: new Date(memory.created_at),
           sessionId: memory.conversation_id,
-          sequenceNumber: memory.sequence_number || 0 // 👈 NEW: 順序保証用
+          sequenceNumber: memory.sequence_number ?? undefined // 👈 CRITICAL: null の場合はundefinedに（型安全性）
         };
       }) || [];
     } catch (error) {
@@ -596,17 +596,21 @@ export class MemoryManager {
 
       console.log(`🔧 Updating ${updates.length} messages with sequence numbers`);
 
-      // バッチ更新実行
-      for (const update of updates) {
-        const { error: updateError } = await supabase
+      // より効率的なバッチ更新実行（Promise.allSettled使用）
+      const updatePromises = updates.map(update =>
+        supabase
           .from('typemate_memory')
           .update({ sequence_number: update.sequence_number })
-          .eq('id', update.id);
+          .eq('id', update.id)
+      );
 
-        if (updateError) {
-          console.error(`❌ Failed to update message ${update.id}:`, updateError);
-          return false;
-        }
+      const results = await Promise.allSettled(updatePromises);
+      const failedUpdates = results.filter(result => result.status === 'rejected' || result.value.error);
+
+      if (failedUpdates.length > 0) {
+        console.error(`❌ ${failedUpdates.length}/${updates.length} sequence number updates failed`);
+        // 部分的な失敗でもtrueを返す（完全失敗でない限り）
+        return failedUpdates.length < updates.length;
       }
 
       console.log('✅ Successfully repaired sequence numbers');

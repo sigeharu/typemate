@@ -150,7 +150,7 @@ export interface Database {
           message_content: string | null
           message_role: 'user' | 'ai' | null
           conversation_id: string | null
-          sequence_number: number // 👈 NEW: 順序保証用
+          sequence_number: number | null // 👈 CRITICAL: null許可で既存データ互換性
           created_at: string
         }
         Insert: {

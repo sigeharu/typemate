@@ -284,7 +284,7 @@ export default function ChatPage() {
           console.log('📋 既存メッセージ読み込み:', existingMessages.length + '件');
           
           // sequence番号が未設定のメッセージがある場合は復旧実行
-          const hasUnsequencedMessages = existingMessages.some(m => !m.sequenceNumber || m.sequenceNumber === 0);
+          const hasUnsequencedMessages = existingMessages.some(m => m.sequenceNumber == null || m.sequenceNumber === 0);
           if (hasUnsequencedMessages && existingMessages.length > 0) {
             console.log('🔧 Detected messages without sequence numbers, running repair...');
             const repairSuccess = await memoryManager.repairSequenceNumbers(sessionId, user.id);
@@ -307,7 +307,7 @@ export default function ChatPage() {
             : existingMessages;
           
           if (finalMessages.length > 0) {
-            const maxSequence = Math.max(...finalMessages.map(m => m.sequenceNumber || 0));
+            const maxSequence = Math.max(...finalMessages.map(m => m.sequenceNumber ?? 0));
             setNextSequenceNumber(maxSequence + 1);
             console.log('🔢 Next sequence number set to:', maxSequence + 1);
           }
