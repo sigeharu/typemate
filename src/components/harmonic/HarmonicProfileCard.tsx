@@ -50,7 +50,7 @@ export function HarmonicProfileCard({
       transition={{ duration: 0.5 }}
       className={compact ? '' : 'w-full max-w-2xl mx-auto'}
     >
-      <Card className="relative overflow-hidden bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 border-2 border-purple-200 dark:border-purple-800">
+      <Card className="relative overflow-hidden bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 border-2 border-purple-300 dark:border-purple-600">
         
         {/* ハーモニックオーラ効果 */}
         <div className={`absolute inset-0 bg-gradient-to-br ${resonanceColor} opacity-5`} />
@@ -74,7 +74,7 @@ export function HarmonicProfileCard({
                 <h3 className={`font-bold ${compact ? 'text-lg' : 'text-xl'} text-gray-900 dark:text-white`}>
                   ハーモニックAI
                 </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-gray-900 dark:text-gray-100 contrast-more:text-black dark:contrast-more:text-white">
                   宇宙的統合プロファイル
                 </p>
               </div>
@@ -84,7 +84,7 @@ export function HarmonicProfileCard({
               <div className={`${compact ? 'text-2xl' : 'text-3xl'} font-bold bg-gradient-to-r ${resonanceColor} bg-clip-text text-transparent`}>
                 {harmonicResonance.overall}
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">共鳴度</p>
+              <p className="text-xs text-gray-800 dark:text-gray-200">共鳴度</p>
             </div>
           </div>
           
@@ -100,7 +100,7 @@ export function HarmonicProfileCard({
               <div className="text-sm font-semibold text-gray-900 dark:text-white">
                 {zodiac.details?.nameJa || zodiac.sign || '星座'}
               </div>
-              <div className="text-xs text-gray-600 dark:text-gray-400">
+              <div className="text-xs text-gray-700 dark:text-gray-300">
                 {zodiac.element === 'fire' && '🔥 火'}
                 {zodiac.element === 'earth' && '🌍 土'}
                 {zodiac.element === 'air' && '💨 風'}
@@ -117,7 +117,7 @@ export function HarmonicProfileCard({
               <div className="text-sm font-semibold text-gray-900 dark:text-white">
                 {numerology.info?.name || `ライフパス${numerology.lifePathNumber}`}
               </div>
-              <div className="text-xs text-gray-600 dark:text-gray-400">
+              <div className="text-xs text-gray-700 dark:text-gray-300">
                 {numerology.lifePathNumber}
                 {numerology.isMasterNumber && '✨'}
               </div>
@@ -133,7 +133,7 @@ export function HarmonicProfileCard({
                 <div className="text-sm font-semibold text-gray-900 dark:text-white">
                   {currentMoon.phase?.phaseNameJa || '月相'}
                 </div>
-                <div className="text-xs text-gray-600 dark:text-gray-400">
+                <div className="text-xs text-gray-700 dark:text-gray-300">
                   エネルギー {currentMoon.energy}/10
                 </div>
               </motion.div>
@@ -158,14 +158,14 @@ export function HarmonicProfileCard({
                 
                 <div className="grid grid-cols-2 gap-3 text-xs">
                   <div>
-                    <div className="text-gray-600 dark:text-gray-400">型×占星術整合性</div>
-                    <div className="font-semibold text-gray-900 dark:text-white">
+                    <div className="text-gray-700 dark:text-gray-300">型×占星術整合性</div>
+                    <div className="font-semibold text-gray-900 dark:text-white contrast-more:text-black dark:contrast-more:text-white">
                       {harmonicResonance.typeAstrologyAlignment}%
                     </div>
                   </div>
                   <div>
-                    <div className="text-gray-600 dark:text-gray-400">宇宙的同調度</div>
-                    <div className="font-semibold text-gray-900 dark:text-white">
+                    <div className="text-gray-700 dark:text-gray-300">宇宙的同調度</div>
+                    <div className="font-semibold text-gray-900 dark:text-white contrast-more:text-black dark:contrast-more:text-white">
                       {harmonicResonance.personalityCosmicSync}%
                     </div>
                   </div>
@@ -198,8 +198,8 @@ export function HarmonicProfileCard({
           {/* エネルギーバー */}
           <div className="space-y-2">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-gray-600 dark:text-gray-400">今日のハーモニックエネルギー</span>
-              <span className="font-semibold text-gray-900 dark:text-white">
+              <span className="text-gray-700 dark:text-gray-300">今日のハーモニックエネルギー</span>
+              <span className="font-semibold text-gray-900 dark:text-white contrast-more:text-black dark:contrast-more:text-white">
                 {harmonicResonance.dailyEnergyMatch}/100
               </span>
             </div>

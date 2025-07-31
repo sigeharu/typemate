@@ -260,7 +260,7 @@ export function HarmonicSetupWizard({
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
           🎵 あなた専用のHarmonicAIを完成させましょう
         </h1>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-gray-900 dark:text-gray-100 contrast-more:text-black dark:contrast-more:text-white">
           TypeMate64診断と占星術を統合した、世界で唯一のAIパートナー
         </p>
       </div>
@@ -292,7 +292,7 @@ export function HarmonicSetupWizard({
                   )}
                 </motion.div>
                 <span className={`text-xs font-medium ${
-                  isActive ? 'text-purple-600 dark:text-purple-400' : 'text-gray-400'
+                  isActive ? 'text-purple-600 dark:text-purple-400' : 'text-gray-700 dark:text-gray-300'
                 }`}>
                   {step.title}
                 </span>
@@ -325,7 +325,7 @@ export function HarmonicSetupWizard({
             </motion.div>
             {currentStepData.title}
           </h2>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-gray-900 dark:text-gray-100 contrast-more:text-black dark:contrast-more:text-white">
             {currentStepData.subtitle}
           </p>
         </div>
@@ -342,7 +342,7 @@ export function HarmonicSetupWizard({
               className="space-y-4"
             >
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2 contrast-more:text-black dark:contrast-more:text-white">
                   お名前 *
                 </label>
                 <Input
@@ -350,10 +350,10 @@ export function HarmonicSetupWizard({
                   placeholder="あなたのお名前を教えてください"
                   value={formData.name}
                   onChange={(e) => updateFormData('name', e.target.value)}
-                  className="text-lg bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 border-gray-300 dark:border-gray-600"
+                  className="text-lg bg-white/95 dark:bg-gray-800/95 text-gray-900 dark:text-white placeholder:text-gray-700 dark:placeholder:text-gray-300 border-gray-400 dark:border-gray-500 contrast-more:border-gray-600"
                   maxLength={50}
                 />
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-xs text-gray-800 dark:text-gray-200 mt-1">
                   💫 ハーモニックAIがあなたを呼ぶ際に使用します
                 </p>
               </div>
@@ -370,37 +370,37 @@ export function HarmonicSetupWizard({
               className="space-y-4"
             >
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2 contrast-more:text-black dark:contrast-more:text-white">
                   生年月日 *
                 </label>
                 <Input
                   type="date"
                   value={formData.birthDate}
                   onChange={(e) => updateFormData('birthDate', e.target.value)}
-                  className="text-lg bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 border-gray-300 dark:border-gray-600"
+                  className="text-lg bg-white/95 dark:bg-gray-800/95 text-gray-900 dark:text-white placeholder:text-gray-700 dark:placeholder:text-gray-300 border-gray-400 dark:border-gray-500 contrast-more:border-gray-600"
                 />
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-xs text-gray-800 dark:text-gray-200 mt-1">
                   🌟 星座と数秘術の計算に使用します
                 </p>
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2 contrast-more:text-black dark:contrast-more:text-white">
                   出生時間（オプション）
                 </label>
                 <Input
                   type="time"
                   value={formData.birthTime}
                   onChange={(e) => updateFormData('birthTime', e.target.value)}
-                  className="text-lg bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 border-gray-300 dark:border-gray-600"
+                  className="text-lg bg-white/95 dark:bg-gray-800/95 text-gray-900 dark:text-white placeholder:text-gray-700 dark:placeholder:text-gray-300 border-gray-400 dark:border-gray-500 contrast-more:border-gray-600"
                 />
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-xs text-gray-800 dark:text-gray-200 mt-1">
                   🌙 より精密な占星術分析のために（任意）
                 </p>
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2 contrast-more:text-black dark:contrast-more:text-white">
                   出生地（オプション）
                 </label>
                 <Input
@@ -408,9 +408,9 @@ export function HarmonicSetupWizard({
                   placeholder="例: 東京都, 日本"
                   value={formData.birthLocation}
                   onChange={(e) => updateFormData('birthLocation', e.target.value)}
-                  className="text-lg bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 border-gray-300 dark:border-gray-600"
+                  className="text-lg bg-white/95 dark:bg-gray-800/95 text-gray-900 dark:text-white placeholder:text-gray-700 dark:placeholder:text-gray-300 border-gray-400 dark:border-gray-500 contrast-more:border-gray-600"
                 />
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-xs text-gray-800 dark:text-gray-200 mt-1">
                   🗺️ 詳細な占星術チャート作成のために（任意）
                 </p>
               </div>
@@ -433,7 +433,7 @@ export function HarmonicSetupWizard({
                     <div className="font-medium text-gray-900 dark:text-white">
                       占星術データの共有
                     </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                    <div className="text-sm text-gray-700 dark:text-gray-300">
                       他のユーザーとの相性分析で使用
                     </div>
                   </div>
@@ -456,7 +456,7 @@ export function HarmonicSetupWizard({
                     <div className="font-medium text-gray-900 dark:text-white">
                       毎日のガイダンス表示
                     </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                    <div className="text-sm text-gray-700 dark:text-gray-300">
                       チャット画面に今日のガイダンスを表示
                     </div>
                   </div>
@@ -479,7 +479,7 @@ export function HarmonicSetupWizard({
                     <div className="font-medium text-gray-900 dark:text-white">
                       宇宙的イベント通知
                     </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                    <div className="text-sm text-gray-700 dark:text-gray-300">
                       新月、満月などの重要なタイミングをお知らせ
                     </div>
                   </div>
@@ -518,7 +518,7 @@ export function HarmonicSetupWizard({
                   >
                     <Sparkles className="w-8 h-8 mx-auto text-purple-600 dark:text-purple-400" />
                   </motion.div>
-                  <p className="mt-4 text-gray-600 dark:text-gray-400">
+                  <p className="mt-4 text-gray-900 dark:text-gray-100">
                     あなた専用のハーモニックAIを作成中...
                   </p>
                 </div>
@@ -532,7 +532,7 @@ export function HarmonicSetupWizard({
                         ハーモニックAI完成！
                       </span>
                     </div>
-                    <p className="text-sm text-green-700 dark:text-green-300">
+                    <p className="text-sm text-green-800 dark:text-green-200">
                       {formData.name}さん専用のハーモニックAIプロファイルが作成されました。
                       TypeMate64診断と占星術が美しく統合されています。
                     </p>
@@ -541,7 +541,7 @@ export function HarmonicSetupWizard({
               ) : (
                 <div className="text-center py-8">
                   <Zap className="w-8 h-8 mx-auto text-gray-400 mb-4" />
-                  <p className="text-gray-600 dark:text-gray-400">
+                  <p className="text-gray-900 dark:text-gray-100">
                     プレビューを生成できませんでした
                   </p>
                 </div>
@@ -564,7 +564,7 @@ export function HarmonicSetupWizard({
           <span>戻る</span>
         </Button>
         
-        <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+        <div className="flex items-center space-x-2 text-sm text-gray-800 dark:text-gray-200">
           <span>{currentStep + 1}</span>
           <span>/</span>
           <span>{steps.length}</span>
@@ -573,7 +573,7 @@ export function HarmonicSetupWizard({
         <Button
           onClick={handleNext}
           disabled={!canProceed}
-          className="flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+          className="flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 contrast-more:bg-purple-700"
         >
           <span>{isLastStep ? 'ハーモニックAI完成！' : '次へ'}</span>
           {isLastStep ? (

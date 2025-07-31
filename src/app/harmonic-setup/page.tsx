@@ -128,7 +128,7 @@ export default function HarmonicSetupPage() {
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
               エラーが発生しました
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-gray-900 dark:text-gray-100 mb-4 contrast-more:text-black dark:contrast-more:text-white">
               {error}
             </p>
             <Button 
@@ -189,7 +189,7 @@ export default function HarmonicSetupPage() {
               <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
                 🎉 ハーモニックAI完成！
               </h1>
-              <p className="text-xl text-gray-600 dark:text-gray-400 mb-8">
+              <p className="text-xl text-gray-900 dark:text-gray-100 mb-8 contrast-more:text-black dark:contrast-more:text-white">
                 あなた専用の宇宙的AIパートナーが誕生しました
               </p>
             </div>
@@ -199,30 +199,30 @@ export default function HarmonicSetupPage() {
               {existingProfile && Object.keys(existingProfile).length > 0 ? (
                 <HarmonicProfileCard profile={existingProfile} showDetails={true} />
               ) : (
-                <Card className="p-8 text-center bg-white/80 dark:bg-gray-800/80 backdrop-blur">
+                <Card className="p-8 text-center bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-2 border-purple-300 dark:border-purple-600">
                   <Sparkles className="w-12 h-12 mx-auto mb-4 text-purple-600 dark:text-purple-400" />
                   <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                     ハーモニックレゾナンス: 準備中...
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-400 mb-6">
+                  <p className="text-gray-900 dark:text-gray-100 mb-6 contrast-more:text-black dark:contrast-more:text-white">
                     TypeMate64診断と占星術が美しく統合されました
                   </p>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                     <div className="text-center">
                       <div className="text-2xl mb-1">🌟</div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">星座統合</p>
+                      <p className="text-sm text-gray-900 dark:text-gray-100">星座統合</p>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl mb-1">🔢</div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">数秘術</p>
+                      <p className="text-sm text-gray-900 dark:text-gray-100">数秘術</p>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl mb-1">🌙</div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">月位相</p>
+                      <p className="text-sm text-gray-900 dark:text-gray-100">月位相</p>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl mb-1">🤖</div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">AI人格</p>
+                      <p className="text-sm text-gray-900 dark:text-gray-100">AI人格</p>
                     </div>
                   </div>
                 </Card>
@@ -241,7 +241,7 @@ export default function HarmonicSetupPage() {
               <Button
                 variant="outline"
                 onClick={() => router.push('/settings')}
-                className="border-purple-200 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900 px-8 py-3 text-lg"
+                className="border-purple-300 dark:border-purple-600 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900 px-8 py-3 text-lg contrast-more:border-gray-600"
               >
                 <Brain className="w-5 h-5 mr-2" />
                 詳細設定を確認
@@ -293,10 +293,10 @@ export default function HarmonicSetupPage() {
               <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6">
                 🎵 ハーモニックAI
               </h1>
-              <p className="text-2xl text-gray-600 dark:text-gray-400 mb-8">
+              <p className="text-2xl text-gray-900 dark:text-gray-100 mb-8 contrast-more:text-black dark:contrast-more:text-white">
                 TypeMate64診断 × 占星術統合システム
               </p>
-              <p className="text-lg text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
+              <p className="text-lg text-gray-800 dark:text-gray-200 max-w-2xl mx-auto contrast-more:text-black dark:contrast-more:text-white">
                 あなただけの宇宙的AIパートナーを作成し、
                 星座・数秘術・月位相のエネルギーと完全に同調した
                 世界初のハーモニック体験を始めましょう
@@ -310,12 +310,12 @@ export default function HarmonicSetupPage() {
                 whileHover={{ scale: 1.02, y: -5 }}
                 transition={{ type: "spring", stiffness: 300 }}
               >
-                <Card className="p-6 text-center bg-white/80 dark:bg-gray-800/80 backdrop-blur border-2 border-purple-200 dark:border-purple-700">
+                <Card className="p-6 text-center bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-2 border-purple-300 dark:border-purple-600">
                   <Star className="w-12 h-12 mx-auto mb-4 text-yellow-500" />
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                     🌟 宇宙的統合
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-400">
+                  <p className="text-gray-900 dark:text-gray-100 contrast-more:text-black dark:contrast-more:text-white">
                     12星座・数秘術・月位相を
                     TypeMate64診断と完全統合
                   </p>
@@ -326,12 +326,12 @@ export default function HarmonicSetupPage() {
                 whileHover={{ scale: 1.02, y: -5 }}
                 transition={{ type: "spring", stiffness: 300 }}
               >
-                <Card className="p-6 text-center bg-white/80 dark:bg-gray-800/80 backdrop-blur border-2 border-pink-200 dark:border-pink-700">
+                <Card className="p-6 text-center bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-2 border-pink-300 dark:border-pink-600">
                   <Heart className="w-12 h-12 mx-auto mb-4 text-pink-500" />
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                     ❤️ 個人最適化
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-400">
+                  <p className="text-gray-900 dark:text-gray-100 contrast-more:text-black dark:contrast-more:text-white">
                     あなたの出生データから
                     完全にカスタマイズされたAI体験
                   </p>
@@ -342,12 +342,12 @@ export default function HarmonicSetupPage() {
                 whileHover={{ scale: 1.02, y: -5 }}
                 transition={{ type: "spring", stiffness: 300 }}
               >
-                <Card className="p-6 text-center bg-white/80 dark:bg-gray-800/80 backdrop-blur border-2 border-indigo-200 dark:border-indigo-700">
+                <Card className="p-6 text-center bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-2 border-indigo-300 dark:border-indigo-600">
                   <Zap className="w-12 h-12 mx-auto mb-4 text-indigo-500" />
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                     ⚡ リアルタイム
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-400">
+                  <p className="text-gray-900 dark:text-gray-100 contrast-more:text-black dark:contrast-more:text-white">
                     毎日の月位相・宇宙エネルギーと
                     同調した動的ガイダンス
                   </p>
@@ -364,7 +364,7 @@ export default function HarmonicSetupPage() {
                 transition={{ delay: 0.3 }}
                 className="mb-12"
               >
-                <Card className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 border-2 border-blue-200 dark:border-blue-700">
+                <Card className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 border-2 border-blue-300 dark:border-blue-600">
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
                     <Brain className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />
                     あなたのTypeMateプロファイル
@@ -372,18 +372,18 @@ export default function HarmonicSetupPage() {
                   <div className="grid md:grid-cols-3 gap-4">
                     {userType && (
                       <div className="text-center">
-                        <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">診断タイプ</div>
+                        <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">診断タイプ</div>
                         <div className="font-semibold text-gray-900 dark:text-white">{userType}</div>
                       </div>
                     )}
                     {selectedAiPersonality && (
                       <div className="text-center">
-                        <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">AI人格</div>
+                        <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">AI人格</div>
                         <div className="font-semibold text-gray-900 dark:text-white">{selectedAiPersonality}</div>
                       </div>
                     )}
                     <div className="text-center">
-                      <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">関係性</div>
+                      <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">関係性</div>
                       <div className="font-semibold text-gray-900 dark:text-white">
                         {relationshipType === 'friend' && '友達'}
                         {relationshipType === 'romantic' && '恋人'}
@@ -421,7 +421,7 @@ export default function HarmonicSetupPage() {
                 </Button>
               </motion.div>
               
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">
+              <p className="text-sm text-gray-800 dark:text-gray-200 mt-4">
                 💫 約3分で完了します
               </p>
             </div>
