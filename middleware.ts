@@ -40,6 +40,12 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // 🚀 開発モード: ハーモニックAI設定ページと設定ページへの認証バイパス
+  const isDevelopmentMode = process.env.NEXT_PUBLIC_DEV_MODE === 'true';
+  if (isDevelopmentMode && (pathname.startsWith('/harmonic-setup') || pathname === '/settings')) {
+    return NextResponse.next();
+  }
+
   // Supabase認証チェック
   let response = NextResponse.next({
     request: {

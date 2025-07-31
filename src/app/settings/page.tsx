@@ -325,6 +325,7 @@ export default function SettingsPage() {
 
             // 保存されたAI人格設定を使用
             if (profile.selected_ai_personality) {
+              console.log('📥 保存済みAI人格を設定:', profile.selected_ai_personality);
               setSelectedAiPersonality(profile.selected_ai_personality);
             } else if (diagnosisStatus.userType) {
               // フォールバック: デフォルト値を使用
@@ -336,6 +337,7 @@ export default function SettingsPage() {
 
             // 関係性タイプも復元
             if (profile.relationship_type) {
+              console.log('💕 保存済み関係性を設定:', profile.relationship_type);
               setRelationshipType(profile.relationship_type);
             }
           } else {
@@ -382,6 +384,13 @@ export default function SettingsPage() {
         }
         
         setIsLoading(false);
+        console.log('🏁 設定画面初期化完了:', {
+          userId,
+          selectedAiPersonality,
+          relationshipType,
+          hasChanges,
+          timestamp: new Date().toISOString()
+        });
       } catch (error) {
         console.error('Settings initialization error:', error);
         setIsLoading(false);
@@ -393,34 +402,83 @@ export default function SettingsPage() {
 
 
   const handleSaveSettings = async () => {
-    if (!userId || !selectedAiPersonality) return;
+    if (!userId || !selectedAiPersonality) {
+      console.warn('⚠️ 保存に必要な情報が不足:', { userId, selectedAiPersonality });
+      alert('保存に必要な情報が不足しています。');
+      return;
+    }
     
     setIsSaving(true);
+    console.log('💾 設定保存開始:', { 
+      userId, 
+      selectedAiPersonality, 
+      relationshipType,
+      timestamp: new Date().toISOString()
+    });
+    
     try {
-      // user_profilesテーブルを更新
-      const { error } = await supabase
+      // 1. user_profilesテーブルを更新
+      const updateData = {
+        selected_ai_personality: selectedAiPersonality,
+        relationship_type: relationshipType,
+        updated_at: new Date().toISOString()
+      };
+      
+      console.log('📝 データベース更新データ:', updateData);
+      
+      const { data, error } = await supabase
         .from('user_profiles')
-        .update({
-          selected_ai_personality: selectedAiPersonality,
-          relationship_type: relationshipType,
-          updated_at: new Date().toISOString()
-        })
-        .eq('user_id', userId);
+        .update(updateData)
+        .eq('user_id', userId)
+        .select();
 
       if (error) {
         console.error('❌ 設定保存エラー:', error);
-        alert('設定の保存に失敗しました。');
+        alert(`設定の保存に失敗しました: ${error.message}`);
         return;
       }
 
-      console.log('✅ 設定保存成功');
+      console.log('✅ データベース更新成功:', data);
+
+      // 2. 保存成功後の状態更新
       setHasChanges(false);
-      alert('設定を保存しました！');
+      
+      // 3. データベースから最新データを取得して整合性確認
+      const { data: verifyData, error: verifyError } = await supabase
+        .from('user_profiles')
+        .select('selected_ai_personality, relationship_type')
+        .eq('user_id', userId)
+        .single();
+      
+      if (verifyError) {
+        console.warn('⚠️ 保存後の検証に失敗:', verifyError);
+      } else {
+        console.log('🔍 保存後検証成功:', verifyData);
+        
+        // UI状態とデータベース状態の整合性確認
+        if (verifyData.selected_ai_personality === selectedAiPersonality && 
+            verifyData.relationship_type === relationshipType) {
+          console.log('✅ UI状態とDB状態が一致しています');
+        } else {
+          console.warn('⚠️ UI状態とDB状態が不一致:', {
+            ui: { selectedAiPersonality, relationshipType },
+            db: { 
+              selectedAiPersonality: verifyData.selected_ai_personality, 
+              relationshipType: verifyData.relationship_type 
+            }
+          });
+        }
+      }
+      
+      // 4. 成功メッセージ表示
+      alert('設定を保存しました！UIに反映されています。');
+      
     } catch (error) {
       console.error('💥 設定保存例外:', error);
-      alert('設定の保存に失敗しました。');
+      alert(`設定の保存に失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsSaving(false);
+      console.log('🏁 設定保存処理完了');
     }
   };
 
@@ -881,6 +939,11 @@ export default function SettingsPage() {
                           : 'border-slate-200 hover:border-slate-300'
                       }`}
                       onClick={() => {
+                        console.log('🎯 AI人格変更:', { 
+                          from: selectedAiPersonality, 
+                          to: compatibilityScore.archetype,
+                          timestamp: new Date().toISOString()
+                        });
                         setSelectedAiPersonality(compatibilityScore.archetype);
                         setHasChanges(true);
                       }}
@@ -957,6 +1020,11 @@ export default function SettingsPage() {
                           : 'border-slate-200 hover:border-slate-300'
                       }`}
                       onClick={() => {
+                        console.log('💕 関係性変更:', { 
+                          from: relationshipType, 
+                          to: option.key,
+                          timestamp: new Date().toISOString()
+                        });
                         setRelationshipType(option.key as 'friend' | 'counselor' | 'romantic' | 'mentor');
                         setHasChanges(true);
                       }}
