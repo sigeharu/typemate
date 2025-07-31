@@ -59,6 +59,7 @@ export default function ChatPage() {
   // User & AI state
   const [userType, setUserType] = useState<string>('');
   const [aiPersonality, setAiPersonality] = useState<any>(null);
+  const [relationshipType, setRelationshipType] = useState<'friend' | 'counselor' | 'romantic' | 'mentor'>('friend');
   const [personalInfo, setPersonalInfo] = useState<PersonalInfo>({ name: '' });
   
   // Relationship & Memory
@@ -177,18 +178,58 @@ export default function ChatPage() {
         }
 
         const [baseType] = savedType.split('-') as [BaseArchetype, string];
-        // 診断結果に基づくAI人格選択
-        const selectedArchetype = diagnosisStatus.aiPersonality || 'DRM'; // 診断結果からAI人格を取得、フォールバックはDRM
+        
+        // 🎯 設定ページで保存されたAI設定を優先的に取得
+        let selectedArchetype: string = 'DRM';
+        let savedRelationshipType: 'friend' | 'counselor' | 'romantic' | 'mentor' = 'friend';
+        
+        try {
+          // user_profilesから保存済み設定を取得
+          const { data: profiles, error } = await supabase
+            .from('user_profiles')
+            .select('selected_ai_personality, relationship_type, updated_at')
+            .eq('user_id', user.id)
+            .order('updated_at', { ascending: false })
+            .limit(1);
+          
+          const profile = profiles?.[0];
+          
+          if (error) {
+            console.warn('⚠️ チャット用AI設定取得エラー:', error);
+          } else if (profile?.selected_ai_personality) {
+            // 保存された設定を使用
+            selectedArchetype = profile.selected_ai_personality;
+            savedRelationshipType = profile.relationship_type || 'friend';
+            console.log('✅ 保存済みAI設定をチャットに適用:', {
+              aiPersonality: selectedArchetype,
+              relationshipType: savedRelationshipType,
+              source: '設定ページ'
+            });
+          } else {
+            // フォールバック: 診断結果を使用
+            selectedArchetype = diagnosisStatus.aiPersonality || 'DRM';
+            console.log('🔄 診断結果からAI設定を適用:', {
+              aiPersonality: selectedArchetype,
+              source: '診断結果'
+            });
+          }
+        } catch (error) {
+          console.warn('⚠️ AI設定取得エラー - デフォルト値を使用:', error);
+          selectedArchetype = diagnosisStatus.aiPersonality || 'DRM';
+        }
+        
         const aiArchetypeData = ARCHETYPE_DATA[selectedArchetype];
         
-        console.log('🎯 選択されたAI人格:', { 
+        console.log('🎯 最終的なAI設定:', { 
           userType: savedType, 
           baseType, 
           selectedArchetype,
-          fromDiagnosis: !!diagnosisStatus.aiPersonality 
+          relationshipType: savedRelationshipType,
+          aiName: aiArchetypeData.name
         });
         
         setUserType(savedType);
+        setRelationshipType(savedRelationshipType);
         setAiPersonality({
           archetype: selectedArchetype,
           name: aiArchetypeData.name,
@@ -357,7 +398,7 @@ export default function ChatPage() {
           message: content,
           userType: userType,
           aiPersonality: aiPersonality?.archetype,
-          relationshipType: 'friend',
+          relationshipType: relationshipType,
           messageHistory: [],
           conversationTurn: messages.length,
           relationshipLevel: typeof relationship?.currentLevel === 'object' ? relationship.currentLevel.level : relationship?.currentLevel || 1,
