@@ -272,12 +272,25 @@ export default function ChatPage() {
 
         // 🔄 チャット永続化: 既存セッション取得または新規作成
         console.log('🔍 既存会話セッション確認開始');
+        
+        // localStorageから最新のセッションを取得
+        const latestLocalSession = storage.getLatestChatSession(savedType, selectedArchetype as BaseArchetype);
+        console.log('💾 localStorage最新セッション:', latestLocalSession?.id);
+        
+        // Supabaseから最新の会話を取得
         const latestConversation = await memoryManager.getLatestConversation(user.id);
+        console.log('🗄️ Supabase最新会話:', latestConversation?.conversation_id);
         
         let sessionId: string;
-        if (latestConversation?.conversation_id) {
+        
+        // localStorageとSupabaseの両方にデータがある場合は、同じsessionIdを使用
+        if (latestLocalSession && latestConversation?.conversation_id === latestLocalSession.id) {
           sessionId = latestConversation.conversation_id;
-          console.log('✅ 既存セッション復元:', sessionId);
+          console.log('✅ localStorage/Supabase同期済みセッション復元:', sessionId);
+        } else if (latestConversation?.conversation_id) {
+          // Supabaseにだけデータがある場合
+          sessionId = latestConversation.conversation_id;
+          console.log('✅ Supabaseセッション復元:', sessionId);
           
           // 既存メッセージを読み込み
           const existingMessages = await memoryManager.getConversationMessages(sessionId, user.id);
@@ -311,7 +324,19 @@ export default function ChatPage() {
             setNextSequenceNumber(maxSequence + 1);
             console.log('🔢 Next sequence number set to:', maxSequence + 1);
           }
+        } else if (latestLocalSession) {
+          // localStorageにだけデータがある場合
+          sessionId = latestLocalSession.id;
+          console.log('✅ localStorageセッション復元:', sessionId);
+          
+          // localStorageのメッセージをStateに設定（一時的な表示用）
+          const localMessages = latestLocalSession.messages.map(msg => ({
+            ...msg,
+            sequenceNumber: undefined // localStorageにはsequenceNumberがない
+          }));
+          setMessages(localMessages);
         } else {
+          // どちらにもデータがない場合は新規作成
           sessionId = generateUUID();
           console.log('🆕 新規セッション作成:', sessionId);
         }
@@ -350,8 +375,48 @@ export default function ChatPage() {
     setShowHistory(!showHistory);
   };
 
-  const handleSelectSession = (sessionId: string) => {
-    setSelectedSessionId(sessionId);
+  const handleSelectSession = async (sessionId: string) => {
+    console.log('🔍 Selecting session:', sessionId);
+    
+    try {
+      // localStorageから選択されたセッション情報を取得
+      const session = storage.getChatSession(sessionId);
+      
+      if (session) {
+        console.log('📋 Session found in localStorage:', {
+          id: session.id,
+          messagesCount: session.messages.length,
+          userType: session.userType,
+          aiPersonality: session.aiPersonality
+        });
+        
+        // Supabaseから実際のメッセージを読み込み
+        console.log('🔄 Loading messages from Supabase for session:', sessionId);
+        const supabaseMessages = await memoryManager.getConversationMessages(sessionId, userId);
+        console.log('📊 Loaded messages from Supabase:', supabaseMessages.length);
+        
+        // 状態を更新
+        setCurrentSessionId(sessionId);
+        setMessages(supabaseMessages);
+        setSelectedSessionId(sessionId);
+        
+        // sequenceNumberを適切に設定
+        if (supabaseMessages.length > 0) {
+          const maxSequence = Math.max(...supabaseMessages.map(m => m.sequenceNumber ?? 0));
+          setNextSequenceNumber(maxSequence + 1);
+          console.log('🔢 Next sequence number set to:', maxSequence + 1);
+        } else {
+          setNextSequenceNumber(1);
+        }
+        
+        console.log('✅ Session loaded successfully');
+      } else {
+        console.warn('⚠️ Session not found in localStorage:', sessionId);
+      }
+    } catch (error) {
+      console.error('❌ Error loading session:', error);
+    }
+    
     setShowHistory(false);
   };
 
@@ -370,6 +435,13 @@ export default function ChatPage() {
     if (!userType || !aiPersonality || updatedMessages.length === 0) return;
     
     try {
+      console.log('💾 Saving session to localStorage:', {
+        sessionId: currentSessionId,
+        messagesCount: updatedMessages.length,
+        userType,
+        aiPersonality: aiPersonality.archetype
+      });
+      
       // セッションタイトルを生成（最初のユーザーメッセージから）
       const userMessages = updatedMessages.filter(m => m.sender === 'user');
       const title = userMessages.length > 0 
@@ -387,7 +459,11 @@ export default function ChatPage() {
       };
       
       storage.saveChatSession(session);
-      console.log('✅ チャットセッション保存成功:', session.id);
+      console.log('✅ チャットセッション保存成功 (localStorage):', {
+        id: session.id,
+        title: session.title,
+        messagesCount: session.messages.length
+      });
     } catch (error) {
       console.error('❌ チャットセッション保存エラー:', error);
     }
@@ -490,33 +566,36 @@ export default function ChatPage() {
       }
 
       // Phase 2統合: 感情データ付きでメッセージ保存
-      console.log('💾 Saving user message with emotion data:', {
+      console.log('💾 Saving user message to Supabase:', {
         content: content.substring(0, 50) + '...',
         emotion: emotionData.dominantEmotion,
         intensity: emotionData.intensity,
         userId,
         conversationId: currentSessionId,
+        sequenceNumber: nextSequenceNumber,
         isValidUUID: /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(currentSessionId)
       });
       
       // ユーザーメッセージ保存（sequenceNumber付き）
       saveMessage(content, 'user', personalInfo.name, emotionData, nextSequenceNumber).then(success => {
-        console.log(success ? '✅ User message saved successfully' : '❌ User message save failed');
+        console.log(success ? '✅ User message saved to Supabase' : '❌ User message save to Supabase failed');
       }).catch(error => 
-        console.warn('❌ User message save failed:', error)
+        console.warn('❌ User message save to Supabase failed:', error)
       );
       
-      console.log('💾 Saving AI response with emotion data:', {
+      console.log('💾 Saving AI response to Supabase:', {
         response: aiResponse.substring(0, 50) + '...',
         emotion: emotionData.dominantEmotion,
-        userId
+        userId,
+        conversationId: currentSessionId,
+        sequenceNumber: nextSequenceNumber + 1
       });
       
       // AIメッセージ保存（sequenceNumber+1付き）
       saveMessage(aiResponse, 'ai', undefined, emotionData, nextSequenceNumber + 1).then(success => {
-        console.log(success ? '✅ AI message saved successfully' : '❌ AI message save failed');
+        console.log(success ? '✅ AI message saved to Supabase' : '❌ AI message save to Supabase failed');
       }).catch(error => 
-        console.warn('❌ AI message save failed:', error)
+        console.warn('❌ AI message save to Supabase failed:', error)
       );
       
       // sequence番号を更新（+2で次のユーザーメッセージ用）
