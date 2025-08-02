@@ -244,14 +244,16 @@ export default function ChatPage() {
         try {
           const harmonicProfile = await getHarmonicProfile(user.id);
           if (harmonicProfile) {
-            // LocalStorageに保存された名前を取得
+            // データベースから名前を取得（フォールバック: localStorage）
             const localPersonalData = JSON.parse(localStorage.getItem('personalInfo') || '{}');
+            const dbName = profile?.display_name || '';
             personalData = {
-              name: localPersonalData.name || '',
+              name: dbName || localPersonalData.name || '',
               birthDate: harmonicProfile.astrologyProfile.birthDate
             };
             console.log('🌟 ハーモニックプロファイルから個人情報取得:', {
               name: personalData.name,
+              nameSource: dbName ? 'database' : (localPersonalData.name ? 'localStorage' : 'none'),
               birthDate: personalData.birthDate ? personalData.birthDate.toISOString().split('T')[0] : 'なし',
               zodiacSign: harmonicProfile.astrologyProfile.zodiac.sign
             });
