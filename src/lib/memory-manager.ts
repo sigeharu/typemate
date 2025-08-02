@@ -292,15 +292,21 @@ export class MemoryManager {
       });
       
       // 暗号化されたデータをデータベースに保存
-      const memory = await this.saveMemory({
+      const memoryData: any = {
         archetype,
         relationship_level: 1,
         user_name: userName,
         message_content: encryptedMessageData.encrypted, // 🔒 暗号化データを保存
         message_role: messageRole,
-        conversation_id: conversationId,
-        sequence_number: sequenceNumber || 0 // 👈 NEW: 順序保証用
-      }, userId);
+        conversation_id: conversationId
+      };
+      
+      // 🚨 HOTFIX: sequence_numberが存在する場合のみ追加
+      if (sequenceNumber) {
+        memoryData.sequence_number = sequenceNumber;
+      }
+      
+      const memory = await this.saveMemory(memoryData, userId);
 
       if (memory) {
         // クライアント側で復号化して返す

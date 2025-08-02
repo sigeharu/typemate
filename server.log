@@ -1,0 +1,60 @@
+
+> typemate@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.4.2
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.0.86:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 6.8s
+ ○ Compiling /harmonic-setup ...
+ ✓ Compiled /harmonic-setup in 2.5s (1756 modules)
+ GET /harmonic-setup 200 in 3006ms
+ ✓ Compiled in 228ms (787 modules)
+ ○ Compiling / ...
+ ✓ Compiled / in 748ms (1806 modules)
+ GET / 200 in 1059ms
+ GET /harmonic-setup 200 in 82ms
+ ✓ Compiled /auth/signin in 352ms (1813 modules)
+ GET /auth/signin 200 in 394ms
+ ✓ Compiled in 298ms (820 modules)
+ GET /auth/signin 200 in 20ms
+ ✓ Compiled in 109ms (820 modules)
+ GET /auth/signin 200 in 10ms
+ ✓ Compiled in 199ms (820 modules)
+ GET /auth/signin 200 in 18ms
+ ○ Compiling /settings ...
+ ✓ Compiled /settings in 1046ms (1884 modules)
+ GET /settings 200 in 1305ms
+ GET /auth/signin 200 in 263ms
+ ✓ Compiled in 304ms (851 modules)
+ GET /auth/signin 200 in 17ms
+ ✓ Compiled in 140ms (851 modules)
+ GET /auth/signin 200 in 9ms
+ ✓ Compiled in 113ms (851 modules)
+ GET /auth/signin 200 in 17ms
+ ○ Compiling /chat ...
+ ✓ Compiled /chat in 744ms (1989 modules)
+ GET /chat 200 in 1010ms
+ ✓ Compiled in 356ms (1848 modules)
+ ✓ Compiled in 61ms (907 modules)
+ ✓ Compiled in 59ms (907 modules)
+ ✓ Compiled in 55ms (907 modules)
+ ✓ Compiled in 354ms (924 modules)
+ ✓ Compiled in 95ms (924 modules)
+ ✓ Compiled in 132ms (924 modules)
+ ✓ Compiled in 149ms (924 modules)
+ ✓ Compiled in 107ms (924 modules)
+ ✓ Compiled in 90ms (924 modules)
+ ✓ Compiled in 102ms (924 modules)
+ ✓ Compiled in 54ms (907 modules)
+ ✓ Compiled in 54ms (907 modules)
+ ✓ Compiled in 55ms (907 modules)
+ ✓ Compiled in 58ms (907 modules)
+ ✓ Compiled in 72ms (907 modules)
+ ✓ Compiled in 87ms (907 modules)
+ ✓ Compiled in 136ms (924 modules)
+ ✓ Compiled in 91ms (924 modules)
+[?25h
