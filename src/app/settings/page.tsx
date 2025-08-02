@@ -87,6 +87,7 @@ export default function SettingsPage() {
       // 新しいプロファイルを作成
       const newProfile = await createHarmonicProfile(
         userId,
+        profileData.name,
         profileData.birthDate,
         profileData.birthTime,
         profileData.birthLocation,
