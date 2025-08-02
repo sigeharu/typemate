@@ -170,11 +170,11 @@ export function DailyGuidanceWidget({
                 className="space-y-4"
               >
                 
-                {/* コズミック天気 */}
-                <div className="bg-white/90 dark:bg-gray-800/90 rounded-lg p-4 contrast-more:bg-white dark:contrast-more:bg-gray-800">
-                  <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2 flex items-center">
-                    <Sparkles className="w-4 h-4 mr-2 text-purple-600 dark:text-purple-400" />
-                    コズミック天気
+                {/* 今日の星模様 */}
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                  <h4 className="font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2 mb-2">
+                    <Sparkles className="w-4 h-4 text-purple-400" />
+                    今日の星模様
                   </h4>
                   <p className="text-sm text-gray-900 dark:text-gray-100 contrast-more:text-black dark:contrast-more:text-white">
                     {guidance.cosmicGuidance.cosmicWeather}

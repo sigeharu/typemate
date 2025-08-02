@@ -525,15 +525,34 @@ function generateCompatibilityRecommendations(
 function convertMoonPhaseToJapanese(moonPhase: string): string {
   const moonPhaseMap: { [key: string]: string } = {
     'new moon': '新月',
-    'waxing crescent': '上弦の月',
-    'first quarter': '上弦',
+    'waxing crescent': '三日月',
+    'first quarter': '上弦の月',
     'waxing gibbous': '十三夜月',
     'full moon': '満月',
-    'waning gibbous': '下弦の月',
-    'last quarter': '下弦',
-    'waning crescent': '三日月'
+    'waning gibbous': '小望月',
+    'last quarter': '下弦の月',
+    'waning crescent': '二十六夜月'
   };
   return moonPhaseMap[moonPhase.toLowerCase()] || moonPhase;
+}
+
+// 英語星座名を日本語に変換
+function convertZodiacSignToJapanese(zodiacSign: ZodiacSign): string {
+  const zodiacMap: { [key in ZodiacSign]: string } = {
+    'aries': '牡羊座',
+    'taurus': '牡牛座', 
+    'gemini': '双子座',
+    'cancer': '蟹座',
+    'leo': '獅子座',
+    'virgo': '乙女座',
+    'libra': '天秤座',
+    'scorpio': '蠍座',
+    'sagittarius': '射手座',
+    'capricorn': '山羊座',
+    'aquarius': '水瓶座',
+    'pisces': '魚座'
+  };
+  return zodiacMap[zodiacSign] || zodiacSign;
 }
 
 // BaseArchetypeコードを親しみやすい日本語表現に変換
@@ -561,8 +580,9 @@ function convertArchetypeToFriendlyText(archetype: BaseArchetype): string {
 
 function generateCosmicWeather(moonPhase: string, zodiacSign: ZodiacSign, moonEnergy: number): string {
   const japanesePhase = convertMoonPhaseToJapanese(moonPhase);
+  const japaneseZodiac = convertZodiacSignToJapanese(zodiacSign);
   const intensity = moonEnergy > 7 ? '決断力とやる気に満ちた' : moonEnergy > 4 ? '穏やかで心地よい' : '静寂で落ち着いた';
-  return `${japanesePhase}と${zodiacSign}の影響で、今日は${intensity}一日になりそうです`;
+  return `${japanesePhase}と${japaneseZodiac}の影響で、今日は${intensity}一日になりそうです`;
 }
 
 function generatePersonalMessage(
