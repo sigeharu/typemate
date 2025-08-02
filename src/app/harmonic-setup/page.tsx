@@ -52,9 +52,18 @@ export default function HarmonicSetupPage() {
         
         // 既存のプロファイルを確認
         const profile = await getHarmonicProfile(user.id);
+        console.log('🔍 ハーモニック設定ページ: プロファイル確認', {
+          hasProfile: !!profile,
+          profileId: profile?.id,
+          userId: user.id
+        });
+        
         if (profile) {
           setExistingProfile(profile);
           setSetupComplete(true);
+          console.log('✅ プロファイル存在: 設定完了画面表示');
+        } else {
+          console.log('⚠️ プロファイル未設定: ウェルカム画面表示');
         }
         
         // TypeMateの基本情報を取得
@@ -205,7 +214,7 @@ export default function HarmonicSetupPage() {
       <AnimatePresence mode="wait">
         
         {/* 既にセットアップ完了している場合 */}
-        {setupComplete && existingProfile ? (
+        {(setupComplete && existingProfile) || existingProfile ? (
           <motion.div
             key="completed"
             initial={{ opacity: 0, y: 20 }}
