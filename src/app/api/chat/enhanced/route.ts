@@ -56,21 +56,25 @@ export async function POST(request: NextRequest) {
     });
 
     // 1. ハーモニックプロファイル取得
+    console.log('🎼 Step 1: Getting harmonic profile...');
     const harmonicProfile = await getHarmonicProfile(userId);
     console.log('🌟 Harmonic Profile:', harmonicProfile ? '取得成功' : '未設定');
 
     // 2. 今日のコズミック・ガイダンス生成
+    console.log('🎼 Step 2: Generating cosmic guidance...');
     let cosmicGuidance: DailyHarmonicGuidance | undefined;
     if (harmonicProfile) {
       try {
         cosmicGuidance = await generateDailyHarmonicGuidance(harmonicProfile);
         console.log('✨ Cosmic Guidance: 生成成功');
       } catch (error) {
-        console.warn('⚠️ Cosmic Guidance生成エラー:', error);
+        console.error('❌ Cosmic Guidance生成エラー:', error);
+        throw new Error(`Cosmic guidance generation failed: ${error instanceof Error ? error.message : String(error)}`);
       }
     }
 
     // 3. 強化システムプロンプト構築
+    console.log('🎼 Step 3: Building enhanced system prompt...');
     const enhancedSystemPrompt = buildEnhancedSystemPrompt({
       userType,
       aiPersonality,
@@ -84,17 +88,21 @@ export async function POST(request: NextRequest) {
     });
 
     // 4. 占星術的洞察生成
+    console.log('🎼 Step 4: Generating astrological insight...');
     const astrologicalInsight = harmonicProfile && cosmicGuidance 
       ? generateAstrologicalInsight(harmonicProfile, cosmicGuidance)
       : undefined;
 
     // 5. 強化感情分析
+    console.log('🎼 Step 5: Analyzing enhanced emotion...');
     const enhancedEmotion = analyzeEnhancedEmotion(message, harmonicProfile);
 
     // 6. 会話履歴構築
+    console.log('🎼 Step 6: Building conversation history...');
     const conversationHistory = buildConversationHistory(messageHistory);
 
     // 7. Claude API呼び出し（強化プロンプト使用）
+    console.log('🎼 Step 7: Calling Claude API...');
     const response = await anthropic.messages.create({
       model: 'claude-3-5-haiku-20241022',
       max_tokens: 2000,
@@ -106,6 +114,7 @@ export async function POST(request: NextRequest) {
       ]
     });
 
+    console.log('🎼 Step 8: Processing Claude response...');
     const aiResponse = response.content[0]?.type === 'text' ? response.content[0].text : '';
     
     if (!aiResponse) {
@@ -113,6 +122,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 8. 強化レスポンス構築
+    console.log('🎼 Step 9: Building enhanced response...');
     const enhancedResponse = {
       content: aiResponse,
       emotion: enhancedEmotion.emotion,
