@@ -240,7 +240,18 @@ export default function ChatPage() {
         
         // 🔗 localStorageからpersonalInfo取得（将来的にはuser_profilesから取得予定）
         const localPersonalData = JSON.parse(localStorage.getItem('personalInfo') || '{"name":""}');
+        
+        // ハーモニック設定で名前が保存されているかチェック
+        if (!localPersonalData.name && profile) {
+          console.log('🔍 ハーモニック設定から名前を取得中...');
+          // 将来的にuser_profilesにdisplay_nameフィールドを追加予定
+        }
+        
         const personalData = localPersonalData;
+        console.log('👤 Personal info loaded:', { 
+          name: personalData.name, 
+          source: personalData.name ? 'localStorage' : 'none' 
+        });
         
         setRelationship(relationshipData);
         setMemory(null);

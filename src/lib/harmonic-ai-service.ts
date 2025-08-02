@@ -137,6 +137,14 @@ export async function createHarmonicProfile(
     // データベースに保存（プロファイル + ユーザー名）
     await saveHarmonicProfile(profile, name);
     
+    // localStorageにも名前を保存（チャットで即座に使用可能にするため）
+    if (name) {
+      const personalInfo = JSON.parse(localStorage.getItem('personalInfo') || '{}');
+      personalInfo.name = name;
+      localStorage.setItem('personalInfo', JSON.stringify(personalInfo));
+      console.log('✅ ユーザー名をlocalStorageに保存:', name);
+    }
+    
     return profile;
   } catch (error) {
     console.error('❌ Error in createHarmonicProfile:', error);
