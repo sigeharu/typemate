@@ -15,6 +15,15 @@ const anthropic = new Anthropic({
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    
+    console.log('🎼 Enhanced Chat API: Received body', {
+      keys: Object.keys(body),
+      hasMessage: !!body.message,
+      hasUserType: !!body.userType,
+      hasAiPersonality: !!body.aiPersonality,
+      hasUserId: !!body.userId
+    });
+    
     const {
       message,
       userType,
@@ -26,7 +35,10 @@ export async function POST(request: NextRequest) {
       currentMood = '😊',
       moodContext = '',
       personalInfo = {},
-      chatCount = 0
+      chatCount = 0,
+      // ハーモニックチャットサービスから送信される可能性のある追加フィールド
+      astrologicalContext,
+      harmonicEnhancement
     } = body;
 
     if (!message || !userType || !aiPersonality || !userId) {
@@ -129,9 +141,17 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('❌ Enhanced Chat API Error:', error);
+    console.error('❌ Error details:', {
+      name: error instanceof Error ? error.name : 'Unknown',
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    });
     
     return NextResponse.json(
-      { error: 'Enhanced chat service temporarily unavailable' },
+      { 
+        error: 'Enhanced chat service temporarily unavailable',
+        details: error instanceof Error ? error.message : String(error)
+      },
       { status: 500 }
     );
   }
