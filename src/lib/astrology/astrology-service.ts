@@ -521,9 +521,48 @@ function generateCompatibilityRecommendations(
   };
 }
 
+// 英語月相名を日本語に変換
+function convertMoonPhaseToJapanese(moonPhase: string): string {
+  const moonPhaseMap: { [key: string]: string } = {
+    'new moon': '新月',
+    'waxing crescent': '上弦の月',
+    'first quarter': '上弦',
+    'waxing gibbous': '十三夜月',
+    'full moon': '満月',
+    'waning gibbous': '下弦の月',
+    'last quarter': '下弦',
+    'waning crescent': '三日月'
+  };
+  return moonPhaseMap[moonPhase.toLowerCase()] || moonPhase;
+}
+
+// BaseArchetypeコードを親しみやすい日本語表現に変換
+function convertArchetypeToFriendlyText(archetype: BaseArchetype): string {
+  const archetypeMap: { [key in BaseArchetype]: string } = {
+    'ARC': '建築家の才能',
+    'ALC': '錬金術師の知恵',
+    'SOV': '君主の威厳',
+    'INV': '発明家の創造力',
+    'SAG': '賢者の洞察',
+    'DRM': '夢想家の想像力',
+    'HER': '英雄の勇気',
+    'BAR': '詩人の感性',
+    'GUA': '守護者の優しさ',
+    'DEF': '騎士の忠誠心',
+    'EXE': '指揮官の統率力',
+    'PRO': '管理者の責任感',
+    'ART': '職人の技術',
+    'ARS': '芸術家の感性',
+    'PIO': '開拓者の冒険心',
+    'PER': 'エンターテイナーの魅力'
+  };
+  return archetypeMap[archetype] || '特別な才能';
+}
+
 function generateCosmicWeather(moonPhase: string, zodiacSign: ZodiacSign, moonEnergy: number): string {
-  const intensity = moonEnergy > 7 ? '強い' : moonEnergy > 4 ? '穏やかな' : '静かな';
-  return `${intensity}${moonPhase}のエネルギーと${zodiacSign}の影響が調和している状態`;
+  const japanesePhase = convertMoonPhaseToJapanese(moonPhase);
+  const intensity = moonEnergy > 7 ? '決断力とやる気に満ちた' : moonEnergy > 4 ? '穏やかで心地よい' : '静寂で落ち着いた';
+  return `${japanesePhase}と${zodiacSign}の影響で、今日は${intensity}一日になりそうです`;
 }
 
 function generatePersonalMessage(
@@ -532,8 +571,8 @@ function generatePersonalMessage(
   moonName: string,
   archetype?: BaseArchetype
 ): string {
-  const archetypeMessage = archetype ? `${archetype}の特質を活かし、` : '';
-  return `${zodiacName}として、${numerologyName}の道を歩むあなたへ。${moonName}の${archetypeMessage}今日という日を大切に過ごしてください。`;
+  const archetypeMessage = archetype ? `${convertArchetypeToFriendlyText(archetype)}を活かし、` : '';
+  return `${zodiacName}として、${numerologyName}のあなたらしい道を歩むあなたへ。${moonName}の${archetypeMessage}今日という日を大切に過ごしてください。`;
 }
 
 function calculateDailyEnergyForecast(
