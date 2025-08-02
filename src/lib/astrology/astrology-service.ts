@@ -117,6 +117,12 @@ export async function generateIntegratedProfile(
 ): Promise<IntegratedAstrologyProfile> {
   console.log('🔮 generateIntegratedProfile started:', { birthDate, userArchetype });
   
+  // 入力データの検証
+  if (!birthDate || !(birthDate instanceof Date) || isNaN(birthDate.getTime())) {
+    console.error('❌ Invalid birthDate provided:', birthDate);
+    throw new Error('有効な生年月日が必要です');
+  }
+  
   try {
     // 西洋占星術計算
     const zodiacResult = calculateZodiacSign(birthDate);

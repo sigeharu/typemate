@@ -580,7 +580,7 @@ async function saveHarmonicProfile(profile: HarmonicAIProfile, name?: string): P
       user_type: profile.userType,
       selected_ai_personality: profile.selectedAiPersonality,
       relationship_type: profile.relationshipType,
-      birth_date: profile.astrologyProfile.birthDate.toISOString(),
+      birth_date: profile.astrologyProfile.birthDate ? profile.astrologyProfile.birthDate.toISOString() : null,
       zodiac_sign: profile.astrologyProfile.zodiac.sign,
       zodiac_element: profile.astrologyProfile.zodiac.element,
       life_path_number: profile.astrologyProfile.numerology.lifePathNumber,
