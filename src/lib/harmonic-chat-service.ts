@@ -123,8 +123,8 @@ export async function sendEnhancedMessage(
       astrologicalContextLength: astrologicalContext.length
     });
     
-    // 7. 既存のチャットAPIを呼び出し
-    const response = await fetch('/api/chat', {
+    // 7. 第2楽章: 強化チャットAPIを呼び出し
+    const response = await fetch('/api/chat/enhanced', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(chatRequest)
@@ -170,7 +170,7 @@ export async function sendEnhancedMessage(
   } catch (error) {
     console.error('❌ Enhanced Chat Service Error:', error);
     
-    // フォールバック: 通常のAPI呼び出し
+    // フォールバック: 通常のAPI呼び出し  
     console.log('🔄 Fallback to basic chat API');
     const fallbackResponse = await fetch('/api/chat', {
       method: 'POST',
