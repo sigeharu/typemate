@@ -31,7 +31,8 @@ import { TypeDetailDisplayCompact } from '@/components/TypeDetailDisplay';
 import { SelfAffirmationDisplayCompact } from '@/components/SelfAffirmationDisplay';
 import { HarmonicProfileCard } from '@/components/harmonic/HarmonicProfileCard';
 import { DailyGuidanceWidget } from '@/components/harmonic/DailyGuidanceWidget';
-import { getHarmonicProfile, generateDailyHarmonicGuidance, deleteHarmonicProfile } from '@/lib/harmonic-ai-service';
+import { HarmonicSetupWizard } from '@/components/harmonic/HarmonicSetupWizard';
+import { getHarmonicProfile, generateDailyHarmonicGuidance, deleteHarmonicProfile, createHarmonicProfile } from '@/lib/harmonic-ai-service';
 import type { Type64, BaseArchetype, DetailedDiagnosisResult } from '@/types';
 import type { HarmonicAIProfile, DailyHarmonicGuidance } from '@/lib/harmonic-ai-service';
 
@@ -62,6 +63,58 @@ export default function SettingsPage() {
   const [harmonicProfile, setHarmonicProfile] = useState<HarmonicAIProfile | null>(null);
   const [dailyGuidance, setDailyGuidance] = useState<DailyHarmonicGuidance | null>(null);
   const [harmonicLoading, setHarmonicLoading] = useState(false);
+  const [showHarmonicWizard, setShowHarmonicWizard] = useState(false);
+
+  // 🌟 ハーモニックAIウィザード処理
+  const handleHarmonicSetupComplete = async (profileData: {
+    name: string;
+    birthDate: Date;
+    birthTime?: string;
+    birthLocation?: string;
+    privacySettings: {
+      shareAstrologyData: boolean;
+      showDailyGuidance: boolean;
+      enableCosmicNotifications: boolean;
+    };
+  }) => {
+    setHarmonicLoading(true);
+    try {
+      // 既存プロファイルがある場合は削除
+      if (harmonicProfile) {
+        await deleteHarmonicProfile(userId);
+      }
+
+      // 新しいプロファイルを作成
+      const newProfile = await createHarmonicProfile(
+        userId,
+        profileData.birthDate,
+        profileData.birthTime,
+        profileData.birthLocation,
+        userType || 'ARC-COOPERATIVESTABLE',
+        selectedAiPersonality || 'ARC',
+        relationshipType
+      );
+
+      // ガイダンス生成
+      const guidance = await generateDailyHarmonicGuidance(newProfile);
+
+      // 状態を更新
+      setHarmonicProfile(newProfile);
+      setDailyGuidance(guidance);
+      setShowHarmonicWizard(false);
+
+      console.log('✅ ハーモニックAI再設定完了');
+    } catch (error) {
+      console.error('❌ ハーモニックAI再設定エラー:', error);
+      alert('再設定に失敗しました。しばらく後に再試行してください。');
+    } finally {
+      setHarmonicLoading(false);
+    }
+  };
+
+  const handleHarmonicSetupCancel = () => {
+    setShowHarmonicWizard(false);
+  };
 
 
   // 🔍 モバイル専用デバッグ状態
@@ -803,7 +856,16 @@ export default function SettingsPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.27 }}
         >
-          {harmonicProfile ? (
+          {showHarmonicWizard ? (
+            // ハーモニックAI再設定ウィザード表示
+            <HarmonicSetupWizard
+              userType={userType}
+              selectedAiPersonality={selectedAiPersonality}
+              relationshipType={relationshipType}
+              onComplete={handleHarmonicSetupComplete}
+              onCancel={handleHarmonicSetupCancel}
+            />
+          ) : harmonicProfile ? (
             // ハーモニックAIプロファイル表示
             <div className="space-y-6">
               {/* プロファイルカード */}
@@ -819,22 +881,9 @@ export default function SettingsPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={async () => {
-                      if (confirm('ハーモニックAIプロファイルを再設定しますか？\n現在の設定は削除され、新しく作成されます。')) {
-                        setHarmonicLoading(true);
-                        try {
-                          await deleteHarmonicProfile(userId);
-                          // プロファイルを削除後、状態をリセット
-                          setHarmonicProfile(null);
-                          setDailyGuidance(null);
-                          // ページをリロードして再設定フローに誘導
-                          window.location.reload();
-                        } catch (error) {
-                          console.error('プロファイル削除エラー:', error);
-                          alert('再設定に失敗しました。しばらく後に再試行してください。');
-                        } finally {
-                          setHarmonicLoading(false);
-                        }
+                    onClick={() => {
+                      if (confirm('ハーモニックAIプロファイルを再設定しますか？\n現在の設定を変更して新しく作成します。')) {
+                        setShowHarmonicWizard(true);
                       }
                     }}
                     className="border-purple-300 text-purple-700 hover:bg-purple-50"
