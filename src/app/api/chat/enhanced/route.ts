@@ -3,10 +3,10 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
-import { getHarmonicProfile, generateDailyHarmonicGuidance } from '@/lib/harmonic-ai-service';
+import { getHarmonicProfileServer, generateDailyHarmonicGuidanceServer } from '@/lib/harmonic-ai-service-server';
 import { ARCHETYPE_DATA } from '@/lib/diagnostic-data';
 import type { BaseArchetype, Type64, HarmonicAIProfile } from '@/types';
-import type { DailyHarmonicGuidance } from '@/lib/harmonic-ai-service';
+import type { DailyHarmonicGuidance } from '@/lib/harmonic-ai-service-server';
 
 const anthropic = new Anthropic({
   apiKey: process.env.CLAUDE_API_KEY!,
@@ -55,17 +55,17 @@ export async function POST(request: NextRequest) {
       messageLength: message.length
     });
 
-    // 1. ハーモニックプロファイル取得
-    console.log('🎼 Step 1: Getting harmonic profile...');
-    const harmonicProfile = await getHarmonicProfile(userId);
+    // 1. ハーモニックプロファイル取得（サーバーサイド版）
+    console.log('🎼 Step 1: Getting harmonic profile (server-side)...');
+    const harmonicProfile = await getHarmonicProfileServer(userId);
     console.log('🌟 Harmonic Profile:', harmonicProfile ? '取得成功' : '未設定');
 
-    // 2. 今日のコズミック・ガイダンス生成
-    console.log('🎼 Step 2: Generating cosmic guidance...');
+    // 2. 今日のコズミック・ガイダンス生成（サーバーサイド版）
+    console.log('🎼 Step 2: Generating cosmic guidance (server-side)...');
     let cosmicGuidance: DailyHarmonicGuidance | undefined;
     if (harmonicProfile) {
       try {
-        cosmicGuidance = await generateDailyHarmonicGuidance(harmonicProfile);
+        cosmicGuidance = await generateDailyHarmonicGuidanceServer(harmonicProfile);
         console.log('✨ Cosmic Guidance: 生成成功');
       } catch (error) {
         console.error('❌ Cosmic Guidance生成エラー:', error);
