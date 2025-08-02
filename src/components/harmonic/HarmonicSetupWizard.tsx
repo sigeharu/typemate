@@ -219,22 +219,95 @@ export function HarmonicSetupWizard({
   };
   
   const handleComplete = () => {
-    if (!formData.birthDate) return;
-    
-    onComplete({
-      name: formData.name,
-      birthDate: new Date(formData.birthDate),
-      birthTime: formData.birthTime || undefined,
-      birthLocation: formData.birthLocation || undefined,
-      privacySettings: formData.privacySettings
+    // Get current form data at the time of completion to avoid stale closure issues
+    setFormData(currentFormData => {
+      console.log('🎵 Current form data at completion:', currentFormData);
+      
+      if (!currentFormData.birthDate) {
+        console.error('❌ birthDate is required but missing');
+        alert('生年月日を入力してください。');
+        return currentFormData; // Return unchanged
+      }
+      
+      // Validate form data before processing
+      if (typeof currentFormData.name !== 'string' || currentFormData.name.trim() === '') {
+        console.error('❌ Invalid name:', currentFormData.name, typeof currentFormData.name);
+        alert('名前が正しく入力されていません。もう一度入力してください。');
+        return currentFormData; // Return unchanged
+      }
+      
+      if (typeof currentFormData.birthDate !== 'string' || currentFormData.birthDate === '') {
+        console.error('❌ Invalid birthDate:', currentFormData.birthDate, typeof currentFormData.birthDate);
+        alert('生年月日が正しく入力されていません。もう一度入力してください。');
+        return currentFormData; // Return unchanged
+      }
+      
+      // Parse birth date and validate
+      const parsedBirthDate = new Date(currentFormData.birthDate);
+      if (isNaN(parsedBirthDate.getTime())) {
+        console.error('❌ Invalid birth date format:', currentFormData.birthDate);
+        alert('生年月日の形式が正しくありません。もう一度入力してください。');
+        return currentFormData; // Return unchanged
+      }
+      
+      const dataToSend = {
+        name: currentFormData.name.trim(),
+        birthDate: parsedBirthDate,
+        birthTime: currentFormData.birthTime || undefined,
+        birthLocation: currentFormData.birthLocation || undefined,
+        privacySettings: currentFormData.privacySettings
+      };
+      
+      console.log('🎵 HarmonicSetupWizard handleComplete sending data:', {
+        currentFormData,
+        dataToSend,
+        nameValue: currentFormData.name,
+        nameType: typeof currentFormData.name,
+        birthDateValue: currentFormData.birthDate,
+        birthDateType: typeof currentFormData.birthDate,
+        parsedBirthDate,
+        parsedBirthDateValid: !isNaN(parsedBirthDate.getTime())
+      });
+      
+      // Final validation before sending
+      if (typeof dataToSend.name !== 'string' || !(dataToSend.birthDate instanceof Date)) {
+        console.error('❌ Data validation failed before sending:', dataToSend);
+        alert('データの検証に失敗しました。ページを再読み込みして再試行してください。');
+        return currentFormData; // Return unchanged
+      }
+      
+      // Send data asynchronously to avoid blocking state update
+      setTimeout(() => {
+        console.log('📤 Calling onComplete with validated data:', dataToSend);
+        onComplete(dataToSend);
+      }, 0);
+      
+      return currentFormData; // Return unchanged
     });
   };
   
   const updateFormData = (field: string, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    console.log('🔄 Updating form data:', { field, value, valueType: typeof value });
+    
+    // Validate specific fields
+    if (field === 'name' && typeof value !== 'string') {
+      console.error('❌ Invalid name value:', value, typeof value);
+      return;
+    }
+    
+    if (field === 'birthDate' && typeof value !== 'string') {
+      console.error('❌ Invalid birthDate value:', value, typeof value);
+      return;
+    }
+    
+    setFormData(prev => {
+      const newData = {
+        ...prev,
+        [field]: value
+      };
+      console.log('📝 Form data updated:', newData);
+      return newData;
+    });
   };
   
   const updatePrivacyData = (field: string, value: boolean) => {

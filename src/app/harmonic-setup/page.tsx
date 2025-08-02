@@ -95,6 +95,36 @@ export default function HarmonicSetupPage() {
     try {
       setIsLoading(true);
       
+      console.log('🌟 handleSetupComplete received data:', {
+        profileData,
+        name: profileData.name,
+        nameType: typeof profileData.name,
+        birthDate: profileData.birthDate,
+        birthDateType: typeof profileData.birthDate,
+        birthDateIsDate: profileData.birthDate instanceof Date
+      });
+      
+      // Validate received data
+      if (typeof profileData.name !== 'string') {
+        console.error('❌ Invalid name type received:', profileData.name, typeof profileData.name);
+        setError('名前データが正しくありません。ページを再読み込みして再試行してください。');
+        return;
+      }
+      
+      if (!(profileData.birthDate instanceof Date)) {
+        console.error('❌ Invalid birthDate type received:', profileData.birthDate, typeof profileData.birthDate);
+        setError('生年月日データが正しくありません。ページを再読み込みして再試行してください。');
+        return;
+      }
+      
+      if (!userId) {
+        console.error('❌ UserId is missing');
+        setError('ユーザーIDが見つかりません。ログインし直してください。');
+        return;
+      }
+      
+      console.log('✅ Data validation passed, creating harmonic profile...');
+      
       const profile = await createHarmonicProfile(
         userId,
         profileData.name,
