@@ -24,6 +24,7 @@ import { loadRelationshipData } from '@/lib/relationship-storage';
 // import { memoryStorage } from '@/lib/memory-system';
 import { isDevelopmentMode, getCurrentTestProfile, resetTestMode, emergencyCleanup } from '@/lib/dev-mode';
 import { useMemorySaver } from '@/hooks/useMemoryManager';
+import { useUnifiedChat } from '@/hooks/useUnifiedChat';
 import { supabase } from '@/lib/supabase-simple';
 import { diagnosisService } from '@/lib/diagnosis-service';
 import { memoryManager } from '@/lib/memory-manager';
@@ -48,12 +49,7 @@ export default function ChatPage() {
   const router = useRouter();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  // Core state
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isTyping, setIsTyping] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  
-  // Authentication state
+  // Authentication state  
   const [userId, setUserId] = useState<string>('');
   
   // User & AI state
@@ -64,20 +60,14 @@ export default function ChatPage() {
   
   // Relationship & Memory
   const [relationship, setRelationship] = useState<RelationshipData | null>(null);
-  const [memory, setMemory] = useState<MemorySystem | null>({
-    recentMemories: [],
-    importantMoments: [],
-    sharedExperiences: [],
-    personalInfo: { name: '' }
-  });
+  const [memory, setMemory] = useState<MemorySystem | null>(null);
   const [newLevel, setNewLevel] = useState<any>(null);
   
   // Harmonic AI state
   const [dailyGuidance, setDailyGuidance] = useState<DailyHarmonicGuidance | null>(null);
   const [showGuidance, setShowGuidance] = useState(true);
   
-  // UI state
-  const [showHistory, setShowHistory] = useState(false);
+  // UI state (non-chat related)
   const [showMemories, setShowMemories] = useState(false);
   const [showLevelUpModal, setShowLevelUpModal] = useState(false);
   const [showPersonalInfoModal, setShowPersonalInfoModal] = useState(false);
@@ -109,19 +99,25 @@ export default function ChatPage() {
     console.log(`🎵 気分変更: ${moodNames[mood]} ${mood}`);
   };
   
-  // Chat session
-  const [currentSessionId, setCurrentSessionId] = useState<string>('');
-  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
+  // Legacy session state for initial compatibility
   const [chatCount, setChatCount] = useState(1);
   const [sessionStartTime, setSessionStartTime] = useState<Date>(new Date());
-  const [nextSequenceNumber, setNextSequenceNumber] = useState(1); // 👈 NEW: 順序保証用
   
   // Development mode
   const [testProfile, setTestProfile] = useState<TestProfile | null>(null);
   
+  // 🎯 統一チャットフック統合 - 初期化前は仮の値を使用
+  const chatState = useUnifiedChat({
+    userType: userType as any || 'ARC-AS',
+    aiPersonality: aiPersonality?.archetype || 'DRM',
+    userId: userId || 'temp',
+    autoSave: true,
+    enableEncryption: true
+  });
+  
   // 🎵 Phase 1: 記憶システム統合（認証ユーザー必須）
   const { saveMessage } = useMemorySaver(
-    currentSessionId, 
+    chatState.currentSessionId, 
     aiPersonality?.archetype || 'DRM',
     userId // 認証ユーザー必須
   );
@@ -219,7 +215,7 @@ export default function ChatPage() {
           selectedArchetype = diagnosisStatus.aiPersonality || 'DRM';
         }
         
-        const aiArchetypeData = ARCHETYPE_DATA[selectedArchetype];
+        const aiArchetypeData = ARCHETYPE_DATA[selectedArchetype as keyof typeof ARCHETYPE_DATA];
         
         console.log('🎯 最終的なAI設定:', { 
           userType: savedType, 
@@ -270,83 +266,10 @@ export default function ChatPage() {
         }
 
 
-        // 🔄 チャット永続化: 既存セッション取得または新規作成
-        console.log('🔍 既存会話セッション確認開始');
-        
-        // localStorageから最新のセッションを取得
-        const latestLocalSession = storage.getLatestChatSession(savedType, selectedArchetype as BaseArchetype);
-        console.log('💾 localStorage最新セッション:', latestLocalSession?.id);
-        
-        // Supabaseから最新の会話を取得
-        const latestConversation = await memoryManager.getLatestConversation(user.id);
-        console.log('🗄️ Supabase最新会話:', latestConversation?.conversation_id);
-        
-        let sessionId: string;
-        
-        // localStorageとSupabaseの両方にデータがある場合は、同じsessionIdを使用
-        if (latestLocalSession && latestConversation?.conversation_id === latestLocalSession.id) {
-          sessionId = latestConversation.conversation_id;
-          console.log('✅ localStorage/Supabase同期済みセッション復元:', sessionId);
-        } else if (latestConversation?.conversation_id) {
-          // Supabaseにだけデータがある場合
-          sessionId = latestConversation.conversation_id;
-          console.log('✅ Supabaseセッション復元:', sessionId);
-          
-          // 既存メッセージを読み込み
-          const existingMessages = await memoryManager.getConversationMessages(sessionId, user.id);
-          console.log('📋 既存メッセージ読み込み:', existingMessages.length + '件');
-          
-          // sequence番号が未設定のメッセージがある場合は復旧実行
-          const hasUnsequencedMessages = existingMessages.some(m => m.sequenceNumber == null || m.sequenceNumber === 0);
-          if (hasUnsequencedMessages && existingMessages.length > 0) {
-            console.log('🔧 Detected messages without sequence numbers, running repair...');
-            const repairSuccess = await memoryManager.repairSequenceNumbers(sessionId, user.id);
-            if (repairSuccess) {
-              // 修復後に再読み込み
-              const repairedMessages = await memoryManager.getConversationMessages(sessionId, user.id);
-              setMessages(repairedMessages);
-              console.log('✅ Messages repaired and reloaded:', repairedMessages.length + '件');
-            } else {
-              console.warn('⚠️ Failed to repair sequence numbers, using original messages');
-              setMessages(existingMessages);
-            }
-          } else {
-            setMessages(existingMessages);
-          }
-          
-          // 次のsequenceNumberを設定（既存メッセージの最大値+1）
-          const finalMessages = hasUnsequencedMessages && existingMessages.length > 0 
-            ? await memoryManager.getConversationMessages(sessionId, user.id)
-            : existingMessages;
-          
-          if (finalMessages.length > 0) {
-            const maxSequence = Math.max(...finalMessages.map(m => m.sequenceNumber ?? 0));
-            setNextSequenceNumber(maxSequence + 1);
-            console.log('🔢 Next sequence number set to:', maxSequence + 1);
-          }
-        } else if (latestLocalSession) {
-          // localStorageにだけデータがある場合
-          sessionId = latestLocalSession.id;
-          console.log('✅ localStorageセッション復元:', sessionId);
-          
-          // localStorageのメッセージをStateに設定（一時的な表示用）
-          const localMessages = latestLocalSession.messages.map(msg => ({
-            ...msg,
-            sequenceNumber: undefined // localStorageにはsequenceNumberがない
-          }));
-          setMessages(localMessages);
-        } else {
-          // どちらにもデータがない場合は新規作成
-          sessionId = generateUUID();
-          console.log('🆕 新規セッション作成:', sessionId);
-        }
-        
-        setCurrentSessionId(sessionId);
-
-        setIsLoading(false);
+        // 🎯 統一チャットフックが初期化を処理するため、ここでは手動初期化をスキップ
+        console.log('✅ 統一チャットフックによる初期化に委譲');
       } catch (error) {
         console.error('Chat initialization error:', error);
-        setIsLoading(false);
       }
     };
 
@@ -359,11 +282,11 @@ export default function ChatPage() {
   };
 
   useEffect(() => {
-    if (messages.length > 0) {
+    if (chatState.messages.length > 0) {
       const timer = setTimeout(scrollToBottom, 100);
       return () => clearTimeout(timer);
     }
-  }, [messages]);
+  }, [chatState.messages]);
 
   // Handlers
 
@@ -372,251 +295,37 @@ export default function ChatPage() {
   };
 
   const handleShowHistory = () => {
-    setShowHistory(!showHistory);
+    chatState.setShowHistory(!chatState.showHistory);
   };
 
   const handleSelectSession = async (sessionId: string) => {
-    console.log('🔍 Selecting session:', sessionId);
-    
-    try {
-      // localStorageから選択されたセッション情報を取得
-      const session = storage.getChatSession(sessionId);
-      
-      if (session) {
-        console.log('📋 Session found in localStorage:', {
-          id: session.id,
-          messagesCount: session.messages.length,
-          userType: session.userType,
-          aiPersonality: session.aiPersonality
-        });
-        
-        // Supabaseから実際のメッセージを読み込み
-        console.log('🔄 Loading messages from Supabase for session:', sessionId);
-        const supabaseMessages = await memoryManager.getConversationMessages(sessionId, userId);
-        console.log('📊 Loaded messages from Supabase:', supabaseMessages.length);
-        
-        // 状態を更新
-        setCurrentSessionId(sessionId);
-        setMessages(supabaseMessages);
-        setSelectedSessionId(sessionId);
-        
-        // sequenceNumberを適切に設定
-        if (supabaseMessages.length > 0) {
-          const maxSequence = Math.max(...supabaseMessages.map(m => m.sequenceNumber ?? 0));
-          setNextSequenceNumber(maxSequence + 1);
-          console.log('🔢 Next sequence number set to:', maxSequence + 1);
-        } else {
-          setNextSequenceNumber(1);
-        }
-        
-        console.log('✅ Session loaded successfully');
-      } else {
-        console.warn('⚠️ Session not found in localStorage:', sessionId);
-      }
-    } catch (error) {
-      console.error('❌ Error loading session:', error);
-    }
-    
-    setShowHistory(false);
+    await chatState.selectSession(sessionId);
+    console.log('✅ Session selected via unified chat hook:', sessionId);
   };
 
-  const handleNewSession = () => {
-    // 🎵 Create new session ID (UUID format for database)
-    const newSessionId = generateUUID();
-    setCurrentSessionId(newSessionId);
-    setMessages([]);
+  const handleNewSession = async () => {
+    await chatState.createNewSession();
     setSessionStartTime(new Date());
-    setNextSequenceNumber(1); // 👈 NEW: 新しいセッションではsequence番号をリセット
-    setShowHistory(false);
+    console.log('✅ New session created via unified chat hook');
   };
 
-  // チャットセッション保存関数
-  const saveCurrentSession = (updatedMessages: Message[]) => {
-    if (!userType || !aiPersonality || updatedMessages.length === 0) return;
-    
-    try {
-      console.log('💾 Saving session to localStorage:', {
-        sessionId: currentSessionId,
-        messagesCount: updatedMessages.length,
-        userType,
-        aiPersonality: aiPersonality.archetype
-      });
-      
-      // セッションタイトルを生成（最初のユーザーメッセージから）
-      const userMessages = updatedMessages.filter(m => m.sender === 'user');
-      const title = userMessages.length > 0 
-        ? userMessages[0].content.slice(0, 30) + (userMessages[0].content.length > 30 ? '...' : '')
-        : '新しい会話';
+  // 🎯 セッション保存は統一チャットフックが自動処理するため削除
 
-      const session: ChatSession = {
-        id: currentSessionId,
-        userType: userType as any,
-        aiPersonality: aiPersonality.archetype,
-        messages: updatedMessages,
-        createdAt: sessionStartTime,
-        updatedAt: new Date(),
-        title
-      };
-      
-      storage.saveChatSession(session);
-      console.log('✅ チャットセッション保存成功 (localStorage):', {
-        id: session.id,
-        title: session.title,
-        messagesCount: session.messages.length
-      });
-    } catch (error) {
-      console.error('❌ チャットセッション保存エラー:', error);
-    }
-  };
-
+  // 🎯 統一チャットフック使用による簡略化されたメッセージ送信
   const handleSendMessage = async (content: string) => {
-    if (!aiPersonality || isTyping) return;
-
-    const userMessage: Message = {
-      id: `user-${Date.now()}`,
-      content,
-      isUser: true,
-      sender: 'user',
-      timestamp: new Date(),
-      sessionId: currentSessionId,
-      sequenceNumber: nextSequenceNumber // 👈 NEW: 順序保証用
-    };
-
-    const updatedMessagesWithUser = [...messages, userMessage];
-    setMessages(updatedMessagesWithUser);
-    setIsTyping(true);
-
-    // ユーザーメッセージ送信後にセッション保存
-    saveCurrentSession(updatedMessagesWithUser);
+    if (!aiPersonality || chatState.isTyping) return;
 
     try {
       // 🎵 Phase 2: 感情分析実行
       const emotionData = EmotionAnalyzer.analyzeMessage(content);
       console.log('🎵 Emotion Analysis:', emotionData);
 
-
-      // Generate AI response using Claude API with emotion data
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: content,
-          userType: userType,
-          aiPersonality: aiPersonality?.archetype,
-          relationshipType: relationshipType,
-          messageHistory: [],
-          conversationTurn: messages.length,
-          relationshipLevel: typeof relationship?.currentLevel === 'object' ? relationship.currentLevel.level : relationship?.currentLevel || 1,
-          importantMemories: [],
-          relatedMemories: [],
-          todaysEvents: [],
-          chatCount: messages.length + 1,
-          personalInfo: {
-            name: personalInfo.name || undefined,
-            birthday: undefined
-          },
-          // 🎵 Phase 2: 感情データ追加
-          emotionData: emotionData,
-          dominantEmotion: emotionData.dominantEmotion,
-          emotionIntensity: emotionData.intensity,
-          musicTone: emotionData.musicTone,
-          // 🎵 Phase 2: 気分データ追加
-          currentMood: currentMood,
-          moodContext: getMoodContext(currentMood)
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('API request failed');
-      }
-
-      const data = await response.json();
-      const aiResponse = data.content || 'すみません、少し考えがまとまりません。もう一度お話しいただけますか？';
+      // 🔐 統一フックを使用した簡略化されたメッセージ送信
+      await chatState.sendMessage(content);
       
-      // 🎵 Phase 2: 感情分析結果取得
-      const emotionAnalysis = data.emotionAnalysis;
-      
-      const aiMessage: Message = {
-        id: `ai-${Date.now()}`,
-        content: aiResponse,
-        isUser: false,
-        sender: 'ai',
-        timestamp: new Date(),
-        sessionId: currentSessionId,
-        sequenceNumber: nextSequenceNumber + 1 // 👈 NEW: 順序保証用（+1で確実に後に配置）
-      };
-      
-      const updatedMessagesWithAI = [...updatedMessagesWithUser, aiMessage];
-      setMessages(updatedMessagesWithAI);
-      setIsTyping(false);
-
-      // AI応答後にセッション保存
-      saveCurrentSession(updatedMessagesWithAI);
-      
-      // 🎵 Phase 2: 感情データ付き記憶保存（非同期）
-      // 特別記憶の検出（感情強度0.7以上）
-      if (emotionData.intensity >= 0.7) {
-        console.log('🌟 Special moment detected!', {
-          emotion: emotionData.dominantEmotion,
-          intensity: emotionData.intensity,
-          musicTone: emotionData.musicTone
-        });
-      }
-
-      // Phase 2統合: 感情データ付きでメッセージ保存
-      console.log('💾 Saving user message to Supabase:', {
-        content: content.substring(0, 50) + '...',
-        emotion: emotionData.dominantEmotion,
-        intensity: emotionData.intensity,
-        userId,
-        conversationId: currentSessionId,
-        sequenceNumber: nextSequenceNumber,
-        isValidUUID: /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(currentSessionId)
-      });
-      
-      // ユーザーメッセージ保存（sequenceNumber付き）
-      saveMessage(content, 'user', personalInfo.name, emotionData, nextSequenceNumber).then(success => {
-        console.log(success ? '✅ User message saved to Supabase' : '❌ User message save to Supabase failed');
-      }).catch(error => 
-        console.warn('❌ User message save to Supabase failed:', error)
-      );
-      
-      console.log('💾 Saving AI response to Supabase:', {
-        response: aiResponse.substring(0, 50) + '...',
-        emotion: emotionData.dominantEmotion,
-        userId,
-        conversationId: currentSessionId,
-        sequenceNumber: nextSequenceNumber + 1
-      });
-      
-      // AIメッセージ保存（sequenceNumber+1付き）
-      saveMessage(aiResponse, 'ai', undefined, emotionData, nextSequenceNumber + 1).then(success => {
-        console.log(success ? '✅ AI message saved to Supabase' : '❌ AI message save to Supabase failed');
-      }).catch(error => 
-        console.warn('❌ AI message save to Supabase failed:', error)
-      );
-      
-      // sequence番号を更新（+2で次のユーザーメッセージ用）
-      setNextSequenceNumber(prev => prev + 2);
-      console.log('🔢 Next sequence number updated to:', nextSequenceNumber + 2);
+      console.log('✅ Message sent via unified chat hook');
     } catch (error) {
-      console.error('Error sending message:', error);
-      
-      // Fallback response
-      const fallbackMessage: Message = {
-        id: `ai-${Date.now()}`,
-        content: 'すみません、少し調子が悪いようです。もう一度お話しいただけますか？',
-        isUser: false,
-        sender: 'ai',
-        timestamp: new Date(),
-        sessionId: currentSessionId,
-        sequenceNumber: nextSequenceNumber + 1 // 👈 NEW: 順序保証用
-      };
-      
-      setMessages(prev => [...prev, fallbackMessage]);
-      setIsTyping(false);
+      console.error('❌ Error sending message via unified hook:', error);
     }
   };
 
@@ -634,7 +343,7 @@ export default function ChatPage() {
   };
 
   // Loading state
-  if (!userType || !aiPersonality || isLoading) {
+  if (!userType || !aiPersonality || chatState.loadingStates.loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-stone-50 via-stone-25 to-white flex items-center justify-center">
         <div className="text-center">
@@ -728,11 +437,45 @@ export default function ChatPage() {
             {/* 🔐 プライバシー表示 - モバイル最適化 */}
             <div className="mt-2 sm:mt-3">
               <SecureConnectionStatus 
-                messagesEncrypted={messages.length}
-                totalMessages={messages.length}
+                messagesEncrypted={chatState.messages.length}
+                totalMessages={chatState.messages.length}
                 securityEnhanced={true}
               />
             </div>
+
+            {/* 🎯 統合データ状態表示 */}
+            {(chatState.loadingStates.syncing || chatState.loadingStates.loadingMessages || chatState.error) && (
+              <div className="mt-2 sm:mt-3">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-2">
+                  <div className="text-xs text-blue-700">
+                    {chatState.loadingStates.syncing && (
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
+                        <span>Supabaseと同期中...</span>
+                      </div>
+                    )}
+                    {chatState.loadingStates.loadingMessages && (
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
+                        <span>メッセージを読み込み中...</span>
+                      </div>
+                    )}
+                    {chatState.error && (
+                      <div className="flex items-center gap-2 text-red-700">
+                        <span>⚠️</span>
+                        <span>{chatState.error}</span>
+                        <button 
+                          onClick={() => chatState.clearError()}
+                          className="ml-2 text-red-500 hover:text-red-700"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
             
             {/* 関係性レベル表示 - モバイル最適化 */}
             {relationship && typeof relationship.currentLevel === 'object' && relationship.currentLevel.level > 1 && (
@@ -755,7 +498,7 @@ export default function ChatPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="bg-white/70 p-3 rounded-lg">
                       <div className="text-pink-700 font-medium mb-1">今日の会話</div>
-                      <div className="text-pink-600">{messages.length}メッセージ交換</div>
+                      <div className="text-pink-600">{chatState.messages.length}メッセージ交換</div>
                     </div>
                     <div className="bg-white/70 p-3 rounded-lg">
                       <div className="text-pink-700 font-medium mb-1">関係性レベル</div>
@@ -765,12 +508,12 @@ export default function ChatPage() {
                   <div className="bg-white/70 p-3 rounded-lg">
                     <div className="text-pink-700 font-medium mb-2">最近の話題</div>
                     <div className="text-pink-600 space-y-1">
-                      {messages.filter(m => m.sender === 'user').slice(-3).map((msg, index) => (
+                      {chatState.messages.filter(m => m.sender === 'user').slice(-3).map((msg, index) => (
                         <div key={msg.id} className="text-xs truncate">
                           • {msg.content.slice(0, 40)}{msg.content.length > 40 ? '...' : ''}
                         </div>
                       ))}
-                      {messages.filter(m => m.sender === 'user').length === 0 && (
+                      {chatState.messages.filter(m => m.sender === 'user').length === 0 && (
                         <div className="text-xs text-pink-500">まだお話していませんね♪</div>
                       )}
                     </div>
@@ -825,7 +568,7 @@ export default function ChatPage() {
               )}
               
               <AnimatePresence>
-                {messages.map((message) => (
+                {chatState.messages.map((message) => (
                   <MessageBubble
                     key={message.id}
                     message={message}
@@ -834,7 +577,7 @@ export default function ChatPage() {
               </AnimatePresence>
 
               {/* Typing Indicator */}
-              {isTyping && (
+              {chatState.isTyping && (
                 <div className="flex gap-3">
                   <Avatar className="w-6 h-6 sm:w-8 sm:h-8 flex-shrink-0">
                     <AvatarFallback className="bg-blue-500 text-white text-sm font-semibold">
@@ -861,7 +604,7 @@ export default function ChatPage() {
           <footer className="flex-shrink-0 border-t border-gray-200 bg-white p-3 sm:p-4">
             <ChatInputClaude
               onSendMessage={handleSendMessage}
-              disabled={isTyping}
+              disabled={chatState.isTyping || chatState.loadingStates.sending}
               placeholder="メッセージを入力してください..."
               onShowHistory={handleShowHistory}
               onShowMemories={() => setShowMemories(!showMemories)}
@@ -876,11 +619,12 @@ export default function ChatPage() {
 
       {/* Chat History Sidebar */}
       <ChatHistory
-        isOpen={showHistory}
-        onClose={() => setShowHistory(false)}
+        isOpen={chatState.showHistory}
+        onClose={() => chatState.setShowHistory(false)}
         onSelectSession={handleSelectSession}
         onNewSession={handleNewSession}
-        currentSessionId={currentSessionId}
+        currentSessionId={chatState.currentSessionId}
+        userId={userId}
       />
 
       {/* Level Up Modal */}
