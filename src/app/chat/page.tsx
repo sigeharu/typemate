@@ -184,7 +184,7 @@ export default function ChatPage() {
           // user_profilesから保存済み設定を取得
           const { data: profiles, error } = await supabase
             .from('user_profiles')
-            .select('selected_ai_personality, relationship_type, updated_at')
+            .select('selected_ai_personality, relationship_type, updated_at, display_name')
             .eq('user_id', user.id)
             .order('updated_at', { ascending: false })
             .limit(1);
@@ -236,7 +236,13 @@ export default function ChatPage() {
         // Load relationship and memory data
         const relationshipData = loadRelationshipData();
         const memoryData = null; // Temporary disable
-        const personalData = JSON.parse(localStorage.getItem('personalInfo') || '{"name":""}');
+        
+        // 🔗 データベースの名前を優先的に使用（ハーモニックAI設定との連携）
+        const localPersonalData = JSON.parse(localStorage.getItem('personalInfo') || '{"name":""}');
+        const personalData = {
+          ...localPersonalData,
+          ...(profile?.display_name && { name: profile.display_name }) // データベースの名前を優先
+        };
         
         setRelationship(relationshipData);
         setMemory(null);

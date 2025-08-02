@@ -83,6 +83,7 @@ export interface DailyHarmonicGuidance {
  */
 export async function createHarmonicProfile(
   userId: string,
+  name: string,
   birthDate: Date,
   birthTime?: string,
   birthLocation?: string,
@@ -91,7 +92,7 @@ export async function createHarmonicProfile(
   relationshipType: 'friend' | 'counselor' | 'romantic' | 'mentor' = 'friend'
 ): Promise<HarmonicAIProfile> {
   try {
-    console.log('🌟 Creating harmonic profile:', { userId, birthDate, userType, selectedAiPersonality });
+    console.log('🌟 Creating harmonic profile:', { userId, name, birthDate, userType, selectedAiPersonality });
     
     // 占星術プロファイル生成
     const astrologyProfile = await generateIntegratedProfile(
@@ -133,8 +134,8 @@ export async function createHarmonicProfile(
     lastGuidanceUpdate: new Date()
   };
   
-    // データベースに保存
-    await saveHarmonicProfile(profile);
+    // データベースに保存（プロファイル + ユーザー名）
+    await saveHarmonicProfile(profile, name);
     
     return profile;
   } catch (error) {
@@ -554,9 +555,9 @@ function generateDailyTypeMateAdvice(day: CycleForecastDay, aiPersonality: BaseA
   return personalityAdvice[aiPersonality] || 'あなたの特質を活かして';
 }
 
-async function saveHarmonicProfile(profile: HarmonicAIProfile): Promise<void> {
+async function saveHarmonicProfile(profile: HarmonicAIProfile, name?: string): Promise<void> {
   try {
-    console.log('💾 Saving harmonic profile for userId:', profile.userId);
+    console.log('💾 Saving harmonic profile for userId:', profile.userId, 'with name:', name);
     
     // まず既存のレコードをチェック
     const { data: existingData } = await supabase
@@ -576,7 +577,8 @@ async function saveHarmonicProfile(profile: HarmonicAIProfile): Promise<void> {
       zodiac_element: profile.astrologyProfile.zodiac.element,
       life_path_number: profile.astrologyProfile.numerology.lifePathNumber,
       astrology_privacy: profile.privacySettings.shareAstrologyData ? 'public' : 'private',
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
+      ...(name && { display_name: name }) // 名前がある場合のみ追加
     };
     
     if (existingData && existingData.length > 0) {

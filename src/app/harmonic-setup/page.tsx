@@ -97,6 +97,7 @@ export default function HarmonicSetupPage() {
       
       const profile = await createHarmonicProfile(
         userId,
+        profileData.name,
         profileData.birthDate,
         profileData.birthTime,
         profileData.birthLocation,
