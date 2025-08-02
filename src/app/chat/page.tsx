@@ -244,9 +244,16 @@ export default function ChatPage() {
         try {
           const harmonicProfile = await getHarmonicProfile(user.id);
           if (harmonicProfile) {
-            // データベースから名前を取得（フォールバック: localStorage）
+            // データベースから名前を直接取得
+            const { data: nameData } = await supabase
+              .from('user_profiles')
+              .select('display_name')
+              .eq('user_id', user.id)
+              .order('updated_at', { ascending: false })
+              .limit(1);
+            
             const localPersonalData = JSON.parse(localStorage.getItem('personalInfo') || '{}');
-            const dbName = profile?.display_name || '';
+            const dbName = nameData?.[0]?.display_name || '';
             personalData = {
               name: dbName || localPersonalData.name || '',
               birthDate: harmonicProfile.astrologyProfile.birthDate
