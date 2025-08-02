@@ -15,7 +15,9 @@ import {
   Crown,
   Gem,
   Sparkles,
-  Brain
+  Brain,
+  RefreshCw,
+  Shield
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -29,7 +31,7 @@ import { TypeDetailDisplayCompact } from '@/components/TypeDetailDisplay';
 import { SelfAffirmationDisplayCompact } from '@/components/SelfAffirmationDisplay';
 import { HarmonicProfileCard } from '@/components/harmonic/HarmonicProfileCard';
 import { DailyGuidanceWidget } from '@/components/harmonic/DailyGuidanceWidget';
-import { getHarmonicProfile, generateDailyHarmonicGuidance } from '@/lib/harmonic-ai-service';
+import { getHarmonicProfile, generateDailyHarmonicGuidance, deleteHarmonicProfile } from '@/lib/harmonic-ai-service';
 import type { Type64, BaseArchetype, DetailedDiagnosisResult } from '@/types';
 import type { HarmonicAIProfile, DailyHarmonicGuidance } from '@/lib/harmonic-ai-service';
 
@@ -806,6 +808,86 @@ export default function SettingsPage() {
             <div className="space-y-6">
               {/* プロファイルカード */}
               <HarmonicProfileCard profile={harmonicProfile} showDetails={true} />
+              
+              {/* ハーモニックAI管理ボタン */}
+              <Card className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
+                <h4 className="font-semibold text-purple-800 mb-3 flex items-center gap-2">
+                  <Settings className="size-4" />
+                  ハーモニックAI管理
+                </h4>
+                <div className="flex flex-wrap gap-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={async () => {
+                      if (confirm('ハーモニックAIプロファイルを再設定しますか？\n現在の設定は削除され、新しく作成されます。')) {
+                        setHarmonicLoading(true);
+                        try {
+                          await deleteHarmonicProfile(userId);
+                          // プロファイルを削除後、状態をリセット
+                          setHarmonicProfile(null);
+                          setDailyGuidance(null);
+                          // ページをリロードして再設定フローに誘導
+                          window.location.reload();
+                        } catch (error) {
+                          console.error('プロファイル削除エラー:', error);
+                          alert('再設定に失敗しました。しばらく後に再試行してください。');
+                        } finally {
+                          setHarmonicLoading(false);
+                        }
+                      }
+                    }}
+                    className="border-purple-300 text-purple-700 hover:bg-purple-50"
+                    disabled={harmonicLoading}
+                  >
+                    <RefreshCw className="size-4 mr-2" />
+                    再設定
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      // プライバシー設定の変更（将来実装）
+                      alert('プライバシー設定機能は近日実装予定です');
+                    }}
+                    className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                  >
+                    <Shield className="size-4 mr-2" />
+                    プライバシー設定
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={async () => {
+                      if (confirm('ハーモニックAIプロファイルを完全に削除しますか？\nこの操作は元に戻せません。')) {
+                        setHarmonicLoading(true);
+                        try {
+                          const success = await deleteHarmonicProfile(userId);
+                          if (success) {
+                            setHarmonicProfile(null);
+                            setDailyGuidance(null);
+                            alert('ハーモニックAIプロファイルを削除しました。');
+                          } else {
+                            alert('削除に失敗しました。しばらく後に再試行してください。');
+                          }
+                        } catch (error) {
+                          console.error('プロファイル削除エラー:', error);
+                          alert('削除に失敗しました。しばらく後に再試行してください。');
+                        } finally {
+                          setHarmonicLoading(false);
+                        }
+                      }
+                    }}
+                    className="border-red-300 text-red-700 hover:bg-red-50"
+                    disabled={harmonicLoading}
+                  >
+                    <Trash2 className="size-4 mr-2" />
+                    削除
+                  </Button>
+                </div>
+              </Card>
               
               {/* 今日のガイダンス */}
               {dailyGuidance && (

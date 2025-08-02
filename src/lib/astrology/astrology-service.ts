@@ -334,18 +334,26 @@ export function generateTodayCosmicGuidance(
     numerology.lifePathNumber
   );
   
+  // 今日のチャレンジと機会を生成
+  const challenges = generateDailyChallenges(zodiac, numerology, currentMoon);
+  const opportunities = generateDailyOpportunities(zodiac, numerology, currentMoon);
+  
   return {
     cosmicWeather,
     personalMessage,
-    actionItems: profile.dailyGuidance.actionRecommendations,
+    actionItems: profile.dailyGuidance.actionRecommendations || [
+      '宇宙のエネルギーと調和する',
+      '直感に従って行動する',
+      '今日の特別な瞬間を大切にする'
+    ],
     energyForecast,
     luckyElements: {
       color: profile.dailyGuidance.luckyElements.color,
       number: profile.dailyGuidance.luckyElements.number,
       direction: generateLuckyDirection(zodiac.element)
     },
-    challenges: generateDailyChallenges(zodiac, numerology, currentMoon),
-    opportunities: generateDailyOpportunities(zodiac, numerology, currentMoon)
+    challenges,
+    opportunities
   };
 }
 

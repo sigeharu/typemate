@@ -144,6 +144,31 @@ export async function createHarmonicProfile(
 }
 
 /**
+ * 🌟 ハーモニックプロファイルを削除
+ */
+export async function deleteHarmonicProfile(userId: string): Promise<boolean> {
+  try {
+    console.log('🗑️ Deleting harmonic profile for userId:', userId);
+    
+    const { error } = await supabase
+      .from('user_profiles')
+      .delete()
+      .eq('user_id', userId);
+    
+    if (error) {
+      console.error('❌ Error deleting harmonic profile:', error);
+      return false;
+    }
+    
+    console.log('✅ Harmonic profile deleted successfully');
+    return true;
+  } catch (error) {
+    console.error('❌ Error in deleteHarmonicProfile:', error);
+    return false;
+  }
+}
+
+/**
  * 🌟 ハーモニックプロファイルを取得
  */
 export async function getHarmonicProfile(userId: string): Promise<HarmonicAIProfile | null> {
