@@ -11,6 +11,7 @@ import { useMemoryManager } from './useMemoryManager';
 import type { Message, Type64, BaseArchetype } from '@/types';
 import { PrivacyEngine, createEncryptedMessage } from '@/lib/privacy-encryption';
 import { SecureMemoryManager } from '@/lib/SecureMemoryManager';
+import { sendEnhancedMessage, isHarmonicEnhancementAvailable } from '@/lib/harmonic-chat-service';
 
 // 📋 統一チャット状態の型定義
 interface UnifiedChatState {
@@ -308,32 +309,38 @@ export function useUnifiedChat({
         }
       }
 
-      // 4. AI応答生成のためのAPI呼び出し
+      // 4. ハーモニック統合AI応答生成
       const messageHistory = state.messages.map(m => m.content);
       
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: content.trim(),
-          userType,
-          aiPersonality,
-          relationshipType: 'friend',
-          messageHistory,
-          conversationTurn: state.messages.length / 2,
-          relationshipLevel: 1,
-          chatCount: state.messages.length + 1,
-          personalInfo: {},
-          currentMood: '😊',
-          moodContext: ''
-        })
+      console.log('🌟 Using Harmonic Enhanced Chat Service', {
+        userId,
+        userType,
+        aiPersonality,
+        messageHistoryLength: messageHistory.length
       });
+      
+      const enhancedRequest = {
+        message: content.trim(),
+        userType,
+        aiPersonality,
+        userId,
+        relationshipType: 'friend' as const,
+        messageHistory,
+        conversationTurn: state.messages.length / 2,
+        currentMood: '😊',
+        moodContext: '',
+        personalInfo: {},
+        chatCount: state.messages.length + 1,
+      };
 
-      if (!response.ok) {
-        throw new Error(`API request failed: ${response.status}`);
-      }
-
-      const aiResponse = await response.json();
+      const aiResponse = await sendEnhancedMessage(enhancedRequest);
+      
+      console.log('✨ Harmonic Enhanced Response:', {
+        hasAstrologicalInsight: !!aiResponse.astrologicalInsight,
+        harmonicEnhancement: aiResponse.harmonicEnhancement,
+        emotionIntensity: aiResponse.emotionAnalysis?.intensity || 0,
+        contentLength: aiResponse.content?.length || 0
+      });
       
       // 5. AI応答の楽観的追加
       const aiMessage: Message = {
