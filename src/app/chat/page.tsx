@@ -238,16 +238,34 @@ export default function ChatPage() {
         const relationshipData = loadRelationshipData();
         const memoryData = null; // Temporary disable
         
-        // 🔗 localStorageからpersonalInfo取得（将来的にはuser_profilesから取得予定）
-        const localPersonalData = JSON.parse(localStorage.getItem('personalInfo') || '{"name":""}');
+        // 🔗 ハーモニックプロファイルから個人情報取得
+        let personalData = { name: '', birthDate: null };
         
-        // ハーモニック設定で名前が保存されているかチェック
-        if (!localPersonalData.name && profile) {
-          console.log('🔍 ハーモニック設定から名前を取得中...');
-          // 将来的にuser_profilesにdisplay_nameフィールドを追加予定
+        try {
+          const harmonicProfile = await getHarmonicProfile(user.id);
+          if (harmonicProfile) {
+            // LocalStorageに保存された名前を取得
+            const localPersonalData = JSON.parse(localStorage.getItem('personalInfo') || '{}');
+            personalData = {
+              name: localPersonalData.name || '',
+              birthDate: harmonicProfile.astrologyProfile.birthDate
+            };
+            console.log('🌟 ハーモニックプロファイルから個人情報取得:', {
+              name: personalData.name,
+              birthDate: personalData.birthDate ? personalData.birthDate.toISOString().split('T')[0] : 'なし',
+              zodiacSign: harmonicProfile.astrologyProfile.zodiac.sign
+            });
+          } else {
+            // フォールバック: LocalStorageのみ
+            const localPersonalData = JSON.parse(localStorage.getItem('personalInfo') || '{}');
+            personalData = { name: localPersonalData.name || '', birthDate: null };
+            console.log('📁 LocalStorageのみから個人情報取得:', personalData);
+          }
+        } catch (error) {
+          console.warn('⚠️ 個人情報取得エラー:', error);
+          const localPersonalData = JSON.parse(localStorage.getItem('personalInfo') || '{}');
+          personalData = { name: localPersonalData.name || '', birthDate: null };
         }
-        
-        const personalData = localPersonalData;
         console.log('👤 Personal info loaded:', { 
           name: personalData.name, 
           source: personalData.name ? 'localStorage' : 'none' 
