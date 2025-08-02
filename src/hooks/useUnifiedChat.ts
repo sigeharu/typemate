@@ -12,6 +12,7 @@ import type { Message, Type64, BaseArchetype } from '@/types';
 import { PrivacyEngine, createEncryptedMessage } from '@/lib/privacy-encryption';
 import { SecureMemoryManager } from '@/lib/SecureMemoryManager';
 import { sendEnhancedMessage, isHarmonicEnhancementAvailable } from '@/lib/harmonic-chat-service';
+import { supabase } from '@/lib/supabase-simple';
 
 // 📋 統一チャット状態の型定義
 interface UnifiedChatState {
@@ -391,14 +392,42 @@ export function useUnifiedChat({
         }
       }
 
-      // 4. ハーモニック統合AI応答生成
+      // 4. 個人情報取得
+      let personalInfo = { name: '', birthday: '' };
+      try {
+        // データベースから名前を取得
+        const { data: nameData } = await supabase
+          .from('user_profiles')
+          .select('display_name, birth_date')
+          .eq('user_id', userId)
+          .order('updated_at', { ascending: false })
+          .limit(1);
+        
+        // LocalStorageからフォールバック
+        const localPersonalData = JSON.parse(localStorage.getItem('personalInfo') || '{}');
+        
+        personalInfo = {
+          name: nameData?.[0]?.display_name || localPersonalData.name || '',
+          birthday: nameData?.[0]?.birth_date || ''
+        };
+        
+        console.log('👤 Personal info for AI:', personalInfo);
+      } catch (error) {
+        console.warn('⚠️ Failed to get personal info:', error);
+        // フォールバック: localStorage
+        const localPersonalData = JSON.parse(localStorage.getItem('personalInfo') || '{}');
+        personalInfo = { name: localPersonalData.name || '', birthday: '' };
+      }
+
+      // 5. ハーモニック統合AI応答生成
       const messageHistory = state.messages.map(m => m.content);
       
       console.log('🌟 Using Harmonic Enhanced Chat Service', {
         userId,
         userType,
         aiPersonality,
-        messageHistoryLength: messageHistory.length
+        messageHistoryLength: messageHistory.length,
+        personalInfo
       });
       
       const enhancedRequest = {
@@ -411,7 +440,7 @@ export function useUnifiedChat({
         conversationTurn: state.messages.length / 2,
         currentMood: '😊',
         moodContext: '',
-        personalInfo: {},
+        personalInfo,
         chatCount: state.messages.length + 1,
       };
 
