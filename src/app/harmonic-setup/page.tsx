@@ -13,7 +13,10 @@ import {
   Crown,
   Heart,
   Brain,
-  Zap
+  Zap,
+  Settings,
+  Trash2,
+  RefreshCw
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -102,6 +105,44 @@ export default function HarmonicSetupPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // プロファイル削除処理
+  const handleDeleteProfile = async () => {
+    if (!confirm('🗑️ ハーモニックプロファイルを削除しますか？\n\n削除すると占星術データが失われ、通常のチャットに戻ります。')) {
+      return;
+    }
+    
+    try {
+      setIsLoading(true);
+      
+      // Supabaseからプロファイル削除
+      const { error } = await supabase
+        .from('user_profiles')
+        .delete()
+        .eq('user_id', userId);
+      
+      if (error) throw error;
+      
+      // 状態をリセット
+      setExistingProfile(null);
+      setSetupComplete(false);
+      setShowWizard(false);
+      
+      console.log('✅ ハーモニックプロファイル削除完了');
+      
+    } catch (error) {
+      console.error('❌ プロファイル削除エラー:', error);
+      setError(`プロファイル削除エラー: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 再設定開始
+  const handleReconfigure = () => {
+    setSetupComplete(false);
+    setShowWizard(true);
   };
   
   if (isLoading) {
@@ -247,6 +288,26 @@ export default function HarmonicSetupPage() {
                 詳細設定を確認
               </Button>
             </div>
+            
+            {/* 再設定・削除ボタン */}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6 pt-6 border-t border-purple-200 dark:border-purple-700">
+              <Button
+                variant="outline"
+                onClick={handleReconfigure}
+                className="border-blue-300 dark:border-blue-600 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900 px-6 py-2"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                ハーモニック設定を変更
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleDeleteProfile}
+                className="border-red-300 dark:border-red-600 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900 px-6 py-2"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                プロファイルを削除
+              </Button>
+            </div>
           </motion.div>
         ) : showWizard ? (
           
@@ -262,6 +323,7 @@ export default function HarmonicSetupPage() {
               selectedAiPersonality={selectedAiPersonality || undefined}
               relationshipType={relationshipType}
               onComplete={handleSetupComplete}
+              onCancel={() => setShowWizard(false)}
             />
           </motion.div>
         ) : (

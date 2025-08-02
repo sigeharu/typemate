@@ -42,6 +42,7 @@ interface HarmonicSetupWizardProps {
     };
   }) => void;
   onPreview?: (profileData: any) => void;
+  onCancel?: () => void;
 }
 
 export function HarmonicSetupWizard({
@@ -49,7 +50,8 @@ export function HarmonicSetupWizard({
   selectedAiPersonality,
   relationshipType = 'friend',
   onComplete,
-  onPreview
+  onPreview,
+  onCancel
 }: HarmonicSetupWizardProps) {
   
   const [currentStep, setCurrentStep] = useState(0);
@@ -556,12 +558,11 @@ export function HarmonicSetupWizard({
       <div className="flex items-center justify-between">
         <Button
           variant="outline"
-          onClick={handlePrev}
-          disabled={currentStep === 0}
+          onClick={currentStep === 0 ? onCancel : handlePrev}
           className="flex items-center space-x-2"
         >
           <ChevronLeft className="w-4 h-4" />
-          <span>戻る</span>
+          <span>{currentStep === 0 ? 'キャンセル' : '戻る'}</span>
         </Button>
         
         <div className="flex items-center space-x-2 text-sm text-gray-800 dark:text-gray-200">
