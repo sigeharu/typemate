@@ -3,10 +3,9 @@
 
 'use client';
 
-import { getHarmonicProfile, generateDailyHarmonicGuidance } from './harmonic-ai-service';
+import { getHarmonicProfile, generateDailyHarmonicGuidance, type DailyHarmonicGuidance } from './harmonic-ai-service';
 import type { 
   HarmonicAIProfile, 
-  DailyHarmonicGuidance,
   BaseArchetype, 
   Type64,
   IntegratedAstrologyProfile 
@@ -293,7 +292,7 @@ export function generateEnhancedMoodContext(
       water: '水のエレメントの感情的なエネルギーを感じます。深い共感と理解を大切に。'
     };
     
-    moodContext += `\n${elementEnhancement[zodiacElement] || ''}`;
+    moodContext += `\n${elementEnhancement[zodiacElement as keyof typeof elementEnhancement] || ''}`;
   }
   
   return moodContext;
