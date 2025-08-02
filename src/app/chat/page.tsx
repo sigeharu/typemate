@@ -179,17 +179,18 @@ export default function ChatPage() {
         // 🎯 設定ページで保存されたAI設定を優先的に取得
         let selectedArchetype: string = 'DRM';
         let savedRelationshipType: 'friend' | 'counselor' | 'romantic' | 'mentor' = 'friend';
+        let profile: any = null; // profileをより広いスコープで定義
         
         try {
           // user_profilesから保存済み設定を取得
           const { data: profiles, error } = await supabase
             .from('user_profiles')
-            .select('selected_ai_personality, relationship_type, updated_at, display_name')
+            .select('selected_ai_personality, relationship_type, updated_at')
             .eq('user_id', user.id)
             .order('updated_at', { ascending: false })
             .limit(1);
           
-          const profile = profiles?.[0];
+          profile = profiles?.[0];
           
           if (error) {
             console.warn('⚠️ チャット用AI設定取得エラー:', error);
@@ -237,12 +238,9 @@ export default function ChatPage() {
         const relationshipData = loadRelationshipData();
         const memoryData = null; // Temporary disable
         
-        // 🔗 データベースの名前を優先的に使用（ハーモニックAI設定との連携）
+        // 🔗 localStorageからpersonalInfo取得（将来的にはuser_profilesから取得予定）
         const localPersonalData = JSON.parse(localStorage.getItem('personalInfo') || '{"name":""}');
-        const personalData = {
-          ...localPersonalData,
-          ...(profile?.display_name && { name: profile.display_name }) // データベースの名前を優先
-        };
+        const personalData = localPersonalData;
         
         setRelationship(relationshipData);
         setMemory(null);

@@ -577,8 +577,8 @@ async function saveHarmonicProfile(profile: HarmonicAIProfile, name?: string): P
       zodiac_element: profile.astrologyProfile.zodiac.element,
       life_path_number: profile.astrologyProfile.numerology.lifePathNumber,
       astrology_privacy: profile.privacySettings.shareAstrologyData ? 'public' : 'private',
-      updated_at: new Date().toISOString(),
-      ...(name && { display_name: name }) // 名前がある場合のみ追加
+      updated_at: new Date().toISOString()
+      // TODO: display_nameフィールドをuser_profilesテーブルに追加後、名前保存機能を有効化
     };
     
     if (existingData && existingData.length > 0) {
