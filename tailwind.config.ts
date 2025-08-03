@@ -8,179 +8,275 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      // 🌍 Context7風レスポンシブスペーシング
+      // 🚀 パフォーマンス最適化: 必要最小限のスペーシング
       spacing: {
         '18': '4.5rem',
         '88': '22rem',
-        '128': '32rem',
       },
-      // 🎵 音楽的カラーパレット（しげちゃんセンス統合）
+      // 🎵 最適化されたカラーパレット（使用頻度ベース）
       colors: {
         primary: {
-          50: '#fef7ee',   // クリーム - YOASOBI親しみやすさ
-          100: '#fdd9b5',  // ライトゴールド - tuki.繊細さ
-          200: '#fbb382',  // ソフトオレンジ
-          300: '#f97316',  // メインオレンジ - Ash island エネルギー
-          400: '#ea580c',  // ビビッドオレンジ
-          500: '#dc2626',  // レッドオレンジ
-          600: '#c2410c',  // ダークオレンジ - 天野達也 テクニカル
-          700: '#9a3412',  // ディープオレンジ
-          800: '#7c2d12',  // 深い理解
-          900: '#431407',  // 最深部
+          50: '#fef7ee',   // メイン使用色のみ保持
+          100: '#fdd9b5',
+          300: '#f97316',  // メインオレンジ
+          600: '#c2410c',  // アクセント
+          900: '#431407',  // ダーク
         },
-        // MBTI別アクセントカラー - 感情の色彩
-        enfp: {
-          energy: '#10b981',   // 創造的エネルギー（グリーン）
-          harmony: '#8b5cf6',  // 調和（パープル）
+        // 🎵 音楽的アクセントカラー（使用される分のみ）
+        musical: {
+          harmony: '#8b5cf6',  // ハーモニー（パープル）
+          energy: '#10b981',   // エネルギー（グリーン）
+          calm: '#3b82f6',     // 冷静（ブルー）
+          warm: '#f59e0b',     // 温かみ（アンバー）
         },
-        intj: {
-          logic: '#3b82f6',    // 論理的思考（ブルー）
-          vision: '#6366f1',   // ビジョン（インディゴ）
-        },
-        isfp: {
-          gentle: '#f472b6',   // 優しさ（ピンク）
-          authentic: '#a78bfa', // 真正性（ライトパープル）
-        },
-        estp: {
-          action: '#ef4444',   // 行動力（レッド）
-          vitality: '#f59e0b', // 活力（アンバー）
-        },
-        // 自然×デジタル融合カラー
-        nature: {
-          earth: '#a3a3a3',    // 大地
-          sky: '#e0e7ff',      // 空
-          water: '#bfdbfe',    // 水
-          forest: '#bbf7d0',   // 森
-        },
-        // クリスプな音質感カラー
+        // 🎨 UI必須カラー
         crisp: {
-          white: '#fafafa',    // 純白の静寂
-          silver: '#f5f5f5',   // 優しいシルバー
-          platinum: '#e5e5e5', // 境界線の美しさ
-          carbon: '#404040',   // カーボン
+          white: '#fafafa',
+          silver: '#f5f5f5',
+          carbon: '#404040',
         }
       },
-      // 🎼 音楽的フォントファミリー
+      // 🎼 最適化フォント（webfont数削減）
       fontFamily: {
-        sans: ['Inter', 'Noto Sans JP', 'system-ui', 'sans-serif'],
-        music: ['Comfortaa', 'Inter', 'sans-serif'], // 音楽的な丸みのあるフォント
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        music: ['Inter', 'sans-serif'], // フォント数削減
       },
-      // 🎵 音楽的アニメーション
+      // 🎵 必須アニメーションのみ（パフォーマンス重視）
       animation: {
-        // 天野達也風 - テクニカルな正確性
-        'technical-fade': 'technical-fade 0.3s ease-out',
-        'technical-scale': 'technical-scale 0.4s ease-out',
+        // Core animations only
+        'fade-in': 'fade-in 0.3s ease-out',
+        'slide-up': 'slide-up 0.4s ease-out',
+        'scale-in': 'scale-in 0.2s ease-out',
         
-        // tuki.風 - 繊細な感性
-        'gentle-slide': 'gentle-slide 0.5s ease-in-out',
-        'gentle-float': 'gentle-float 2s ease-in-out infinite',
+        // TypeMate専用（60fps保証）
+        'message-appear': 'message-appear 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+        'level-up': 'level-up 0.6s ease-out',
         
-        // Ash island風 - エネルギッシュ
-        'energetic-bounce': 'energetic-bounce 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
-        'energetic-pulse': 'energetic-pulse 1s ease-in-out infinite',
-        
-        // YOASOBI風 - 親しみやすい
-        'friendly-wiggle': 'friendly-wiggle 0.6s ease-in-out',
-        'friendly-glow': 'friendly-glow 2s ease-in-out infinite',
-        
-        // TypeMate専用
-        'typemate-entrance': 'typemate-entrance 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-        'mbti-reveal': 'mbti-reveal 1.2s ease-out',
+        // 必要に応じてGPU加速
+        'float': 'float 2s ease-in-out infinite',
       },
       keyframes: {
-        // 天野達也風アニメーション
-        'technical-fade': {
-          '0%': { opacity: '0', transform: 'scale(0.95)' },
-          '100%': { opacity: '1', transform: 'scale(1)' },
+        // 基本アニメーション（GPU最適化済み）
+        'fade-in': {
+          '0%': { opacity: '0', transform: 'translateZ(0)' },
+          '100%': { opacity: '1', transform: 'translateZ(0)' },
         },
-        'technical-scale': {
-          '0%': { transform: 'scale(0.8)' },
-          '100%': { transform: 'scale(1)' },
-        },
-        
-        // tuki.風アニメーション
-        'gentle-slide': {
-          '0%': { opacity: '0', transform: 'translateY(20px)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
-        },
-        'gentle-float': {
-          '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-5px)' },
-        },
-        
-        // Ash island風アニメーション
-        'energetic-bounce': {
-          '0%': { opacity: '0', transform: 'translateX(-50px) scale(0.8)' },
-          '100%': { opacity: '1', transform: 'translateX(0) scale(1)' },
-        },
-        'energetic-pulse': {
-          '0%, 100%': { transform: 'scale(1)' },
-          '50%': { transform: 'scale(1.05)' },
-        },
-        
-        // YOASOBI風アニメーション
-        'friendly-wiggle': {
-          '0%': { opacity: '0', transform: 'rotate(-5deg)' },
-          '100%': { opacity: '1', transform: 'rotate(0deg)' },
-        },
-        'friendly-glow': {
-          '0%, 100%': { boxShadow: '0 0 5px rgba(249, 115, 22, 0.3)' },
-          '50%': { boxShadow: '0 0 20px rgba(249, 115, 22, 0.6)' },
-        },
-        
-        // TypeMate専用アニメーション
-        'typemate-entrance': {
+        'slide-up': {
           '0%': { 
             opacity: '0', 
-            transform: 'translateY(30px) scale(0.9)',
-            filter: 'blur(5px)'
+            transform: 'translate3d(0, 20px, 0)' // GPU加速
           },
           '100%': { 
             opacity: '1', 
-            transform: 'translateY(0) scale(1)',
-            filter: 'blur(0px)'
+            transform: 'translate3d(0, 0, 0)' 
           },
         },
-        'mbti-reveal': {
+        'scale-in': {
           '0%': { 
             opacity: '0', 
-            transform: 'rotateX(90deg)',
-            transformOrigin: 'center bottom'
-          },
-          '50%': {
-            opacity: '0.5',
-            transform: 'rotateX(45deg)',
+            transform: 'scale3d(0.95, 0.95, 1)' // GPU加速
           },
           '100%': { 
             opacity: '1', 
-            transform: 'rotateX(0deg)',
+            transform: 'scale3d(1, 1, 1)' 
           },
+        },
+        
+        // TypeMate専用（最適化済み）
+        'message-appear': {
+          '0%': { 
+            opacity: '0', 
+            transform: 'translate3d(0, 8px, 0) scale3d(0.98, 0.98, 1)',
+          },
+          '100%': { 
+            opacity: '1', 
+            transform: 'translate3d(0, 0, 0) scale3d(1, 1, 1)',
+          },
+        },
+        'level-up': {
+          '0%': { 
+            transform: 'scale3d(0, 0, 1) rotate(0deg)',
+            opacity: '0'
+          },
+          '50%': { 
+            transform: 'scale3d(1.1, 1.1, 1) rotate(180deg)',
+            opacity: '1'
+          },
+          '100%': { 
+            transform: 'scale3d(1, 1, 1) rotate(360deg)',
+            opacity: '0.9'
+          },
+        },
+        'float': {
+          '0%, 100%': { transform: 'translate3d(0, 0, 0)' },
+          '50%': { transform: 'translate3d(0, -5px, 0)' },
         },
       },
-      // 🎨 音楽的グラデーション
+      // 🎨 パフォーマンス最適化グラデーション
       backgroundImage: {
-        // しげちゃん流音楽的グラデーション
-        'musical-sunrise': 'linear-gradient(135deg, #fef7ee 0%, #fdd9b5 25%, #f97316 75%, #c2410c 100%)',
-        'musical-harmony': 'linear-gradient(45deg, #10b981 0%, #8b5cf6 50%, #f97316 100%)',
-        'crisp-clarity': 'linear-gradient(180deg, #fafafa 0%, #f5f5f5 50%, #e5e5e5 100%)',
-        'energy-flow': 'linear-gradient(270deg, #ef4444 0%, #f97316 50%, #10b981 100%)',
+        'musical': 'linear-gradient(135deg, #fef7ee 0%, #f97316 100%)',
+        'harmony': 'linear-gradient(45deg, #10b981 0%, #8b5cf6 100%)',
+        'crisp': 'linear-gradient(180deg, #fafafa 0%, #f5f5f5 100%)',
       },
-      // 🎵 音楽的シャドウ
+      // 🎵 軽量シャドウ
       boxShadow: {
-        'musical': '0 4px 20px rgba(249, 115, 22, 0.15)',
         'crisp': '0 2px 10px rgba(0, 0, 0, 0.08)',
-        'gentle': '0 8px 25px rgba(139, 92, 246, 0.12)',
-        'energetic': '0 6px 20px rgba(239, 68, 68, 0.2)',
+        'musical': '0 4px 20px rgba(249, 115, 22, 0.15)',
       },
-      // 🎶 音楽的ボーダー半径
+      // 🎶 統一ボーダー半径
       borderRadius: {
-        'musical': '16px',
-        'harmony': '24px',
+        'musical': '12px',
         'crisp': '8px',
       }
     },
   },
+  // 🚀 パフォーマンス最適化プラグイン
   plugins: [],
+  
+  // 📦 未使用CSS除去強化
+  purge: {
+    enabled: process.env.NODE_ENV === 'production',
+    content: [
+      './src/**/*.{js,ts,jsx,tsx}',
+    ],
+    options: {
+      safelist: [
+        // 動的に生成されるクラス
+        /^animate-/,
+        /^bg-/,
+        /^text-/,
+        /^border-/,
+        // framer-motion用
+        'opacity-0',
+        'scale-95',
+        'translate-y-2',
+      ],
+    },
+  },
+  
+  // 🎯 最適化設定
+  future: {
+    removeDeprecatedGapUtilities: true,
+    purgeLayersByDefault: true,
+  },
+  
+  // 🎵 実験的最適化
+  experimental: {
+    optimizeUniversalDefaults: true,
+  },
+  
+  // 📊 ファイルサイズ削減
+  corePlugins: {
+    // 使用しない機能を無効化
+    preflight: true,
+    container: false, // 使用していない場合
+    accessibility: true,
+    appearance: true,
+    backgroundAttachment: false, // 使用頻度低
+    backgroundClip: true,
+    backgroundOpacity: true,
+    backgroundPosition: false,
+    backgroundRepeat: false,
+    backgroundSize: false,
+    borderCollapse: false,
+    borderOpacity: true,
+    borderSpacing: false,
+    clear: false,
+    cursor: true,
+    display: true,
+    divideColor: false,
+    divideOpacity: false,
+    divideWidth: false,
+    fill: false,
+    flex: true,
+    flexDirection: true,
+    flexGrow: true,
+    flexShrink: true,
+    flexWrap: true,
+    float: false,
+    fontFamily: true,
+    fontSize: true,
+    fontSmoothing: true,
+    fontStyle: true,
+    fontWeight: true,
+    gap: true,
+    gradientColorStops: true,
+    gridAutoColumns: false,
+    gridAutoFlow: false,
+    gridAutoRows: false,
+    gridColumn: false,
+    gridColumnEnd: false,
+    gridColumnStart: false,
+    gridRow: false,
+    gridRowEnd: false,
+    gridRowStart: false,
+    gridTemplateColumns: false,
+    gridTemplateRows: false,
+    height: true,
+    inset: true,
+    justifyContent: true,
+    justifyItems: false,
+    justifySelf: false,
+    letterSpacing: true,
+    lineHeight: true,
+    listStylePosition: false,
+    listStyleType: false,
+    margin: true,
+    maxHeight: true,
+    maxWidth: true,
+    minHeight: true,
+    minWidth: true,
+    objectFit: false,
+    objectPosition: false,
+    opacity: true,
+    order: false,
+    outline: true,
+    overflow: true,
+    overscrollBehavior: false,
+    padding: true,
+    placeContent: false,
+    placeItems: false,
+    placeSelf: false,
+    pointerEvents: true,
+    position: true,
+    resize: false,
+    ringColor: false,
+    ringOffsetColor: false,
+    ringOffsetWidth: false,
+    ringOpacity: false,
+    ringWidth: false,
+    rotate: false,
+    scale: false,
+    skew: false,
+    space: false,
+    strokeWidth: false,
+    tableLayout: false,
+    textAlign: true,
+    textColor: true,
+    textDecoration: true,
+    textDecorationColor: false,
+    textDecorationStyle: false,
+    textDecorationThickness: false,
+    textIndent: false,
+    textOpacity: true,
+    textOverflow: true,
+    textTransform: true,
+    textUnderlineOffset: false,
+    transform: true,
+    transformOrigin: false,
+    transitionDelay: false,
+    transitionDuration: true,
+    transitionProperty: true,
+    transitionTimingFunction: true,
+    translate: false,
+    userSelect: true,
+    verticalAlign: false,
+    visibility: true,
+    whitespace: true,
+    width: true,
+    wordBreak: false,
+    zIndex: true,
+  }
 };
 
 export default config;

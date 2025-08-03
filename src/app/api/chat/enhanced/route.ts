@@ -5,7 +5,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { getHarmonicProfileServer, generateDailyHarmonicGuidanceServer } from '@/lib/harmonic-ai-service-server';
 import { ARCHETYPE_DATA } from '@/lib/diagnostic-data';
-import type { BaseArchetype, Type64, HarmonicAIProfile } from '@/types';
+import type { BaseArchetype, Type64 } from '@/types';
+import type { HarmonicAIProfile } from '@/lib/harmonic-ai-service';
 import type { DailyHarmonicGuidance } from '@/lib/harmonic-ai-service-server';
 
 const anthropic = new Anthropic({
