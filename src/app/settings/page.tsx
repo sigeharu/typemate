@@ -331,10 +331,20 @@ export default function SettingsPage() {
     const initializeSettings = async () => {
       try {
         // 🔐 認証チェック（開発モード時はバイパス）
-        if (process.env.NODE_ENV === 'development') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const isTestMode = urlParams.get('test_mode') === 'true' && process.env.NODE_ENV === 'development';
+        
+        let currentUserId: string;
+        
+        if (isTestMode) {
+          // テストモード：固定UUIDを使用
+          currentUserId = '550e8400-e29b-41d4-a716-446655440000';
+          setUserId(currentUserId);
+          console.log('🧪 テストモード：認証をバイパス');
+        } else if (process.env.NODE_ENV === 'development') {
           // 開発環境：テストユーザーIDを使用
-          const testUserId = 'test-user-dev-mode';
-          setUserId(testUserId);
+          currentUserId = 'test-user-dev-mode';
+          setUserId(currentUserId);
           console.log('🛠️ 開発環境：認証をバイパスしてテストユーザーを使用');
         } else {
           const { data: { user } } = await supabase.auth.getUser();
@@ -342,18 +352,15 @@ export default function SettingsPage() {
             router.push('/auth/signin?redirect=/settings');
             return;
           }
+          currentUserId = user.id;
           setUserId(user.id);
         }
-        
-        setUserId(user.id);
 
         // 診断結果取得（開発モード時はローカルストレージから）
         let diagnosisStatus;
-        let currentUserId;
         
-        if (process.env.NODE_ENV === 'development') {
+        if (isTestMode || process.env.NODE_ENV === 'development') {
           // 開発環境：ローカルストレージからテストデータを取得
-          currentUserId = 'test-user-dev-mode';
           const testUserType = localStorage.getItem('userType64') || 'BAR-AS';
           diagnosisStatus = {
             hasDiagnosis: true,
@@ -362,7 +369,6 @@ export default function SettingsPage() {
           };
           console.log('🛠️ 開発モード：テスト診断データを使用', diagnosisStatus);
         } else {
-          currentUserId = userId;
           diagnosisStatus = await diagnosisService.getDiagnosisStatus(currentUserId);
           if (!diagnosisStatus.hasDiagnosis) {
             router.push('/diagnosis');

@@ -279,7 +279,7 @@ export class MemoryManager {
   }
 
   // 🎵 Phase 2: 感情データ付き会話記憶保存（チャット統合用・認証ユーザー必須）
-  // 🔒 暗号化対応会話記憶保存メソッド（認証ユーザー必須）
+  // 🔒 緊急修正: 暗号化を一時無効化して平文保存（復号化問題解決まで）
   async saveConversationMemory(
     messageContent: string,
     messageRole: 'user' | 'ai',
@@ -290,36 +290,25 @@ export class MemoryManager {
     emotionData?: EmotionData,
     sequenceNumber?: number // 👈 NEW: 順序保証用
   ): Promise<BasicMemory | null> {
-    // 🔐 エンドツーエンド暗号化実装
-    const masterPassword = 'temp-master-password-2025'; // TODO: 実際のマスターパスワード取得
-    const userKey = PrivacyEngine.generateUserKeyFromMaster(masterPassword, userId);
-    const keyReference = { sessionId: conversationId, messageId: Date.now().toString() };
-    
-    // セキュアメモリに保存
-    SecureMemoryManager.storeSecureKey(userKey, keyReference);
-    
     try {
-      // メッセージを暗号化
-      const encryptedMessageData = createEncryptedMessage(messageContent, userKey);
-      
-      console.log('🔐 Message encryption for DB storage:', {
-        original: messageContent.substring(0, 20) + '...',
-        encrypted: encryptedMessageData.encrypted.substring(0, 32) + '...',
-        privacyLevel: encryptedMessageData.privacyLevel,
-        hash: encryptedMessageData.hash.substring(0, 16) + '...'
+      console.log('💾 Saving conversation memory (plain text):', {
+        messageRole,
+        contentPreview: messageContent.substring(0, 20) + '...',
+        conversationId: conversationId.substring(0, 8) + '...',
+        sequenceNumber
       });
       
-      // 暗号化されたデータをデータベースに保存
+      // 🚨 緊急修正: 平文でデータベースに保存
       const memoryData: any = {
         archetype,
         relationship_level: 1,
         user_name: userName,
-        message_content: encryptedMessageData.encrypted, // 🔒 暗号化データを保存
+        message_content: messageContent, // 🔓 平文で保存
         message_role: messageRole,
         conversation_id: conversationId
       };
       
-      // 🚨 HOTFIX: sequence_numberが存在する場合のみ追加
+      // sequence_numberが存在する場合のみ追加
       if (sequenceNumber) {
         memoryData.sequence_number = sequenceNumber;
       }
@@ -327,18 +316,6 @@ export class MemoryManager {
       const memory = await this.saveMemory(memoryData, userId);
 
       if (memory) {
-        // クライアント側で復号化して返す
-        try {
-          const decryptedContent = PrivacyEngine.decryptMessage(encryptedMessageData.encrypted, userKey);
-          memory.messageContent = decryptedContent; // 復号化済み内容をクライアントに返す
-          memory.isEncrypted = true;
-          memory.encryptionHash = encryptedMessageData.hash;
-          memory.privacyLevel = encryptedMessageData.privacyLevel;
-        } catch (decryptError) {
-          console.error('🚨 Decryption failed for client:', decryptError);
-          memory.messageContent = '[復号化エラー]';
-        }
-
         // Phase 2: 感情データを結果に追加
         if (emotionData) {
           memory.emotionData = emotionData;
@@ -351,11 +328,9 @@ export class MemoryManager {
       }
 
       return memory;
-    } finally {
-      // キーを即座に削除
-      setTimeout(() => {
-        SecureMemoryManager.clearKey(keyReference);
-      }, 100);
+    } catch (error) {
+      console.error('💥 Conversation memory save error:', error);
+      return null;
     }
   }
 
@@ -374,31 +349,16 @@ export class MemoryManager {
       isEncrypted: false
     };
 
-    // 🔐 暗号化データの復号化処理
-    if (row.message_content && userId) {
-      try {
-        // まずは暗号化されたデータかチェック
-        if (this.isEncryptedData(row.message_content)) {
-          const masterPassword = 'temp-master-password-2025'; // TODO: 実際のマスターパスワード取得
-          const userKey = PrivacyEngine.generateUserKeyFromMaster(masterPassword, userId);
-          
-          const decryptedContent = PrivacyEngine.decryptMessage(row.message_content, userKey);
-          basicMemory.messageContent = decryptedContent;
-          basicMemory.isEncrypted = true;
-          
-          console.log('🔓 Message decrypted successfully:', {
-            messageId: row.id,
-            contentPreview: decryptedContent.substring(0, 20) + '...'
-          });
-        }
-        // 平文データの場合はそのまま
-      } catch (decryptError) {
-        console.warn('⚠️ Decryption failed, using original content:', {
-          messageId: row.id,
-          error: decryptError instanceof Error ? decryptError.message : 'Unknown error'
-        });
-        // 復号化に失敗した場合は元のデータを使用（後方互換性）
-      }
+    // 🔓 緊急修正: 暗号化データの復号化を一時無効化
+    if (row.message_content) {
+      console.log('💾 Loading message content (plain text):', {
+        messageId: row.id,
+        contentPreview: row.message_content.substring(0, 20) + '...',
+        isLikelyEncrypted: this.isEncryptedData(row.message_content)
+      });
+      // 🚨 緊急修正: 暗号化チェックを無効化し、データをそのまま使用
+      basicMemory.messageContent = row.message_content;
+      basicMemory.isEncrypted = false;
     }
 
     return basicMemory;
@@ -560,39 +520,26 @@ export class MemoryManager {
         return [];
       }
 
-      // 🔐 各メッセージを復号化して返す
+      // 🔓 緊急修正: 暗号化データの復号化を一時無効化（平文データをそのまま返す）
       return data?.map(memory => {
-        let decryptedContent = memory.message_content;
+        // 🚨 緊急修正: 暗号化チェックを無効化し、データをそのまま使用
+        const content = memory.message_content || '';
         
-        // 暗号化データの復号化処理
-        if (memory.message_content && this.isEncryptedData(memory.message_content)) {
-          try {
-            const masterPassword = 'temp-master-password-2025'; // TODO: 実際のマスターパスワード取得
-            const userKey = PrivacyEngine.generateUserKeyFromMaster(masterPassword, userId);
-            decryptedContent = PrivacyEngine.decryptMessage(memory.message_content, userKey);
-            
-            console.log('🔓 Conversation message decrypted:', {
-              messageId: memory.id,
-              role: memory.message_role,
-              preview: decryptedContent?.substring(0, 20) + '...'
-            });
-          } catch (decryptError) {
-            console.warn('⚠️ Failed to decrypt conversation message:', {
-              messageId: memory.id,
-              error: decryptError instanceof Error ? decryptError.message : 'Unknown error'
-            });
-            // 復号化失敗時は元のデータを使用（後方互換性）
-          }
-        }
+        console.log('💾 Loading conversation message (plain text):', {
+          messageId: memory.id,
+          role: memory.message_role,
+          preview: content.substring(0, 20) + '...',
+          isLikelyEncrypted: this.isEncryptedData(content)
+        });
 
         return {
           id: memory.id,
-          content: decryptedContent,
+          content: content,
           isUser: memory.message_role === 'user',
           sender: memory.message_role,
           timestamp: new Date(memory.created_at),
           sessionId: memory.conversation_id,
-          sequenceNumber: memory.sequence_number ?? undefined // 👈 CRITICAL: null の場合はundefinedに（型安全性）
+          sequenceNumber: memory.sequence_number ?? undefined
         };
       }) || [];
     } catch (error) {
