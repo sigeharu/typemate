@@ -67,7 +67,6 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="//api.anthropic.com" />
         
         {/* 🎯 重要リソースのプリロード（CLS改善） */}
-        <link rel="preload" href="/_next/static/css/app/globals.css" as="style" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         
         {/* 🚀 重要なスタイルの早期適用（CLS防止） */}
@@ -111,8 +110,8 @@ export default function RootLayout({
           </AuthProvider>
         </PerformanceProvider>
         
-        {/* 🚀 Service Worker登録（将来のPWA対応） */}
-        {process.env.NODE_ENV === 'production' && (
+        {/* 🚀 Service Worker登録（将来のPWA対応） - 一時的に無効化 */}
+        {false && process.env.NODE_ENV === 'production' && (
           <script
             dangerouslySetInnerHTML={{
               __html: `
