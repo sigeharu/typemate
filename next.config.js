@@ -101,7 +101,7 @@ const nextConfig = {
     return [];
   },
 
-  // 📱 PWA準備（将来拡張用）
+  // 🛡️ セキュリティヘッダー強化（Context7準拠）
   headers: async () => [
     {
       source: '/(.*)',
@@ -117,6 +117,36 @@ const nextConfig = {
         {
           key: 'X-XSS-Protection',
           value: '1; mode=block',
+        },
+        {
+          key: 'Referrer-Policy',
+          value: 'strict-origin-when-cross-origin',
+        },
+        {
+          key: 'Permissions-Policy',
+          value: 'camera=(), microphone=(), geolocation=(), payment=()',
+        },
+        // 🛡️ Content Security Policy（厳格設定）
+        {
+          key: 'Content-Security-Policy',
+          value: [
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://va.vercel-scripts.com https://vercel.live",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+            "font-src 'self' https://fonts.gstatic.com",
+            "img-src 'self' data: https://lh3.googleusercontent.com https://vercel.com",
+            "connect-src 'self' https://*.supabase.co https://api.anthropic.com https://api.openai.com https://vercel.live wss://*.supabase.co",
+            "frame-src 'none'",
+            "object-src 'none'",
+            "base-uri 'self'",
+            "form-action 'self'",
+            "upgrade-insecure-requests"
+          ].join('; '),
+        },
+        // 🛡️ Strict Transport Security
+        {
+          key: 'Strict-Transport-Security',
+          value: 'max-age=31536000; includeSubDomains; preload',
         },
       ],
     },

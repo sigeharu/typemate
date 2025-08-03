@@ -3,9 +3,23 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { memoryManager } from '@/lib/memory-manager';
+import { validateProductionSecurity, checkRateLimit } from '@/lib/input-validation';
+import { securityLog, secureLog } from '@/lib/secure-logger';
 
 // Phase 1: 記憶取得 (GET)
 export async function GET(request: NextRequest) {
+  // 🛡️ セキュリティ検証
+  const securityCheck = validateProductionSecurity(request);
+  if (!securityCheck.isValid) {
+    return NextResponse.json({ error: 'Security validation failed' }, { status: 403 });
+  }
+
+  // 🛡️ レート制限チェック
+  const clientIP = request.headers.get('x-forwarded-for') || 'unknown';
+  if (!checkRateLimit(clientIP, 60, 60000)) {
+    return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId') || undefined;
@@ -34,7 +48,7 @@ export async function GET(request: NextRequest) {
         }, { status: 400 });
     }
   } catch (error) {
-    console.error('Memory GET error:', error);
+    secureLog.error('Memory GET error', error);
     return NextResponse.json({
       success: false,
       error: 'Internal server error'
@@ -44,6 +58,18 @@ export async function GET(request: NextRequest) {
 
 // Phase 1: 記憶保存 (POST)
 export async function POST(request: NextRequest) {
+  // 🛡️ セキュリティ検証
+  const securityCheck = validateProductionSecurity(request);
+  if (!securityCheck.isValid) {
+    return NextResponse.json({ error: 'Security validation failed' }, { status: 403 });
+  }
+
+  // 🛡️ レート制限チェック
+  const clientIP = request.headers.get('x-forwarded-for') || 'unknown';
+  if (!checkRateLimit(clientIP, 30, 60000)) {
+    return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
+  }
+
   try {
     const body = await request.json();
     const {
@@ -94,7 +120,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Memory POST error:', error);
+    secureLog.error('Memory POST error', error);
     return NextResponse.json({
       success: false,
       error: 'Internal server error'
@@ -104,6 +130,18 @@ export async function POST(request: NextRequest) {
 
 // Phase 1: 記憶更新 (PUT)
 export async function PUT(request: NextRequest) {
+  // 🛡️ セキュリティ検証
+  const securityCheck = validateProductionSecurity(request);
+  if (!securityCheck.isValid) {
+    return NextResponse.json({ error: 'Security validation failed' }, { status: 403 });
+  }
+
+  // 🛡️ レート制限チェック
+  const clientIP = request.headers.get('x-forwarded-for') || 'unknown';
+  if (!checkRateLimit(clientIP, 20, 60000)) {
+    return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
+  }
+
   try {
     const body = await request.json();
     const { userId, type, value } = body;
@@ -158,7 +196,7 @@ export async function PUT(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Memory PUT error:', error);
+    secureLog.error('Memory PUT error', error);
     return NextResponse.json({
       success: false,
       error: 'Internal server error'
@@ -168,6 +206,18 @@ export async function PUT(request: NextRequest) {
 
 // Phase 1: バッチ保存 (複数メッセージ一括保存)
 export async function PATCH(request: NextRequest) {
+  // 🛡️ セキュリティ検証
+  const securityCheck = validateProductionSecurity(request);
+  if (!securityCheck.isValid) {
+    return NextResponse.json({ error: 'Security validation failed' }, { status: 403 });
+  }
+
+  // 🛡️ レート制限チェック (バッチ処理のため少し緩めに)
+  const clientIP = request.headers.get('x-forwarded-for') || 'unknown';
+  if (!checkRateLimit(clientIP, 10, 60000)) {
+    return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
+  }
+
   try {
     const body = await request.json();
     const { messages, userId, archetype, conversationId } = body;
@@ -210,7 +260,7 @@ export async function PATCH(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Memory PATCH error:', error);
+    secureLog.error('Memory PATCH error', error);
     return NextResponse.json({
       success: false,
       error: 'Internal server error'

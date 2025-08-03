@@ -1,0 +1,32 @@
+
+[0;35m=== Phase 1: 環境チェック ===[0m
+[0;34m[INFO][0m Node.js環境確認...
+v24.2.0
+11.3.0
+[0;34m[INFO][0m Package.json確認...
+[0;32m[SUCCESS][0m package.json 存在確認
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "analyze": "cross-env ANALYZE=true next build",
+[0;34m[INFO][0m 依存関係確認...
+[1;33m[WARNING][0m 依存関係に問題があります
+
+[0;35m=== Phase 2: ビルド性能測定 ===[0m
+[0;34m[INFO][0m クリーンビルド実行中...
+[0;31m[ERROR][0m ビルド失敗
+
+> typemate@0.1.0 build
+> next build
+
+ ⨯ Failed to load next.config.js, see more info here https://nextjs.org/docs/messages/next-config-error
+
+> Build error occurred
+[Error: Cannot find module '@next/bundle-analyzer'
+Require stack:
+- /Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/next.config.js] {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}

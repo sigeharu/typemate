@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, commonVariants } from '@/lib/optimized-motion';
 import { useRouter } from 'next/navigation';
-import { Heart, Music, Sparkles, Users, ArrowRight, Brain, Wand2, Clock } from 'lucide-react';
+import { Heart, Music, Sparkles, Users, ArrowRight, Brain, Wand2, Clock } from '@/lib/optimized-icons';
 import { Button } from '@/components/ui/button';
 import { AuthModal } from '@/components/auth/AuthModal';
 import { SupabaseLoginButton, SupabaseUserInfo } from '@/components/auth/SupabaseLoginButton';

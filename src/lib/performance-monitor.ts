@@ -4,13 +4,13 @@
 'use client';
 
 import { useCallback, useEffect } from 'react';
+import { performanceLog } from './secure-logger';
 
 // 🚀 Web Vitals監視（Context7推奨のperformance.now()活用）
 export function usePerformanceMonitor(debug = false) {
   const reportMetric = useCallback((metric: any) => {
-    if (debug) {
-      console.log('🎵 Performance Metric:', metric);
-    }
+    // 🛡️ セキュアなパフォーマンスログ出力
+    performanceLog.metric(metric.name, metric.value, metric.rating);
     
     // Vercel Analyticsがあれば送信
     if (typeof window !== 'undefined' && (window as any).va) {
@@ -23,9 +23,9 @@ export function usePerformanceMonitor(debug = false) {
       });
     }
     
-    // カスタム分析（必要に応じて）
+    // 🛡️ パフォーマンス問題のセキュアログ
     if (metric.rating === 'poor') {
-      console.warn(`⚠️ Poor ${metric.name}: ${metric.value}`);
+      performanceLog.error(`Poor ${metric.name}: ${metric.value}`);
     }
   }, [debug]);
 
@@ -42,7 +42,7 @@ export function usePerformanceMonitor(debug = false) {
     }).catch(() => {
       // web-vitalsがインストールされていない場合
       if (debug) {
-        console.log('web-vitals not available');
+        performanceLog.error('web-vitals not available');
       }
     });
   }, [reportMetric]);
@@ -64,7 +64,7 @@ export function useResourceMonitor() {
             domInteractive: nav.domInteractive - nav.navigationStart,
           };
           
-          console.log('🚀 Navigation Metrics:', metrics);
+          performanceLog.metric('Navigation', JSON.stringify(metrics));
         }
       });
     });
@@ -95,7 +95,7 @@ export function useMemoryMonitor(interval = 10000) {
       };
 
       if (usage.percentage > 80) {
-        console.warn('⚠️ High memory usage:', usage);
+        performanceLog.error(`High memory usage: ${usage.percentage}%`);
       }
     };
 
@@ -157,35 +157,35 @@ export function getPerformanceRecommendations() {
 export function showPerformanceStats() {
   if (typeof window === 'undefined') return;
 
-  console.group('🎵 TypeMate Performance Stats');
-  
-  // Bundle情報
+  // 🛡️ セキュアなパフォーマンス情報表示
   const scripts = Array.from(document.querySelectorAll('script[src]'))
     .map((script: any) => script.src)
     .filter(src => src.includes('/_next/'));
   
-  console.log('📦 Loaded chunks:', scripts.length);
+  performanceLog.metric('LoadedChunks', scripts.length);
   
   // メモリ情報
   if ((performance as any).memory) {
     const memory = (performance as any).memory;
-    console.log('🧠 Memory usage:', {
-      used: Math.round(memory.usedJSHeapSize / 1048576) + 'MB',
-      total: Math.round(memory.totalJSHeapSize / 1048576) + 'MB'
-    });
+    const memoryData = {
+      used: Math.round(memory.usedJSHeapSize / 1048576),
+      total: Math.round(memory.totalJSHeapSize / 1048576)
+    };
+    performanceLog.metric('MemoryUsage', memoryData.used, `${memoryData.used}/${memoryData.total}MB`);
   }
   
   // タイミング情報
   const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
   if (navigation) {
-    console.log('⏱️ Timing:', {
-      'DOM Ready': Math.round(navigation.domContentLoadedEventEnd - navigation.navigationStart) + 'ms',
-      'Load Complete': Math.round(navigation.loadEventEnd - navigation.navigationStart) + 'ms',
-      'First Byte': Math.round(navigation.responseStart - navigation.requestStart) + 'ms'
-    });
+    const timingData = {
+      domReady: Math.round(navigation.domContentLoadedEventEnd - navigation.navigationStart),
+      loadComplete: Math.round(navigation.loadEventEnd - navigation.navigationStart),
+      firstByte: Math.round(navigation.responseStart - navigation.requestStart)
+    };
+    performanceLog.metric('DOMReady', timingData.domReady);
+    performanceLog.metric('LoadComplete', timingData.loadComplete);
+    performanceLog.metric('FirstByte', timingData.firstByte);
   }
-  
-  console.groupEnd();
 }
 
 // 🚀 開発時のパフォーマンス監視フック

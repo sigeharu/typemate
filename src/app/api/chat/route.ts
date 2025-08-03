@@ -6,12 +6,35 @@ import Anthropic from '@anthropic-ai/sdk';
 import { personalityEngine } from '@/lib/personality-engine';
 import { ARCHETYPE_DATA } from '@/lib/diagnostic-data';
 import type { BaseArchetype, Type64 } from '@/types';
+import { validateChatRequest, checkRateLimit, validateProductionSecurity } from '@/lib/input-validation';
+import { securityLog, secureLog } from '@/lib/secure-logger';
 
 const anthropic = new Anthropic({
   apiKey: process.env.CLAUDE_API_KEY!,
 });
 
 export async function POST(request: NextRequest) {
+  // 🛡️ セキュリティ検証
+  const securityCheck = validateProductionSecurity(request);
+  if (!securityCheck.isValid) {
+    return NextResponse.json(
+      { error: 'Security validation failed' },
+      { status: 403 }
+    );
+  }
+
+  // 🛡️ レート制限チェック
+  const clientIP = request.headers.get('x-forwarded-for') || 
+                   request.headers.get('x-real-ip') || 
+                   'unknown';
+  
+  if (!checkRateLimit(clientIP)) {
+    return NextResponse.json(
+      { error: 'Rate limit exceeded' },
+      { status: 429 }
+    );
+  }
+
   let message: string = '';
   let userType: Type64 = 'ARC-AS';
   let aiPersonality: BaseArchetype = 'DRM';
@@ -39,47 +62,43 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    ({ 
-      message, 
-      userType, 
-      aiPersonality, 
-      relationshipType = 'friend',
-      messageHistory = [],
-      conversationTurn = 0,
-      // astrologyContext = '',
-      relationshipLevel = 1,
-      importantMemories = [],
-      relatedMemories = [],
-      todaysEvents = [],
-      // Option B
-      chatCount = 0,
-      personalInfo = {},
-      // 🎵 Phase 2: 気分データ
-      currentMood = '😊',
-      moodContext = '',
-      // 🔐 暗号化データ
-      encryptedMessage = '',
-      contentHash = '',
-      privacyLevel = 1,
-      sessionKey = ''
-    } = body);
-
-    if (!message || !userType || !aiPersonality) {
+    
+    // 🛡️ 入力検証とサニタイゼーション
+    const validation = validateChatRequest(body);
+    if (!validation.isValid) {
+      securityLog.suspiciousActivity('Input validation failed', { errors: validation.errors });
       return NextResponse.json(
-        { error: 'Required fields missing' },
+        { error: 'Invalid input data' },
         { status: 400 }
       );
     }
 
-    // 🔐 暗号化データ受信確認
-    if (encryptedMessage && contentHash) {
-      console.log('🔐 暗号化データ受信:', {
-        hasEncrypted: !!encryptedMessage,
-        hashLength: contentHash.length,
-        privacyLevel,
-        originalLength: message.length
-      });
-    }
+    // 検証済みデータを使用
+    const { 
+      message, 
+      userType, 
+      aiPersonality, 
+      relationshipType,
+      messageHistory,
+      conversationTurn,
+      relationshipLevel,
+      importantMemories,
+      relatedMemories,
+      todaysEvents,
+      chatCount,
+      personalInfo,
+      currentMood,
+      moodContext,
+      privacyLevel
+    } = validation.sanitizedData;
+
+    // 🛡️ セキュリティログ: APIアクセス記録
+    secureLog.info('Chat API access', {
+      userType,
+      aiPersonality,
+      messageLength: message.length,
+      clientIP: clientIP.substring(0, 10) + '...' // IP部分マスク
+    });
 
     // AI個性の詳細情報取得
     const [baseType, variant] = userType.split('-') as [BaseArchetype, string];
@@ -171,7 +190,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('AI Chat API error:', error);
+    secureLog.error('AI Chat API error', error);
     
     // フォールバック: 個性エンジンを使用
     try {
@@ -200,7 +219,7 @@ export async function POST(request: NextRequest) {
         fallback: true
       });
     } catch (fallbackError) {
-      console.error('Fallback error:', fallbackError);
+      secureLog.error('Fallback error', fallbackError);
       return NextResponse.json(
         { error: 'AI service temporarily unavailable' },
         { status: 500 }

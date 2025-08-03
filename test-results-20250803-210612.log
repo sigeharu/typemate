@@ -1,0 +1,39 @@
+
+[0;35m=== Phase 1: 環境チェック ===[0m
+[0;34m[INFO][0m Node.js環境確認...
+v24.2.0
+11.3.0
+[0;34m[INFO][0m Package.json確認...
+[0;32m[SUCCESS][0m package.json 存在確認
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "analyze": "cross-env ANALYZE=true next build",
+[0;34m[INFO][0m 依存関係確認...
+[0;32m[SUCCESS][0m 依存関係OK
+
+[0;35m=== Phase 2: ビルド性能測定 ===[0m
+[0;34m[INFO][0m クリーンビルド実行中...
+[0;31m[ERROR][0m ビルド失敗
+   ▲ Next.js 15.4.2
+   - Environments: .env.local, .env.production
+   - Experiments (use with caution):
+     ✓ optimizeCss
+     ✓ scrollRestoration
+     · optimizePackageImports
+
+   Creating an optimized production build ...
+Failed to compile.
+
+./src/lib/dynamic-imports.ts
+Module not found: Can't resolve 'fuse.js'
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/app/harmonic-setup/page.tsx
+
+
+> Build failed because of webpack errors

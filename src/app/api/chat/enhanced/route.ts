@@ -8,21 +8,44 @@ import { ARCHETYPE_DATA } from '@/lib/diagnostic-data';
 import type { BaseArchetype, Type64 } from '@/types';
 import type { HarmonicAIProfile } from '@/lib/harmonic-ai-service';
 import type { DailyHarmonicGuidance } from '@/lib/harmonic-ai-service-server';
+import { validateChatRequest, checkRateLimit, validateProductionSecurity } from '@/lib/input-validation';
+import { securityLog, secureLog } from '@/lib/secure-logger';
 
 const anthropic = new Anthropic({
   apiKey: process.env.CLAUDE_API_KEY!,
 });
 
 export async function POST(request: NextRequest) {
+  // 🛡️ セキュリティ検証
+  const securityCheck = validateProductionSecurity(request);
+  if (!securityCheck.isValid) {
+    return NextResponse.json(
+      { error: 'Security validation failed' },
+      { status: 403 }
+    );
+  }
+
+  // 🛡️ レート制限チェック
+  const clientIP = request.headers.get('x-forwarded-for') || 
+                   request.headers.get('x-real-ip') || 
+                   'unknown';
+  
+  if (!checkRateLimit(clientIP, 20, 60000)) { // より厳しい制限
+    return NextResponse.json(
+      { error: 'Rate limit exceeded' },
+      { status: 429 }
+    );
+  }
+
   try {
     const body = await request.json();
     
-    console.log('🎼 Enhanced Chat API: Received body', {
-      keys: Object.keys(body),
+    secureLog.info('Enhanced Chat API access', {
       hasMessage: !!body.message,
       hasUserType: !!body.userType,
       hasAiPersonality: !!body.aiPersonality,
-      hasUserId: !!body.userId
+      hasUserId: !!body.userId,
+      clientIP: clientIP.substring(0, 10) + '...'
     });
     
     const {
@@ -42,40 +65,57 @@ export async function POST(request: NextRequest) {
       harmonicEnhancement
     } = body;
 
+    // 🛡️ 基本的な入力検証
     if (!message || !userType || !aiPersonality || !userId) {
+      securityLog.suspiciousActivity('Required fields missing in enhanced chat', { 
+        hasMessage: !!message, 
+        hasUserType: !!userType, 
+        hasAiPersonality: !!aiPersonality, 
+        hasUserId: !!userId 
+      });
       return NextResponse.json(
         { error: 'Required fields missing' },
         { status: 400 }
       );
     }
 
-    console.log('🎼 Enhanced Chat API: Processing request', {
-      userId,
+    // 🛡️ 追加的な入力サニタイゼーション
+    const { validateInput } = await import('@/lib/input-validation');
+    const messageValidation = validateInput.message(message);
+    if (!messageValidation.isValid) {
+      return NextResponse.json(
+        { error: 'Invalid message content' },
+        { status: 400 }
+      );
+    }
+
+    secureLog.info('Enhanced Chat processing', {
+      userId: userId.substring(0, 8) + '...',
       userType,
       aiPersonality,
       messageLength: message.length
     });
 
     // 1. ハーモニックプロファイル取得（サーバーサイド版）
-    console.log('🎼 Step 1: Getting harmonic profile (server-side)...');
+    secureLog.debug('Getting harmonic profile', { userId: userId.substring(0, 8) + '...' });
     const harmonicProfile = await getHarmonicProfileServer(userId);
-    console.log('🌟 Harmonic Profile:', harmonicProfile ? '取得成功' : '未設定');
+    secureLog.info('Harmonic profile result', { hasProfile: !!harmonicProfile });
 
     // 2. 今日のコズミック・ガイダンス生成（サーバーサイド版）
-    console.log('🎼 Step 2: Generating cosmic guidance (server-side)...');
+    secureLog.debug('Generating cosmic guidance');
     let cosmicGuidance: DailyHarmonicGuidance | undefined;
     if (harmonicProfile) {
       try {
         cosmicGuidance = await generateDailyHarmonicGuidanceServer(harmonicProfile);
-        console.log('✨ Cosmic Guidance: 生成成功');
+        secureLog.info('Cosmic guidance generated successfully');
       } catch (error) {
-        console.error('❌ Cosmic Guidance生成エラー:', error);
+        secureLog.error('Cosmic guidance generation failed', error);
         throw new Error(`Cosmic guidance generation failed: ${error instanceof Error ? error.message : String(error)}`);
       }
     }
 
     // 3. 強化システムプロンプト構築
-    console.log('🎼 Step 3: Building enhanced system prompt...');
+    secureLog.debug('Building enhanced system prompt');
     const enhancedSystemPrompt = buildEnhancedSystemPrompt({
       userType,
       aiPersonality,
@@ -89,21 +129,17 @@ export async function POST(request: NextRequest) {
     });
 
     // 4. 占星術的洞察生成
-    console.log('🎼 Step 4: Generating astrological insight...');
     const astrologicalInsight = harmonicProfile && cosmicGuidance 
       ? generateAstrologicalInsight(harmonicProfile, cosmicGuidance)
       : undefined;
 
     // 5. 強化感情分析
-    console.log('🎼 Step 5: Analyzing enhanced emotion...');
-    const enhancedEmotion = analyzeEnhancedEmotion(message, harmonicProfile);
+    const enhancedEmotion = analyzeEnhancedEmotion(messageValidation.sanitized, harmonicProfile);
 
     // 6. 会話履歴構築
-    console.log('🎼 Step 6: Building conversation history...');
     const conversationHistory = buildConversationHistory(messageHistory);
 
     // 7. Claude API呼び出し（強化プロンプト使用）
-    console.log('🎼 Step 7: Calling Claude API...');
     const response = await anthropic.messages.create({
       model: 'claude-3-5-haiku-20241022',
       max_tokens: 2000,
@@ -111,11 +147,10 @@ export async function POST(request: NextRequest) {
       system: enhancedSystemPrompt,
       messages: [
         ...conversationHistory,
-        { role: 'user', content: message }
+        { role: 'user', content: messageValidation.sanitized }
       ]
     });
 
-    console.log('🎼 Step 8: Processing Claude response...');
     const aiResponse = response.content[0]?.type === 'text' ? response.content[0].text : '';
     
     if (!aiResponse) {
@@ -123,7 +158,6 @@ export async function POST(request: NextRequest) {
     }
 
     // 8. 強化レスポンス構築
-    console.log('🎼 Step 9: Building enhanced response...');
     const enhancedResponse = {
       content: aiResponse,
       emotion: enhancedEmotion.emotion,
@@ -141,7 +175,7 @@ export async function POST(request: NextRequest) {
       tokens_used: response.usage?.input_tokens + response.usage?.output_tokens || 0
     };
 
-    console.log('✅ Enhanced Chat Response generated:', {
+    secureLog.info('Enhanced Chat Response generated', {
       hasAstrologicalInsight: !!enhancedResponse.astrologicalInsight,
       harmonicEnhancement: enhancedResponse.harmonicEnhancement,
       emotionIntensity: enhancedResponse.emotionAnalysis.intensity,
@@ -151,12 +185,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(enhancedResponse);
 
   } catch (error) {
-    console.error('❌ Enhanced Chat API Error:', error);
-    console.error('❌ Error details:', {
-      name: error instanceof Error ? error.name : 'Unknown',
-      message: error instanceof Error ? error.message : String(error),
-      stack: error instanceof Error ? error.stack : undefined
-    });
+    secureLog.error('Enhanced Chat API Error', error);
     
     return NextResponse.json(
       { 

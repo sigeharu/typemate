@@ -330,34 +330,58 @@ export default function SettingsPage() {
   useEffect(() => {
     const initializeSettings = async () => {
       try {
-        // 🔐 認証チェック
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-          router.push('/auth/signin?redirect=/settings');
-          return;
+        // 🔐 認証チェック（開発モード時はバイパス）
+        if (process.env.NODE_ENV === 'development') {
+          // 開発環境：テストユーザーIDを使用
+          const testUserId = 'test-user-dev-mode';
+          setUserId(testUserId);
+          console.log('🛠️ 開発環境：認証をバイパスしてテストユーザーを使用');
+        } else {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) {
+            router.push('/auth/signin?redirect=/settings');
+            return;
+          }
+          setUserId(user.id);
         }
         
         setUserId(user.id);
 
-        // 診断結果取得
-        const diagnosisStatus = await diagnosisService.getDiagnosisStatus(user.id);
-        if (!diagnosisStatus.hasDiagnosis) {
-          router.push('/diagnosis');
-          return;
+        // 診断結果取得（開発モード時はローカルストレージから）
+        let diagnosisStatus;
+        let currentUserId;
+        
+        if (process.env.NODE_ENV === 'development') {
+          // 開発環境：ローカルストレージからテストデータを取得
+          currentUserId = 'test-user-dev-mode';
+          const testUserType = localStorage.getItem('userType64') || 'BAR-AS';
+          diagnosisStatus = {
+            hasDiagnosis: true,
+            userType: testUserType,
+            aiPersonality: localStorage.getItem('test_ai_personality') || 'SAG'
+          };
+          console.log('🛠️ 開発モード：テスト診断データを使用', diagnosisStatus);
+        } else {
+          currentUserId = userId;
+          diagnosisStatus = await diagnosisService.getDiagnosisStatus(currentUserId);
+          if (!diagnosisStatus.hasDiagnosis) {
+            router.push('/diagnosis');
+            return;
+          }
         }
 
         setUserType(diagnosisStatus.userType || null);
 
         // 🎯 詳細診断結果の取得（64タイプ対応）データベース優先
-        await loadDetailedDiagnosisResult(user.id);
+        await loadDetailedDiagnosisResult(currentUserId);
 
         // 🔬 記憶システム初期化
         try {
-          const savedMemoryInfo = await MemoryManager.getPersonalInfo(user.id);
+          const savedMemoryInfo = await MemoryManager.getPersonalInfo(currentUserId);
           console.log('🔍 記憶システム個人情報:', savedMemoryInfo);
           setMemoryPersonalInfo(savedMemoryInfo);
           
-          const progress = await MemoryManager.getAnalysisProgress(user.id);
+          const progress = await MemoryManager.getAnalysisProgress(currentUserId);
           console.log('🔍 AI理解度分析進捗:', progress);
           setAnalysisProgress(progress);
         } catch (error) {
@@ -380,7 +404,7 @@ export default function SettingsPage() {
           const { data: profiles, error } = await supabase
             .from('user_profiles')
             .select('selected_ai_personality, relationship_type, updated_at')
-            .eq('user_id', user.id)
+            .eq('user_id', currentUserId)
             .order('updated_at', { ascending: false })
             .limit(1);
           
@@ -418,8 +442,8 @@ export default function SettingsPage() {
         // 🌟 ハーモニックAIプロファイル読み込み
         try {
           setHarmonicLoading(true);
-          console.log('🔍 Loading harmonic profile for user:', user.id);
-          const profile = await getHarmonicProfile(user.id);
+          console.log('🔍 Loading harmonic profile for user:', currentUserId);
+          const profile = await getHarmonicProfile(currentUserId);
           console.log('🔍 Harmonic profile loaded:', !!profile);
           setHarmonicProfile(profile);
           

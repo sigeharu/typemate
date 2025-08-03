@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { HarmonicSetupWizard } from '@/components/harmonic/HarmonicSetupWizard';
+import { HarmonicSetupWizard } from '@/lib/dynamic-imports';
 import { HarmonicProfileCard } from '@/components/harmonic/HarmonicProfileCard';
 import { createHarmonicProfile, getHarmonicProfile } from '@/lib/harmonic-ai-service';
 import { supabase } from '@/lib/supabase-simple';

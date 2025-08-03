@@ -40,9 +40,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 🚀 開発モード: ハーモニックAI設定ページと設定ページへの認証バイパス
-  const isDevelopmentMode = process.env.NEXT_PUBLIC_DEV_MODE === 'true';
-  if (isDevelopmentMode && (pathname.startsWith('/harmonic-setup') || pathname === '/settings')) {
+  // 🛡️ セキュリティ強化: 本番環境では認証バイパス完全無効化
+  // 開発環境でのみ特定ページの認証をバイパス（本番では強制認証）
+  if (process.env.NODE_ENV === 'development' && (pathname.startsWith('/harmonic-setup') || pathname === '/settings')) {
     return NextResponse.next();
   }
 

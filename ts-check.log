@@ -1,0 +1,467 @@
+src/app/api/chat/enhanced/route.ts(8,38): error TS2305: Module '"@/types"' has no exported member 'HarmonicAIProfile'.
+src/app/api/chat/enhanced/route.ts(225,45): error TS2339: Property 'overallEnergy' does not exist on type 'TodayCosmicGuidance'.
+src/app/api/chat/enhanced/route.ts(226,44): error TS2339: Property 'actionRecommendations' does not exist on type 'TodayCosmicGuidance'.
+src/app/api/chat/enhanced/route.ts(420,9): error TS2740: Type '{ ARC: { fire: string; earth: string; air: string; water: string; }; DRM: { fire: string; earth: string; air: string; water: string; }; SAG: { fire: string; earth: string; air: string; water: string; }; HER: { fire: string; earth: string; air: string; water: string; }; }' is missing the following properties from type 'Record<BaseArchetype, Record<string, string>>': ALC, SOV, INV, BAR, and 8 more.
+src/app/api/chat/enhanced/route.ts(537,11): error TS2322: Type 'string[]' is not assignable to type 'never[]'.
+  Type 'string' is not assignable to type 'never'.
+src/app/api/chat/enhanced/route.ts(538,11): error TS2322: Type '"positive" | "neutral" | "negative"' is not assignable to type '"neutral"'.
+  Type '"positive"' is not assignable to type '"neutral"'.
+src/app/api/chat/route.ts(16,7): error TS2322: Type '"ARC-AS"' is not assignable to type '"ARC-COOPERATIVESTABLE" | "ARC-COOPERATIVEGROWTH" | "ARC-COMPETITIVESTABLE" | "ARC-COMPETITIVEGROWTH" | "ALC-COOPERATIVESTABLE" | "ALC-COOPERATIVEGROWTH" | "ALC-COMPETITIVESTABLE" | ... 56 more ... | "PER-COMPETITIVEGROWTH"'.
+src/app/api/memory/route.ts(17,66): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/app/api/memory/route.ts(24,64): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/app/chat/page.tsx(259,15): error TS2322: Type 'Date' is not assignable to type 'null'.
+src/app/chat/page.tsx(264,74): error TS2339: Property 'toISOString' does not exist on type 'never'.
+src/app/harmonic-setup/page.tsx(362,15): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: {}, context?: any): string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | Promise<...> | Component<...> | null | undefined', gave the following error.
+    Type '{ userType: "ARC-COOPERATIVESTABLE" | "ARC-COOPERATIVEGROWTH" | "ARC-COMPETITIVESTABLE" | "ARC-COMPETITIVEGROWTH" | "ALC-COOPERATIVESTABLE" | "ALC-COOPERATIVEGROWTH" | "ALC-COMPETITIVESTABLE" | ... 57 more ... | undefined; selectedAiPersonality: BaseArchetype | undefined; relationshipType: "friend" | ... 2 more ... ...' is not assignable to type 'IntrinsicAttributes'.
+      Property 'userType' does not exist on type 'IntrinsicAttributes'.
+  Overload 2 of 2, '(props: {}): string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | Promise<...> | Component<...> | null | undefined', gave the following error.
+    Type '{ userType: "ARC-COOPERATIVESTABLE" | "ARC-COOPERATIVEGROWTH" | "ARC-COMPETITIVESTABLE" | "ARC-COMPETITIVEGROWTH" | "ALC-COOPERATIVESTABLE" | "ALC-COOPERATIVEGROWTH" | "ALC-COMPETITIVESTABLE" | ... 57 more ... | undefined; selectedAiPersonality: BaseArchetype | undefined; relationshipType: "friend" | ... 2 more ... ...' is not assignable to type 'IntrinsicAttributes'.
+      Property 'userType' does not exist on type 'IntrinsicAttributes'.
+src/app/profile/page.tsx(66,11): error TS2739: Type '{ userType: "ARC-COOPERATIVESTABLE" | "ARC-COOPERATIVEGROWTH" | "ARC-COMPETITIVESTABLE" | "ARC-COMPETITIVEGROWTH" | "ALC-COOPERATIVESTABLE" | "ALC-COOPERATIVEGROWTH" | "ALC-COMPETITIVESTABLE" | ... 56 more ... | "PER-COMPETITIVEGROWTH"; ... 4 more ...; updatedAt: Date; }' is missing the following properties from type 'UserProfile': chatCount, personalInfo
+src/app/settings/page.tsx(348,19): error TS2304: Cannot find name 'user'.
+src/app/settings/page.tsx(373,21): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'SetStateAction<"ARC-COOPERATIVESTABLE" | "ARC-COOPERATIVEGROWTH" | "ARC-COMPETITIVESTABLE" | "ARC-COMPETITIVEGROWTH" | "ALC-COOPERATIVESTABLE" | "ALC-COOPERATIVEGROWTH" | "ALC-COMPETITIVESTABLE" | ... 57 more ... | null>'.
+  Type 'string' is not assignable to type 'SetStateAction<"ARC-COOPERATIVESTABLE" | "ARC-COOPERATIVEGROWTH" | "ARC-COMPETITIVESTABLE" | "ARC-COMPETITIVEGROWTH" | "ALC-COOPERATIVESTABLE" | "ALC-COOPERATIVEGROWTH" | "ALC-COMPETITIVESTABLE" | ... 57 more ... | null>'.
+src/app/settings/page.tsx(541,13): error TS18048: 'verifyData' is possibly 'undefined'.
+src/app/settings/page.tsx(542,13): error TS18048: 'verifyData' is possibly 'undefined'.
+src/app/settings/page.tsx(548,38): error TS18048: 'verifyData' is possibly 'undefined'.
+src/app/settings/page.tsx(549,33): error TS18048: 'verifyData' is possibly 'undefined'.
+src/app/settings/page.tsx(891,15): error TS2322: Type 'BaseArchetype | null' is not assignable to type 'BaseArchetype | undefined'.
+  Type 'null' is not assignable to type 'BaseArchetype | undefined'.
+src/app/settings/page.tsx(1073,66): error TS2304: Cannot find name 'user'.
+src/app/test-widgets/page.tsx(32,15): error TS2353: Object literal may only specify known properties, and 'name' does not exist in type '{ sign: ZodiacSign; element: ZodiacElement; details: any; confidence: number; }'.
+src/app/test-widgets/page.tsx(49,15): error TS2353: Object literal may only specify known properties, and 'personalYear' does not exist in type '{ lifePathNumber: number; info: any; calculation: string; isMasterNumber: boolean; }'.
+src/app/test-widgets/page.tsx(111,55): error TS2339: Property 'name' does not exist on type 'HarmonicAIProfile'.
+src/components/AnalysisProgress.tsx(210,21): error TS2322: Type '{ hidden: { width: number; }; visible: (progress: number) => { width: string; transition: { duration: number; ease: string; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '(progress: number) => { width: string; transition: { duration: number; ease: string; }; }' is not assignable to type 'Variant'.
+      Type '(progress: number) => { width: string; transition: { duration: number; ease: string; }; }' is not assignable to type 'TargetResolver'.
+        Type '{ width: string; transition: { duration: number; ease: string; }; }' is not assignable to type 'string | TargetAndTransition'.
+          Type '{ width: string; transition: { duration: number; ease: string; }; }' is not assignable to type 'TargetAndTransition'.
+            Type '{ width: string; transition: { duration: number; ease: string; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues | undefined; }'.
+              Types of property 'transition' are incompatible.
+                Type '{ duration: number; ease: string; }' is not assignable to type 'Transition<any> | undefined'.
+                  Type '{ duration: number; ease: string; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                    Type '{ duration: number; ease: string; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                      Types of property 'ease' are incompatible.
+                        Type 'string' is not assignable to type 'Easing | Easing[] | undefined'.
+src/components/animations/MusicalMotion.tsx(7,30): error TS2307: Cannot find module '@/types/mbti' or its corresponding type declarations.
+src/components/animations/MusicalMotion.tsx(113,20): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ technical: { initial: { opacity: number; scale: number; filter: string; }; animate: { opacity: number; scale: number; filter: string; }; exit: { opacity: number; scale: number; filter: string; }; hover: { scale: number; }; }; gentle: { ...; }; energetic: { ...; }; friendly: { ...; }; }'.
+src/components/animations/MusicalMotion.tsx(217,30): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ technical: string; gentle: string; energetic: string; friendly: string; }'.
+src/components/animations/MusicalMotion.tsx(259,15): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ technical: { initial: { opacity: number; scale: number; filter: string; }; animate: { opacity: number; scale: number; filter: string; }; exit: { opacity: number; scale: number; filter: string; }; hover: { scale: number; }; }; gentle: { ...; }; energetic: { ...; }; friendly: { ...; }; }'.
+src/components/auth/LoginButton.tsx(6,45): error TS2307: Cannot find module 'next-auth/react' or its corresponding type declarations.
+src/components/chat/ChatHistory.tsx(143,13): error TS2322: Type '"ARC-AS"' is not assignable to type '"ARC-COOPERATIVESTABLE" | "ARC-COOPERATIVEGROWTH" | "ARC-COMPETITIVESTABLE" | "ARC-COMPETITIVEGROWTH" | "ALC-COOPERATIVESTABLE" | "ALC-COOPERATIVEGROWTH" | "ALC-COMPETITIVESTABLE" | ... 56 more ... | "PER-COMPETITIVEGROWTH"'.
+src/components/chat/ChatInput.tsx(61,28): error TS2554: Expected 1 arguments, but got 0.
+src/components/chat/ChatInputEnhanced.tsx(44,28): error TS2554: Expected 1 arguments, but got 0.
+src/components/chat/ChatInputEnhanced.tsx(98,37): error TS2345: Argument of type 'EmotionData | null' is not assignable to parameter of type 'EmotionData | undefined'.
+  Type 'null' is not assignable to type 'EmotionData | undefined'.
+src/components/chat/MessageBubble.tsx(154,6): error TS2322: Type '{ children: Element; className: string; initial: { opacity: number; y: number; }; animate: { opacity: number; y: number; }; transition: { duration: number; ease: number[]; }; }' is not assignable to type 'Omit<HTMLMotionProps<"div">, "ref">'.
+  Types of property 'transition' are incompatible.
+    Type '{ duration: number; ease: number[]; }' is not assignable to type 'Transition<any> | undefined'.
+      Type '{ duration: number; ease: number[]; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+        Type '{ duration: number; ease: number[]; }' is not assignable to type 'ValueAnimationTransition<any>'.
+          Types of property 'ease' are incompatible.
+            Type 'number[]' is not assignable to type 'Easing | Easing[] | undefined'.
+              Type 'number[]' is not assignable to type 'EasingFunction | Easing[]'.
+                Type 'number[]' is not assignable to type 'Easing[]'.
+                  Type 'number' is not assignable to type 'Easing'.
+src/components/chat/MessageBubbleEnhanced.tsx(107,12): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ happiness: string; excitement: string; affection: string; gratitude: string; sadness: string; confusion: string; curiosity: string; frustration: string; }'.
+  No index signature with a parameter of type 'string' was found on type '{ happiness: string; excitement: string; affection: string; gratitude: string; sadness: string; confusion: string; curiosity: string; frustration: string; }'.
+src/components/chat/MessageBubbleEnhanced.tsx(299,5): error TS2322: Type '"happiness"' is not assignable to type '"calm" | "happy" | "excited" | "thoughtful" | "caring" | "playful" | "focused" | "supportive" | undefined'.
+src/components/harmonic/CompatibilityAnalysisWidget.tsx(194,19): error TS2322: Type '{ hidden: { opacity: number; scale: number; }; visible: { opacity: number; scale: number; transition: { type: string; stiffness: number; damping: number; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ opacity: number; scale: number; transition: { type: string; stiffness: number; damping: number; }; }' is not assignable to type 'Variant'.
+      Type '{ opacity: number; scale: number; transition: { type: string; stiffness: number; damping: number; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ opacity: number; scale: number; transition: { type: string; stiffness: number; damping: number; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues | undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ type: string; stiffness: number; damping: number; }' is not assignable to type 'Transition<any> | undefined'.
+              Type '{ type: string; stiffness: number; damping: number; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ type: string; stiffness: number; damping: number; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'type' are incompatible.
+                    Type 'string' is not assignable to type 'AnimationGeneratorType | undefined'.
+src/components/harmonic/CompatibilityAnalysisWidget.tsx(227,13): error TS2322: Type '{ hidden: { opacity: number; y: number; }; visible: { opacity: number; y: number; transition: { type: string; duration: number; }; }; exit: { opacity: number; y: number; transition: { duration: number; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ opacity: number; y: number; transition: { type: string; duration: number; }; }' is not assignable to type 'Variant'.
+      Type '{ opacity: number; y: number; transition: { type: string; duration: number; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ opacity: number; y: number; transition: { type: string; duration: number; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues | undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ type: string; duration: number; }' is not assignable to type 'Transition<any> | undefined'.
+              Type '{ type: string; duration: number; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ type: string; duration: number; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'type' are incompatible.
+                    Type 'string' is not assignable to type 'AnimationGeneratorType | undefined'.
+src/components/harmonic/CompatibilityAnalysisWidget.tsx(350,25): error TS2322: Type '{ hidden: { opacity: number; scale: number; }; visible: { opacity: number; scale: number; transition: { type: string; stiffness: number; damping: number; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ opacity: number; scale: number; transition: { type: string; stiffness: number; damping: number; }; }' is not assignable to type 'Variant'.
+      Type '{ opacity: number; scale: number; transition: { type: string; stiffness: number; damping: number; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ opacity: number; scale: number; transition: { type: string; stiffness: number; damping: number; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues | undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ type: string; stiffness: number; damping: number; }' is not assignable to type 'Transition<any> | undefined'.
+              Type '{ type: string; stiffness: number; damping: number; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ type: string; stiffness: number; damping: number; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'type' are incompatible.
+                    Type 'string' is not assignable to type 'AnimationGeneratorType | undefined'.
+src/components/harmonic/CompatibilityAnalysisWidget.tsx(355,111): error TS2339: Property 'overallScore' does not exist on type 'CompatibilityAnalysis & { harmonicEnhancement: number; }'.
+src/components/harmonic/CompatibilityAnalysisWidget.tsx(368,59): error TS2339: Property 'overallScore' does not exist on type 'CompatibilityAnalysis & { harmonicEnhancement: number; }'.
+src/components/harmonic/CompatibilityAnalysisWidget.tsx(379,66): error TS2339: Property 'overallScore' does not exist on type 'CompatibilityAnalysis & { harmonicEnhancement: number; }'.
+src/components/harmonic/CompatibilityAnalysisWidget.tsx(382,44): error TS2339: Property 'overallDescription' does not exist on type 'CompatibilityAnalysis & { harmonicEnhancement: number; }'.
+src/components/harmonic/CompatibilityAnalysisWidget.tsx(397,25): error TS2322: Type '{ hidden: { opacity: number; scale: number; }; visible: { opacity: number; scale: number; transition: { type: string; stiffness: number; damping: number; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ opacity: number; scale: number; transition: { type: string; stiffness: number; damping: number; }; }' is not assignable to type 'Variant'.
+      Type '{ opacity: number; scale: number; transition: { type: string; stiffness: number; damping: number; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ opacity: number; scale: number; transition: { type: string; stiffness: number; damping: number; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues | undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ type: string; stiffness: number; damping: number; }' is not assignable to type 'Transition<any> | undefined'.
+              Type '{ type: string; stiffness: number; damping: number; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ type: string; stiffness: number; damping: number; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'type' are incompatible.
+                    Type 'string' is not assignable to type 'AnimationGeneratorType | undefined'.
+src/components/harmonic/CompatibilityAnalysisWidget.tsx(411,95): error TS2339: Property 'baseCompatibility' does not exist on type 'CompatibilityAnalysis & { harmonicEnhancement: number; }'.
+src/components/harmonic/CompatibilityAnalysisWidget.tsx(417,68): error TS2339: Property 'baseCompatibility' does not exist on type 'CompatibilityAnalysis & { harmonicEnhancement: number; }'.
+src/components/harmonic/CompatibilityAnalysisWidget.tsx(426,95): error TS2339: Property 'elementCompatibility' does not exist on type 'CompatibilityAnalysis & { harmonicEnhancement: number; }'.
+src/components/harmonic/CompatibilityAnalysisWidget.tsx(432,68): error TS2339: Property 'elementCompatibility' does not exist on type 'CompatibilityAnalysis & { harmonicEnhancement: number; }'.
+src/components/harmonic/CompatibilityAnalysisWidget.tsx(443,75): error TS2345: Argument of type '{ score: number; harmony: string; challenges: string; advice: string; }' is not assignable to parameter of type 'number'.
+src/components/harmonic/CompatibilityAnalysisWidget.tsx(458,95): error TS2339: Property 'personalityCompatibility' does not exist on type 'CompatibilityAnalysis & { harmonicEnhancement: number; }'.
+src/components/harmonic/CompatibilityAnalysisWidget.tsx(464,68): error TS2339: Property 'personalityCompatibility' does not exist on type 'CompatibilityAnalysis & { harmonicEnhancement: number; }'.
+src/components/harmonic/CompatibilityAnalysisWidget.tsx(475,25): error TS2322: Type '{ hidden: { opacity: number; scale: number; }; visible: { opacity: number; scale: number; transition: { type: string; stiffness: number; damping: number; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ opacity: number; scale: number; transition: { type: string; stiffness: number; damping: number; }; }' is not assignable to type 'Variant'.
+      Type '{ opacity: number; scale: number; transition: { type: string; stiffness: number; damping: number; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ opacity: number; scale: number; transition: { type: string; stiffness: number; damping: number; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues | undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ type: string; stiffness: number; damping: number; }' is not assignable to type 'Transition<any> | undefined'.
+              Type '{ type: string; stiffness: number; damping: number; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ type: string; stiffness: number; damping: number; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'type' are incompatible.
+                    Type 'string' is not assignable to type 'AnimationGeneratorType | undefined'.
+src/components/harmonic/CompatibilityAnalysisWidget.tsx(485,56): error TS2339: Property 'map' does not exist on type '{ strengthAreas: string[]; growthAreas: string[]; communicationStyle: string; conflictResolution: string; }'.
+src/components/harmonic/CompatibilityAnalysisWidget.tsx(485,61): error TS7006: Parameter 'recommendation' implicitly has an 'any' type.
+src/components/harmonic/CompatibilityAnalysisWidget.tsx(485,77): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/components/harmonic/CompatibilityAnalysisWidget.tsx(505,15): error TS2322: Type '{ hidden: { opacity: number; scale: number; }; visible: { opacity: number; scale: number; transition: { type: string; stiffness: number; damping: number; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ opacity: number; scale: number; transition: { type: string; stiffness: number; damping: number; }; }' is not assignable to type 'Variant'.
+      Type '{ opacity: number; scale: number; transition: { type: string; stiffness: number; damping: number; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ opacity: number; scale: number; transition: { type: string; stiffness: number; damping: number; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues | undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ type: string; stiffness: number; damping: number; }' is not assignable to type 'Transition<any> | undefined'.
+              Type '{ type: string; stiffness: number; damping: number; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ type: string; stiffness: number; damping: number; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'type' are incompatible.
+                    Type 'string' is not assignable to type 'AnimationGeneratorType | undefined'.
+src/components/harmonic/DailyGuidanceWidget.tsx(257,21): error TS2322: Type '{ hidden: { opacity: number; y: number; }; visible: { opacity: number; y: number; transition: { type: string; stiffness: number; damping: number; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ opacity: number; y: number; transition: { type: string; stiffness: number; damping: number; }; }' is not assignable to type 'Variant'.
+      Type '{ opacity: number; y: number; transition: { type: string; stiffness: number; damping: number; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ opacity: number; y: number; transition: { type: string; stiffness: number; damping: number; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues | undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ type: string; stiffness: number; damping: number; }' is not assignable to type 'Transition<any> | undefined'.
+              Type '{ type: string; stiffness: number; damping: number; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ type: string; stiffness: number; damping: number; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'type' are incompatible.
+                    Type 'string' is not assignable to type 'AnimationGeneratorType | undefined'.
+src/components/harmonic/DailyGuidanceWidget.tsx(271,21): error TS2322: Type '{ hidden: { opacity: number; y: number; }; visible: { opacity: number; y: number; transition: { type: string; stiffness: number; damping: number; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ opacity: number; y: number; transition: { type: string; stiffness: number; damping: number; }; }' is not assignable to type 'Variant'.
+      Type '{ opacity: number; y: number; transition: { type: string; stiffness: number; damping: number; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ opacity: number; y: number; transition: { type: string; stiffness: number; damping: number; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues | undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ type: string; stiffness: number; damping: number; }' is not assignable to type 'Transition<any> | undefined'.
+              Type '{ type: string; stiffness: number; damping: number; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ type: string; stiffness: number; damping: number; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'type' are incompatible.
+                    Type 'string' is not assignable to type 'AnimationGeneratorType | undefined'.
+src/components/harmonic/DailyGuidanceWidget.tsx(295,27): error TS2322: Type '{ hidden: { opacity: number; scale: number; y: number; }; visible: { opacity: number; scale: number; y: number; transition: { type: string; stiffness: number; damping: number; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ opacity: number; scale: number; y: number; transition: { type: string; stiffness: number; damping: number; }; }' is not assignable to type 'Variant'.
+      Type '{ opacity: number; scale: number; y: number; transition: { type: string; stiffness: number; damping: number; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ opacity: number; scale: number; y: number; transition: { type: string; stiffness: number; damping: number; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues | undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ type: string; stiffness: number; damping: number; }' is not assignable to type 'Transition<any> | undefined'.
+              Type '{ type: string; stiffness: number; damping: number; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ type: string; stiffness: number; damping: number; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'type' are incompatible.
+                    Type 'string' is not assignable to type 'AnimationGeneratorType | undefined'.
+src/components/harmonic/DailyGuidanceWidget.tsx(351,25): error TS2322: Type '{ hidden: { opacity: number; x: number; }; visible: { opacity: number; x: number; transition: { type: string; duration: number; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ opacity: number; x: number; transition: { type: string; duration: number; }; }' is not assignable to type 'Variant'.
+      Type '{ opacity: number; x: number; transition: { type: string; duration: number; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ opacity: number; x: number; transition: { type: string; duration: number; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues | undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ type: string; duration: number; }' is not assignable to type 'Transition<any> | undefined'.
+              Type '{ type: string; duration: number; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ type: string; duration: number; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'type' are incompatible.
+                    Type 'string' is not assignable to type 'AnimationGeneratorType | undefined'.
+src/components/harmonic/DailyGuidanceWidget.tsx(397,23): error TS2322: Type '{ hidden: { opacity: number; y: number; }; visible: { opacity: number; y: number; transition: { type: string; stiffness: number; damping: number; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ opacity: number; y: number; transition: { type: string; stiffness: number; damping: number; }; }' is not assignable to type 'Variant'.
+      Type '{ opacity: number; y: number; transition: { type: string; stiffness: number; damping: number; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ opacity: number; y: number; transition: { type: string; stiffness: number; damping: number; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues | undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ type: string; stiffness: number; damping: number; }' is not assignable to type 'Transition<any> | undefined'.
+              Type '{ type: string; stiffness: number; damping: number; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ type: string; stiffness: number; damping: number; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'type' are incompatible.
+                    Type 'string' is not assignable to type 'AnimationGeneratorType | undefined'.
+src/components/harmonic/MonthlyGuidanceWidget.tsx(172,19): error TS2322: Type '{ hidden: { opacity: number; y: number; scale: number; }; visible: { opacity: number; y: number; scale: number; transition: { type: string; stiffness: number; damping: number; duration: number; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ opacity: number; y: number; scale: number; transition: { type: string; stiffness: number; damping: number; duration: number; }; }' is not assignable to type 'Variant'.
+      Type '{ opacity: number; y: number; scale: number; transition: { type: string; stiffness: number; damping: number; duration: number; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ opacity: number; y: number; scale: number; transition: { type: string; stiffness: number; damping: number; duration: number; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues | undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ type: string; stiffness: number; damping: number; duration: number; }' is not assignable to type 'Transition<any> | undefined'.
+              Type '{ type: string; stiffness: number; damping: number; duration: number; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ type: string; stiffness: number; damping: number; duration: number; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'type' are incompatible.
+                    Type 'string' is not assignable to type 'AnimationGeneratorType | undefined'.
+src/components/harmonic/MonthlyGuidanceWidget.tsx(236,25): error TS2322: Type '{ hidden: { opacity: number; y: number; scale: number; }; visible: { opacity: number; y: number; scale: number; transition: { type: string; stiffness: number; damping: number; duration: number; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ opacity: number; y: number; scale: number; transition: { type: string; stiffness: number; damping: number; duration: number; }; }' is not assignable to type 'Variant'.
+      Type '{ opacity: number; y: number; scale: number; transition: { type: string; stiffness: number; damping: number; duration: number; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ opacity: number; y: number; scale: number; transition: { type: string; stiffness: number; damping: number; duration: number; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues | undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ type: string; stiffness: number; damping: number; duration: number; }' is not assignable to type 'Transition<any> | undefined'.
+              Type '{ type: string; stiffness: number; damping: number; duration: number; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ type: string; stiffness: number; damping: number; duration: number; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'type' are incompatible.
+                    Type 'string' is not assignable to type 'AnimationGeneratorType | undefined'.
+src/components/harmonic/MonthlyGuidanceWidget.tsx(251,25): error TS2322: Type '{ hidden: { opacity: number; y: number; scale: number; }; visible: { opacity: number; y: number; scale: number; transition: { type: string; stiffness: number; damping: number; duration: number; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ opacity: number; y: number; scale: number; transition: { type: string; stiffness: number; damping: number; duration: number; }; }' is not assignable to type 'Variant'.
+      Type '{ opacity: number; y: number; scale: number; transition: { type: string; stiffness: number; damping: number; duration: number; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ opacity: number; y: number; scale: number; transition: { type: string; stiffness: number; damping: number; duration: number; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues | undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ type: string; stiffness: number; damping: number; duration: number; }' is not assignable to type 'Transition<any> | undefined'.
+              Type '{ type: string; stiffness: number; damping: number; duration: number; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ type: string; stiffness: number; damping: number; duration: number; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'type' are incompatible.
+                    Type 'string' is not assignable to type 'AnimationGeneratorType | undefined'.
+src/components/harmonic/MonthlyGuidanceWidget.tsx(266,23): error TS2322: Type '{ hidden: { opacity: number; x: number; }; visible: { opacity: number; x: number; transition: { type: string; duration: number; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ opacity: number; x: number; transition: { type: string; duration: number; }; }' is not assignable to type 'Variant'.
+      Type '{ opacity: number; x: number; transition: { type: string; duration: number; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ opacity: number; x: number; transition: { type: string; duration: number; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues | undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ type: string; duration: number; }' is not assignable to type 'Transition<any> | undefined'.
+              Type '{ type: string; duration: number; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ type: string; duration: number; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'type' are incompatible.
+                    Type 'string' is not assignable to type 'AnimationGeneratorType | undefined'.
+src/components/harmonic/MonthlyGuidanceWidget.tsx(312,25): error TS2322: Type '{ hidden: { opacity: number; y: number; scale: number; }; visible: { opacity: number; y: number; scale: number; transition: { type: string; stiffness: number; damping: number; duration: number; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ opacity: number; y: number; scale: number; transition: { type: string; stiffness: number; damping: number; duration: number; }; }' is not assignable to type 'Variant'.
+      Type '{ opacity: number; y: number; scale: number; transition: { type: string; stiffness: number; damping: number; duration: number; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ opacity: number; y: number; scale: number; transition: { type: string; stiffness: number; damping: number; duration: number; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues | undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ type: string; stiffness: number; damping: number; duration: number; }' is not assignable to type 'Transition<any> | undefined'.
+              Type '{ type: string; stiffness: number; damping: number; duration: number; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ type: string; stiffness: number; damping: number; duration: number; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'type' are incompatible.
+                    Type 'string' is not assignable to type 'AnimationGeneratorType | undefined'.
+src/components/harmonic/MonthlyGuidanceWidget.tsx(344,25): error TS2322: Type '{ hidden: { opacity: number; y: number; scale: number; }; visible: { opacity: number; y: number; scale: number; transition: { type: string; stiffness: number; damping: number; duration: number; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ opacity: number; y: number; scale: number; transition: { type: string; stiffness: number; damping: number; duration: number; }; }' is not assignable to type 'Variant'.
+      Type '{ opacity: number; y: number; scale: number; transition: { type: string; stiffness: number; damping: number; duration: number; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ opacity: number; y: number; scale: number; transition: { type: string; stiffness: number; damping: number; duration: number; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues | undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ type: string; stiffness: number; damping: number; duration: number; }' is not assignable to type 'Transition<any> | undefined'.
+              Type '{ type: string; stiffness: number; damping: number; duration: number; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ type: string; stiffness: number; damping: number; duration: number; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'type' are incompatible.
+                    Type 'string' is not assignable to type 'AnimationGeneratorType | undefined'.
+src/components/harmonic/MonthlyGuidanceWidget.tsx(355,21): error TS2322: Type '{ hidden: { opacity: number; scale: number; }; visible: { opacity: number; scale: number; transition: { type: string; stiffness: number; damping: number; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ opacity: number; scale: number; transition: { type: string; stiffness: number; damping: number; }; }' is not assignable to type 'Variant'.
+      Type '{ opacity: number; scale: number; transition: { type: string; stiffness: number; damping: number; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ opacity: number; scale: number; transition: { type: string; stiffness: number; damping: number; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues | undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ type: string; stiffness: number; damping: number; }' is not assignable to type 'Transition<any> | undefined'.
+              Type '{ type: string; stiffness: number; damping: number; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ type: string; stiffness: number; damping: number; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'type' are incompatible.
+                    Type 'string' is not assignable to type 'AnimationGeneratorType | undefined'.
+src/components/harmonic/MonthlyGuidanceWidget.tsx(388,25): error TS2322: Type '{ hidden: { opacity: number; y: number; scale: number; }; visible: { opacity: number; y: number; scale: number; transition: { type: string; stiffness: number; damping: number; duration: number; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ opacity: number; y: number; scale: number; transition: { type: string; stiffness: number; damping: number; duration: number; }; }' is not assignable to type 'Variant'.
+      Type '{ opacity: number; y: number; scale: number; transition: { type: string; stiffness: number; damping: number; duration: number; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ opacity: number; y: number; scale: number; transition: { type: string; stiffness: number; damping: number; duration: number; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues | undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ type: string; stiffness: number; damping: number; duration: number; }' is not assignable to type 'Transition<any> | undefined'.
+              Type '{ type: string; stiffness: number; damping: number; duration: number; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ type: string; stiffness: number; damping: number; duration: number; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'type' are incompatible.
+                    Type 'string' is not assignable to type 'AnimationGeneratorType | undefined'.
+src/components/harmonic/WeeklyGuidanceWidget.tsx(144,19): error TS2322: Type '{ hidden: { opacity: number; x: number; }; visible: { opacity: number; x: number; transition: { type: string; duration: number; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ opacity: number; x: number; transition: { type: string; duration: number; }; }' is not assignable to type 'Variant'.
+      Type '{ opacity: number; x: number; transition: { type: string; duration: number; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ opacity: number; x: number; transition: { type: string; duration: number; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues | undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ type: string; duration: number; }' is not assignable to type 'Transition<any> | undefined'.
+              Type '{ type: string; duration: number; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ type: string; duration: number; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'type' are incompatible.
+                    Type 'string' is not assignable to type 'AnimationGeneratorType | undefined'.
+src/components/harmonic/WeeklyGuidanceWidget.tsx(206,19): error TS2322: Type '{ hidden: { opacity: number; y: number; scale: number; }; visible: { opacity: number; y: number; scale: number; transition: { type: string; stiffness: number; damping: number; duration: number; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ opacity: number; y: number; scale: number; transition: { type: string; stiffness: number; damping: number; duration: number; }; }' is not assignable to type 'Variant'.
+      Type '{ opacity: number; y: number; scale: number; transition: { type: string; stiffness: number; damping: number; duration: number; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ opacity: number; y: number; scale: number; transition: { type: string; stiffness: number; damping: number; duration: number; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues | undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ type: string; stiffness: number; damping: number; duration: number; }' is not assignable to type 'Transition<any> | undefined'.
+              Type '{ type: string; stiffness: number; damping: number; duration: number; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ type: string; stiffness: number; damping: number; duration: number; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'type' are incompatible.
+                    Type 'string' is not assignable to type 'AnimationGeneratorType | undefined'.
+src/components/providers/NextAuthProvider.tsx(6,33): error TS2307: Cannot find module 'next-auth/react' or its corresponding type declarations.
+src/hooks/useChat.ts(65,22): error TS2739: Type '{ id: string; content: string; sender: "system"; timestamp: Date; }' is missing the following properties from type 'Message': isUser, sessionId
+src/hooks/useChat.ts(142,7): error TS2739: Type '{ id: string; content: string; sender: "ai"; timestamp: Date; archetypeType: BaseArchetype; }' is missing the following properties from type 'Message': isUser, sessionId
+src/hooks/useChat.ts(157,5): error TS2739: Type '{ id: string; content: string; sender: "ai"; timestamp: Date; archetypeType: BaseArchetype; }' is missing the following properties from type 'Message': isUser, sessionId
+src/hooks/useChat.ts(172,13): error TS2739: Type '{ id: string; content: string; sender: "system"; timestamp: Date; }' is missing the following properties from type 'Message': isUser, sessionId
+src/hooks/useChat.ts(213,11): error TS2739: Type '{ id: string; content: string; sender: "user"; timestamp: Date; archetypeType: "ARC-COOPERATIVESTABLE" | "ARC-COOPERATIVEGROWTH" | "ARC-COMPETITIVESTABLE" | "ARC-COMPETITIVEGROWTH" | ... 59 more ... | "PER-COMPETITIVEGROWTH"; }' is missing the following properties from type 'Message': isUser, sessionId
+src/hooks/useChat.ts(326,15): error TS2739: Type '{ id: string; content: any; sender: "ai"; timestamp: Date; archetypeType: BaseArchetype; emotion: any; }' is missing the following properties from type 'Message': isUser, sessionId
+src/hooks/useChat.ts(402,17): error TS2739: Type '{ id: string; content: string; sender: "ai"; timestamp: Date; archetypeType: BaseArchetype; emotion: EmotionState; }' is missing the following properties from type 'Message': isUser, sessionId
+src/hooks/useChat.ts(447,7): error TS2353: Object literal may only specify known properties, and 'isSpecial' does not exist in type 'Message'.
+src/hooks/useMemoryManager.ts(206,9): error TS2345: Argument of type 'import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/lib/emotion-analyzer").EmotionData | undefined' is not assignable to parameter of type 'import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/lib/memory-manager").EmotionData | undefined'.
+  Type 'EmotionData' is missing the following properties from type 'EmotionData': emotion, isSpecialMoment, category, keywords
+src/hooks/useRelationship.ts(55,27): error TS2345: Argument of type '(current: RelationshipData) => RelationshipData' is not assignable to parameter of type 'SetStateAction<RelationshipData>'.
+  Type '(current: RelationshipData) => RelationshipData' is not assignable to type '(prevState: RelationshipData) => RelationshipData'.
+    Call signature return types 'RelationshipData' and 'RelationshipData' are incompatible.
+      The types of 'currentLevel' are incompatible between these types.
+        Type 'number' is not assignable to type 'RelationshipLevel'.
+src/hooks/useRelationship.ts(56,46): error TS2345: Argument of type 'import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/types/index").RelationshipData' is not assignable to parameter of type 'import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/lib/relationship-system").RelationshipData'.
+  Types of property 'currentLevel' are incompatible.
+    Type 'RelationshipLevel' is not assignable to type 'number'.
+src/hooks/useUnifiedChat.ts(466,9): error TS2322: Type 'string' is not assignable to type '"calm" | "happy" | "excited" | "thoughtful" | "caring" | "playful" | "focused" | "supportive" | undefined'.
+src/hooks/useUnifiedChat.ts(483,11): error TS2345: Argument of type '{ emotion: string; intensity: number; isSpecialMoment: boolean; category: "positive" | "neutral" | "negative"; keywords: string[]; }' is not assignable to parameter of type 'EmotionData'.
+  Type '{ emotion: string; intensity: number; isSpecialMoment: boolean; category: "positive" | "neutral" | "negative"; keywords: string[]; }' is missing the following properties from type 'EmotionData': emotions, dominantEmotion, recommendation, musicTone
+src/hooks/useUnifiedChat.ts(738,5): error TS2322: Type '(sessionId: string) => Promise<any[]>' is not assignable to type '(sessionId: string) => Promise<void>'.
+  Type 'Promise<any[]>' is not assignable to type 'Promise<void>'.
+    Type 'any[]' is not assignable to type 'void'.
+src/lib/astrology-integration.ts(194,22): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ 牡羊座: { base: string; advice: string; caution: string; }; 牡牛座: { base: string; advice: string; caution: string; }; 双子座: { base: string; advice: string; caution: string; }; 蟹座: { base: string; advice: string; caution: string; }; ... 7 more ...; 魚座: { ...; }; }'.
+  No index signature with a parameter of type 'string' was found on type '{ 牡羊座: { base: string; advice: string; caution: string; }; 牡牛座: { base: string; advice: string; caution: string; }; 双子座: { base: string; advice: string; caution: string; }; 蟹座: { base: string; advice: string; caution: string; }; ... 7 more ...; 魚座: { ...; }; }'.
+src/lib/astrology-integration.ts(232,20): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ 牡羊座: string[]; 牡牛座: string[]; 双子座: string[]; 蟹座: string[]; 獅子座: string[]; 乙女座: string[]; 天秤座: string[]; 蠍座: string[]; 射手座: string[]; 山羊座: string[]; 水瓶座: string[]; 魚座: string[]; }'.
+  No index signature with a parameter of type 'string' was found on type '{ 牡羊座: string[]; 牡牛座: string[]; 双子座: string[]; 蟹座: string[]; 獅子座: string[]; 乙女座: string[]; 天秤座: string[]; 蠍座: string[]; 射手座: string[]; 山羊座: string[]; 水瓶座: string[]; 魚座: string[]; }'.
+src/lib/astrology-integration.ts(313,12): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ romantic: { encouragement: number; gentleness: number; playfulness: number; depth: number; supportiveness: number; }; friend: { encouragement: number; gentleness: number; playfulness: number; depth: number; supportiveness: number; }; counselor: { ...; }; mentor: { ...; }; companion: { ...; }; }'.
+  No index signature with a parameter of type 'string' was found on type '{ romantic: { encouragement: number; gentleness: number; playfulness: number; depth: number; supportiveness: number; }; friend: { encouragement: number; gentleness: number; playfulness: number; depth: number; supportiveness: number; }; counselor: { ...; }; mentor: { ...; }; companion: { ...; }; }'.
+src/lib/astrology-integration.ts(321,7): error TS7053: Element implicitly has an 'any' type because expression of type '"gentleness"' can't be used to index type '{}'.
+  Property 'gentleness' does not exist on type '{}'.
+src/lib/astrology-integration.ts(322,7): error TS7053: Element implicitly has an 'any' type because expression of type '"supportiveness"' can't be used to index type '{}'.
+  Property 'supportiveness' does not exist on type '{}'.
+src/lib/astrology-integration.ts(324,7): error TS7053: Element implicitly has an 'any' type because expression of type '"encouragement"' can't be used to index type '{}'.
+  Property 'encouragement' does not exist on type '{}'.
+src/lib/astrology-integration.ts(325,7): error TS7053: Element implicitly has an 'any' type because expression of type '"playfulness"' can't be used to index type '{}'.
+  Property 'playfulness' does not exist on type '{}'.
+src/lib/astrology-integration.ts(330,7): error TS7053: Element implicitly has an 'any' type because expression of type '"playfulness"' can't be used to index type '{}'.
+  Property 'playfulness' does not exist on type '{}'.
+src/lib/astrology-integration.ts(332,7): error TS7053: Element implicitly has an 'any' type because expression of type '"supportiveness"' can't be used to index type '{}'.
+  Property 'supportiveness' does not exist on type '{}'.
+src/lib/astrology-integration.ts(333,7): error TS7053: Element implicitly has an 'any' type because expression of type '"gentleness"' can't be used to index type '{}'.
+  Property 'gentleness' does not exist on type '{}'.
+src/lib/astrology-integration.ts(403,12): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ 牡羊座: number; 牡牛座: number; 双子座: number; 蟹座: number; 獅子座: number; 乙女座: number; 天秤座: number; 蠍座: number; 射手座: number; 山羊座: number; 水瓶座: number; 魚座: number; }'.
+  No index signature with a parameter of type 'string' was found on type '{ 牡羊座: number; 牡牛座: number; 双子座: number; 蟹座: number; 獅子座: number; 乙女座: number; 天秤座: number; 蠍座: number; 射手座: number; 山羊座: number; 水瓶座: number; 魚座: number; }'.
+src/lib/astrology-integration.ts(413,12): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ energetic: string; gentle: string; creative: string; }'.
+  No index signature with a parameter of type 'string' was found on type '{ energetic: string; gentle: string; creative: string; }'.
+src/lib/astrology-integration.ts(423,12): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ action: string; patience: string; communication: string; }'.
+  No index signature with a parameter of type 'string' was found on type '{ action: string; patience: string; communication: string; }'.
+src/lib/astrology-integration.ts(433,12): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ impatience: string; mood_swings: string; perfectionism: string; }'.
+  No index signature with a parameter of type 'string' was found on type '{ impatience: string; mood_swings: string; perfectionism: string; }'.
+src/lib/astrology/astrology-service.ts(651,10): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ new_moon: string; waxing_crescent: string; first_quarter: string; waxing_gibbous: string; full_moon: string; waning_gibbous: string; last_quarter: string; waning_crescent: string; }'.
+src/lib/auth.ts(18,30): error TS2339: Property 'get' does not exist on type 'Promise<ReadonlyRequestCookies>'.
+src/lib/auth.ts(22,25): error TS2339: Property 'set' does not exist on type 'Promise<ReadonlyRequestCookies>'.
+src/lib/auth.ts(29,25): error TS2339: Property 'set' does not exist on type 'Promise<ReadonlyRequestCookies>'.
+src/lib/auth.ts(69,25): error TS2339: Property 'access_token' does not exist on type 'User'.
+src/lib/diagnosis-service.ts(39,22): error TS2304: Cannot find name 'DetailedDiagnosisResult'.
+src/lib/diagnosis-service.ts(653,62): error TS2304: Cannot find name 'DetailedDiagnosisResult'.
+src/lib/diagnosis-service.ts(685,34): error TS2304: Cannot find name 'DetailedDiagnosisResult'.
+src/lib/diagnosis-service.ts(698,52): error TS2304: Cannot find name 'DetailedDiagnosisResult'.
+src/lib/diagnosis-service.ts(709,57): error TS2304: Cannot find name 'DetailedDiagnosisResult'.
+src/lib/dynamic-imports.ts(27,3): error TS2345: Argument of type '() => Promise<typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/harmonic/HarmonicSetupWizard")>' is not assignable to parameter of type 'DynamicOptions<{}> | Loader<{}>'.
+  Type '() => Promise<typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/harmonic/HarmonicSetupWizard")>' is not assignable to type '() => LoaderComponent<{}>'.
+    Type 'Promise<typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/harmonic/HarmonicSetupWizard")>' is not assignable to type 'LoaderComponent<{}>'.
+      Type 'typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/harmonic/HarmonicSetupWizard")' is not assignable to type 'ComponentType<{}> | ComponentModule<{}>'.
+src/lib/dynamic-imports.ts(35,3): error TS2345: Argument of type '() => Promise<typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/harmonic/CompatibilityAnalysisWidget")>' is not assignable to parameter of type 'DynamicOptions<{}> | Loader<{}>'.
+  Type '() => Promise<typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/harmonic/CompatibilityAnalysisWidget")>' is not assignable to type '() => LoaderComponent<{}>'.
+    Type 'Promise<typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/harmonic/CompatibilityAnalysisWidget")>' is not assignable to type 'LoaderComponent<{}>'.
+      Type 'typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/harmonic/CompatibilityAnalysisWidget")' is not assignable to type 'ComponentType<{}> | ComponentModule<{}>'.
+src/lib/dynamic-imports.ts(43,3): error TS2345: Argument of type '() => Promise<typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/harmonic/MonthlyGuidanceWidget")>' is not assignable to parameter of type 'DynamicOptions<{}> | Loader<{}>'.
+  Type '() => Promise<typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/harmonic/MonthlyGuidanceWidget")>' is not assignable to type '() => LoaderComponent<{}>'.
+    Type 'Promise<typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/harmonic/MonthlyGuidanceWidget")>' is not assignable to type 'LoaderComponent<{}>'.
+      Type 'typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/harmonic/MonthlyGuidanceWidget")' is not assignable to type 'ComponentType<{}> | ComponentModule<{}>'.
+src/lib/dynamic-imports.ts(52,3): error TS2345: Argument of type '() => Promise<typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/chat/ChatHistory")>' is not assignable to parameter of type 'DynamicOptions<{}> | Loader<{}>'.
+  Type '() => Promise<typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/chat/ChatHistory")>' is not assignable to type '() => LoaderComponent<{}>'.
+    Type 'Promise<typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/chat/ChatHistory")>' is not assignable to type 'LoaderComponent<{}>'.
+      Type 'typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/chat/ChatHistory")' is not assignable to type 'ComponentType<{}> | ComponentModule<{}>'.
+src/lib/dynamic-imports.ts(60,3): error TS2345: Argument of type '() => Promise<typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/relationship/MemoryAlbum")>' is not assignable to parameter of type 'DynamicOptions<{}> | Loader<{}>'.
+  Type '() => Promise<typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/relationship/MemoryAlbum")>' is not assignable to type '() => LoaderComponent<{}>'.
+    Type 'Promise<typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/relationship/MemoryAlbum")>' is not assignable to type 'LoaderComponent<{}>'.
+      Type 'typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/relationship/MemoryAlbum")' is not assignable to type 'ComponentType<{}> | ComponentModule<{}>'.
+src/lib/dynamic-imports.ts(69,3): error TS2345: Argument of type '() => Promise<typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/privacy/SecurityDetailsModal")>' is not assignable to parameter of type 'DynamicOptions<{}> | Loader<{}>'.
+  Type '() => Promise<typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/privacy/SecurityDetailsModal")>' is not assignable to type '() => LoaderComponent<{}>'.
+    Type 'Promise<typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/privacy/SecurityDetailsModal")>' is not assignable to type 'LoaderComponent<{}>'.
+      Type 'typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/privacy/SecurityDetailsModal")' is not assignable to type 'ComponentType<{}> | ComponentModule<{}>'.
+src/lib/dynamic-imports.ts(78,3): error TS2345: Argument of type '() => Promise<typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/TypeDetailDisplay")>' is not assignable to parameter of type 'DynamicOptions<{}> | Loader<{}>'.
+  Type '() => Promise<typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/TypeDetailDisplay")>' is not assignable to type '() => LoaderComponent<{}>'.
+    Type 'Promise<typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/TypeDetailDisplay")>' is not assignable to type 'LoaderComponent<{}>'.
+      Type 'typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/TypeDetailDisplay")' is not assignable to type 'ComponentType<{}> | ComponentModule<{}>'.
+src/lib/dynamic-imports.ts(86,3): error TS2345: Argument of type '() => Promise<typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/diagnosis/DiagnosticResult")>' is not assignable to parameter of type 'DynamicOptions<{}> | Loader<{}>'.
+  Type '() => Promise<typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/diagnosis/DiagnosticResult")>' is not assignable to type '() => LoaderComponent<{}>'.
+    Type 'Promise<typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/diagnosis/DiagnosticResult")>' is not assignable to type 'LoaderComponent<{}>'.
+      Type 'typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/diagnosis/DiagnosticResult")' is not assignable to type 'ComponentType<{}> | ComponentModule<{}>'.
+src/lib/dynamic-imports.ts(104,3): error TS2345: Argument of type '() => Promise<typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/auth/AuthModal")>' is not assignable to parameter of type 'DynamicOptions<{}> | Loader<{}>'.
+  Type '() => Promise<typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/auth/AuthModal")>' is not assignable to type '() => LoaderComponent<{}>'.
+    Type 'Promise<typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/auth/AuthModal")>' is not assignable to type 'LoaderComponent<{}>'.
+      Type 'typeof import("/Users/miyamotoseiyou/Library/Mobile Documents/com~apple~CloudDocs/CreativeWorkspace/ActiveProjects/typemate/src/components/auth/AuthModal")' is not assignable to type 'ComponentType<{}> | ComponentModule<{}>'.
+src/lib/emotion-analyzer.ts(49,25): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ happiness: number; sadness: number; excitement: number; confusion: number; affection: number; frustration: number; curiosity: number; gratitude: number; }'.
+  No index signature with a parameter of type 'string' was found on type '{ happiness: number; sadness: number; excitement: number; confusion: number; affection: number; frustration: number; curiosity: number; gratitude: number; }'.
+src/lib/emotion-analyzer.ts(49,42): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ happiness: number; sadness: number; excitement: number; confusion: number; affection: number; frustration: number; curiosity: number; gratitude: number; }'.
+  No index signature with a parameter of type 'string' was found on type '{ happiness: number; sadness: number; excitement: number; confusion: number; affection: number; frustration: number; curiosity: number; gratitude: number; }'.
+src/lib/emotion-analyzer.ts(54,18): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ happiness: number; sadness: number; excitement: number; confusion: number; affection: number; frustration: number; curiosity: number; gratitude: number; }'.
+  No index signature with a parameter of type 'string' was found on type '{ happiness: number; sadness: number; excitement: number; confusion: number; affection: number; frustration: number; curiosity: number; gratitude: number; }'.
+src/lib/emotion-analyzer.ts(55,70): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ happiness: number; sadness: number; excitement: number; confusion: number; affection: number; frustration: number; curiosity: number; gratitude: number; }'.
+  No index signature with a parameter of type 'string' was found on type '{ happiness: number; sadness: number; excitement: number; confusion: number; affection: number; frustration: number; curiosity: number; gratitude: number; }'.
+src/lib/emotion-analyzer.ts(56,53): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ happiness: number; sadness: number; excitement: number; confusion: number; affection: number; frustration: number; curiosity: number; gratitude: number; }'.
+  No index signature with a parameter of type 'string' was found on type '{ happiness: number; sadness: number; excitement: number; confusion: number; affection: number; frustration: number; curiosity: number; gratitude: number; }'.
+src/lib/emotion-analyzer.ts(263,36): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ happiness: string[]; sadness: string[]; excitement: string[]; confusion: string[]; affection: string[]; frustration: string[]; curiosity: string[]; gratitude: string[]; }'.
+  No index signature with a parameter of type 'string' was found on type '{ happiness: string[]; sadness: string[]; excitement: string[]; confusion: string[]; affection: string[]; frustration: string[]; curiosity: string[]; gratitude: string[]; }'.
+src/lib/emotion-analyzer.ts(287,12): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ happiness: string; excitement: string; affection: string; gratitude: string; sadness: string; frustration: string; confusion: string; curiosity: string; }'.
+  No index signature with a parameter of type 'string' was found on type '{ happiness: string; excitement: string; affection: string; gratitude: string; sadness: string; frustration: string; confusion: string; curiosity: string; }'.
+src/lib/emotion-analyzer.ts(329,30): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ happiness: string; sadness: string; excitement: string; affection: string; }'.
+  No index signature with a parameter of type 'string' was found on type '{ happiness: string; sadness: string; excitement: string; affection: string; }'.
+src/lib/harmonic-ai-service-server.ts(217,7): error TS2741: Property 'actionItems' is missing in type '{ cosmicWeather: string; personalMessage: string; energyForecast: { morning: number; afternoon: number; evening: number; }; luckyElements: { color: string; number: number; direction: string; }; challenges: string[]; opportunities: string[]; }' but required in type 'TodayCosmicGuidance'.
+src/lib/harmonic-ai-service.ts(312,7): error TS2739: Type '{ cosmicWeather: string; personalMessage: string; energyForecast: { morning: number; afternoon: number; evening: number; }; luckyElements: { color: string; number: number; direction: string; }; }' is missing the following properties from type 'TodayCosmicGuidance': actionItems, challenges, opportunities
+src/lib/harmonic-ai-service.ts(543,9): error TS7034: Variable 'events' implicitly has type 'any[]' in some locations where its type cannot be determined.
+src/lib/harmonic-ai-service.ts(574,10): error TS7005: Variable 'events' implicitly has an 'any[]' type.
+src/lib/harmonic-chat-service.ts(8,3): error TS2305: Module '"../types"' has no exported member 'HarmonicAIProfile'.
+src/lib/harmonic-chat-service.ts(435,9): error TS2345: Argument of type 'Date' is not assignable to parameter of type 'string'.
+src/lib/hybrid-storage.ts(225,5): error TS2739: Type '{ userType: any; selectedAiPersonality: any; relationshipType: "friend" | "counselor" | "romantic" | "mentor"; preferences: any; createdAt: Date; updatedAt: Date; }' is missing the following properties from type 'UserProfile': chatCount, personalInfo
+src/lib/memory-manager.ts(461,12): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ happiness: string; excitement: string; affection: string; gratitude: string; sadness: string; confusion: string; frustration: string; curiosity: string; }'.
+  No index signature with a parameter of type 'string' was found on type '{ happiness: string; excitement: string; affection: string; gratitude: string; sadness: string; confusion: string; frustration: string; curiosity: string; }'.
+src/lib/memory-manager.ts(466,11): error TS7034: Variable 'keywords' implicitly has type 'any[]' in some locations where its type cannot be determined.
+src/lib/memory-manager.ts(473,12): error TS7005: Variable 'keywords' implicitly has an 'any[]' type.
+src/lib/performance-monitor.ts(64,54): error TS2551: Property 'navigationStart' does not exist on type 'PerformanceNavigationTiming'. Did you mean 'activationStart'?
+src/lib/performance-monitor.ts(182,80): error TS2551: Property 'navigationStart' does not exist on type 'PerformanceNavigationTiming'. Did you mean 'activationStart'?
+src/lib/performance-monitor.ts(183,72): error TS2551: Property 'navigationStart' does not exist on type 'PerformanceNavigationTiming'. Did you mean 'activationStart'?
+src/lib/personality-engine.ts(73,12): error TS2678: Type '"INTJ"' is not comparable to type 'BaseArchetype'.
+src/lib/personality-engine.ts(95,12): error TS2678: Type '"ENFP"' is not comparable to type 'BaseArchetype'.
+src/lib/personality-engine.ts(117,12): error TS2678: Type '"INFJ"' is not comparable to type 'BaseArchetype'.
+src/lib/personality-engine.ts(139,12): error TS2678: Type '"ESTP"' is not comparable to type 'BaseArchetype'.
+src/lib/personality-engine.ts(161,12): error TS2678: Type '"ISFJ"' is not comparable to type 'BaseArchetype'.
+src/lib/relationship-engine.ts(150,21): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ romantic: { intimacy: number; emotionalConnection: number; trust: number; }; friend: { sharedExperiences: number; understanding: number; trust: number; }; counselor: { trust: number; understanding: number; intimacy: number; }; mentor: { ...; }; companion: { ...; }; }'.
+  No index signature with a parameter of type 'string' was found on type '{ romantic: { intimacy: number; emotionalConnection: number; trust: number; }; friend: { sharedExperiences: number; understanding: number; trust: number; }; counselor: { trust: number; understanding: number; intimacy: number; }; mentor: { ...; }; companion: { ...; }; }'.
+src/lib/relationship-engine.ts(452,28): error TS2353: Object literal may only specify known properties, and 'sharedExperiences' does not exist in type '{ intimacy?: number | undefined; trust?: number | undefined; understanding?: number | undefined; }'.
+src/lib/relationship-engine.ts(487,5): error TS2322: Type '({ type: "conversation"; title: string; description: string; priority: "high"; estimatedImpact: { trust: number; }; } | { type: "activity"; title: string; description: string; priority: "medium"; estimatedImpact: { ...; }; })[]' is not assignable to type 'RelationshipSuggestion[]'.
+  Type '{ type: "conversation"; title: string; description: string; priority: "high"; estimatedImpact: { trust: number; }; } | { type: "activity"; title: string; description: string; priority: "medium"; estimatedImpact: { ...; }; }' is not assignable to type 'RelationshipSuggestion'.
+    Type '{ type: "activity"; title: string; description: string; priority: "medium"; estimatedImpact: { sharedExperiences: number; }; }' is not assignable to type 'RelationshipSuggestion'.
+      Types of property 'estimatedImpact' are incompatible.
+        Type '{ sharedExperiences: number; }' has no properties in common with type '{ intimacy?: number | undefined; trust?: number | undefined; understanding?: number | undefined; }'.
+src/lib/relationship-engine.ts(528,9): error TS2322: Type '{ intimacy: number; emotionalConnection: number; trust: number; }' is not assignable to type '{ overallLevel: number; trust?: undefined; understanding?: undefined; intimacy?: undefined; emotionalConnection?: undefined; } | { trust: number; understanding: number; overallLevel?: undefined; intimacy?: undefined; emotionalConnection?: undefined; } | { ...; }'.
+  Types of property 'trust' are incompatible.
+    Type 'number' is not assignable to type 'undefined'.
+src/lib/relationship-engine.ts(537,11): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type 'RelationshipLevel'.
+  No index signature with a parameter of type 'string' was found on type 'RelationshipLevel'.
+src/lib/relationship-storage.ts(11,3): error TS2322: Type 'number' is not assignable to type 'RelationshipLevel'.
+tailwind.config.ts(159,5): error TS2353: Object literal may only specify known properties, and 'removeDeprecatedGapUtilities' does not exist in type '[] | Partial<{ hoverOnlyWhenSupported?: boolean | undefined; respectDefaultRingColorOpacity?: boolean | undefined; disableColorOpacityUtilitiesByDefault?: boolean | undefined; relativeContentPathsByDefault?: boolean | undefined; }>'.
+tailwind.config.ts(233,5): error TS2353: Object literal may only specify known properties, and 'outline' does not exist in type 'Partial<{ container?: boolean | undefined; inset?: boolean | undefined; zIndex?: boolean | undefined; order?: boolean | undefined; gridColumn?: boolean | undefined; gridColumnStart?: boolean | undefined; ... 172 more ...; forcedColorAdjust?: boolean | undefined; }>'.

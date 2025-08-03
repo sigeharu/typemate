@@ -3,9 +3,10 @@
 
 import type { Type64, BaseArchetype } from '@/types';
 
-// 開発者モード判定
+// 🛡️ 本番環境セキュリティ: 開発者モード強制無効化
 export const isDevelopmentMode = (): boolean => {
-  return process.env.NEXT_PUBLIC_DEV_MODE === 'true';
+  // NODE_ENVがdevelopmentの場合のみ開発モードを許可（NEXT_PUBLIC_DEV_MODEは無視）
+  return process.env.NODE_ENV === 'development';
 };
 
 // テストプロファイル定義
@@ -129,20 +130,41 @@ export const resetTestMode = (): void => {
   console.log('🔄 テストモードをリセットしました');
 };
 
-// 緊急クリーンアップ（本番環境用）
+// 🛡️ 緊急クリーンアップ（本番環境用）- 強化版
 export const emergencyCleanup = (): void => {
   if (typeof window === 'undefined') return;
   
-  // テストモード関連のすべてのキーを削除
-  const testModeKeys = [
-    'test_ai_personality',
-    'test_profile_name',
-    'test_mode_active'
-  ];
-  
-  testModeKeys.forEach(key => {
-    localStorage.removeItem(key);
-  });
+  // 本番環境では強制的にすべてのテストデータを削除
+  if (process.env.NODE_ENV === 'production') {
+    // テストモード関連のすべてのキーを削除
+    const testModeKeys = [
+      'test_ai_personality',
+      'test_profile_name', 
+      'test_mode_active',
+      'userType64', // 開発用のユーザータイプも削除
+      'typemate-relationship' // テスト用関係性データも削除
+    ];
+    
+    testModeKeys.forEach(key => {
+      localStorage.removeItem(key);
+    });
+    
+    // セッションストレージもクリア
+    testModeKeys.forEach(key => {
+      sessionStorage.removeItem(key);
+    });
+  } else {
+    // 開発環境では従来通り
+    const testModeKeys = [
+      'test_ai_personality',
+      'test_profile_name',
+      'test_mode_active'
+    ];
+    
+    testModeKeys.forEach(key => {
+      localStorage.removeItem(key);
+    });
+  }
 };
 
 
