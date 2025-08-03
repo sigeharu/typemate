@@ -582,7 +582,7 @@ export default function ChatPage() {
                 >
                   <DailyGuidanceWidget 
                     guidance={dailyGuidance}
-                    compact={true}
+                    compact={false}
                     onRefresh={async () => {
                       try {
                         const { data: { user } } = await supabase.auth.getUser();
