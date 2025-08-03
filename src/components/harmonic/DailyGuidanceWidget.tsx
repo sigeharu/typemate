@@ -37,6 +37,80 @@ export function DailyGuidanceWidget({
   const [activeTab, setActiveTab] = useState<'overview' | 'actions' | 'affirmations'>('overview');
   const [currentTime, setCurrentTime] = useState(new Date());
   
+  // 🥁 アニメーションVariants定義 - ドラマー感性反映
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,    // ドラムビートのような100msインターバル
+        delayChildren: 0.2,      // 最初の一拍のための準備時間
+        when: "beforeChildren"
+      }
+    }
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 260,
+        damping: 20
+      }
+    }
+  };
+
+  const energyGridVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,   // エネルギーカードの美しいカスケード
+        delayChildren: 0.3
+      }
+    }
+  };
+
+  const energyCardVariants = {
+    hidden: { opacity: 0, scale: 0.8, y: 15 },
+    visible: { 
+      opacity: 1, 
+      scale: 1, 
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 25
+      }
+    }
+  };
+
+  const listContainerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05,   // 軽快なリズム感
+        delayChildren: 0.1
+      }
+    }
+  };
+
+  const listItemVariants = {
+    hidden: { opacity: 0, x: -10 },
+    visible: { 
+      opacity: 1, 
+      x: 0,
+      transition: {
+        type: "easeOut",
+        duration: 0.3
+      }
+    }
+  };
+  
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
@@ -166,64 +240,84 @@ export function DailyGuidanceWidget({
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
+                transition={{ duration: 0.4 }}
                 className="space-y-4"
               >
                 
-                {/* 今日の星模様 */}
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                  <h4 className="font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2 mb-2">
-                    <Sparkles className="w-4 h-4 text-purple-400" />
-                    今日の星模様
-                  </h4>
-                  <p className="text-sm text-gray-900 dark:text-gray-100 contrast-more:text-black dark:contrast-more:text-white">
-                    {guidance.cosmicGuidance.cosmicWeather}
-                  </p>
-                </div>
-                
-                {/* 個人メッセージ */}
-                <div className="bg-gradient-to-r from-pink-100 to-purple-100 dark:from-pink-900/50 dark:to-purple-900/50 rounded-lg p-4">
-                  <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2 flex items-center">
-                    <Heart className="w-4 h-4 mr-2 text-pink-600 dark:text-pink-400" />
-                    あなたへのメッセージ
-                  </h4>
-                  <p className="text-sm text-gray-900 dark:text-gray-100 contrast-more:text-black dark:contrast-more:text-white">
-                    {guidance.cosmicGuidance.personalMessage}
-                  </p>
-                </div>
-                
-                {/* エネルギー予報 */}
-                <div className="grid grid-cols-3 gap-3">
-                  {Object.entries(guidance.cosmicGuidance.energyForecast).map(([time, energy]) => {
-                    const Icon = timeSlotIcons[time as keyof typeof timeSlotIcons];
-                    const isActive = time === currentTimeSlot;
-                    
-                    return (
-                      <div
-                        key={time}
-                        className={`text-center p-3 rounded-lg transition-all ${
-                          isActive 
-                            ? 'bg-white dark:bg-gray-700 shadow-md ring-2 ring-indigo-200 dark:ring-indigo-700' 
-                            : 'bg-white/80 dark:bg-gray-800/80'
-                        }`}
-                      >
-                        <Icon className={`w-5 h-5 mx-auto mb-1 ${
-                          isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-800 dark:text-gray-200'
-                        }`} />
-                        <div className={`text-lg font-bold ${
-                          isActive ? 'text-gray-900 dark:text-white contrast-more:text-black dark:contrast-more:text-white' : 'text-gray-700 dark:text-gray-300'
-                        }`}>
-                          {energy}
-                        </div>
-                        <div className="text-xs text-gray-800 dark:text-gray-200">
-                          {time === 'morning' && '朝'}
-                          {time === 'afternoon' && '昼'}
-                          {time === 'evening' && '夜'}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                {/* 🥁 カスケードアニメーション適用コンテナ */}
+                <motion.div
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="visible"
+                  className="space-y-4"
+                >
+                  
+                  {/* 今日の星模様 */}
+                  <motion.div 
+                    variants={cardVariants}
+                    className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm"
+                  >
+                    <h4 className="font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2 mb-2">
+                      <Sparkles className="w-4 h-4 text-purple-400" />
+                      今日の星模様
+                    </h4>
+                    <p className="text-sm text-gray-900 dark:text-gray-100 contrast-more:text-black dark:contrast-more:text-white">
+                      {guidance.cosmicGuidance.cosmicWeather}
+                    </p>
+                  </motion.div>
+                  
+                  {/* 個人メッセージ */}
+                  <motion.div 
+                    variants={cardVariants}
+                    className="bg-gradient-to-r from-pink-100 to-purple-100 dark:from-pink-900/50 dark:to-purple-900/50 rounded-lg p-4"
+                  >
+                    <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2 flex items-center">
+                      <Heart className="w-4 h-4 mr-2 text-pink-600 dark:text-pink-400" />
+                      あなたへのメッセージ
+                    </h4>
+                    <p className="text-sm text-gray-900 dark:text-gray-100 contrast-more:text-black dark:contrast-more:text-white">
+                      {guidance.cosmicGuidance.personalMessage}
+                    </p>
+                  </motion.div>
+                  
+                  {/* エネルギー予報 */}
+                  <motion.div 
+                    variants={energyGridVariants}
+                    className="grid grid-cols-3 gap-3"
+                  >
+                    {Object.entries(guidance.cosmicGuidance.energyForecast).map(([time, energy]) => {
+                      const Icon = timeSlotIcons[time as keyof typeof timeSlotIcons];
+                      const isActive = time === currentTimeSlot;
+                      
+                      return (
+                        <motion.div
+                          key={time}
+                          variants={energyCardVariants}
+                          className={`text-center p-3 rounded-lg transition-all ${
+                            isActive 
+                              ? 'bg-white dark:bg-gray-700 shadow-md ring-2 ring-indigo-200 dark:ring-indigo-700' 
+                              : 'bg-white/80 dark:bg-gray-800/80'
+                          }`}
+                        >
+                          <Icon className={`w-5 h-5 mx-auto mb-1 ${
+                            isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-800 dark:text-gray-200'
+                          }`} />
+                          <div className={`text-lg font-bold ${
+                            isActive ? 'text-gray-900 dark:text-white contrast-more:text-black dark:contrast-more:text-white' : 'text-gray-700 dark:text-gray-300'
+                          }`}>
+                            {energy}
+                          </div>
+                          <div className="text-xs text-gray-800 dark:text-gray-200">
+                            {time === 'morning' && '朝'}
+                            {time === 'afternoon' && '昼'}
+                            {time === 'evening' && '夜'}
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </motion.div>
+                  
+                </motion.div>
                 
               </motion.div>
             )}
@@ -235,7 +329,7 @@ export function DailyGuidanceWidget({
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
+                transition={{ duration: 0.4 }}
                 className="space-y-4"
               >
                 
@@ -245,20 +339,23 @@ export function DailyGuidanceWidget({
                     <CurrentIcon className="w-4 h-4 mr-2" />
                     今の時間におすすめ
                   </h4>
-                  <ul className="space-y-2">
+                  <motion.ul 
+                    variants={listContainerVariants}
+                    initial="hidden"
+                    animate="visible"
+                    className="space-y-2"
+                  >
                     {currentActions.map((action, index) => (
                       <motion.li
                         key={index}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.1 }}
+                        variants={listItemVariants}
                         className="flex items-start space-x-2 text-sm text-gray-900 dark:text-gray-100 contrast-more:text-black dark:contrast-more:text-white"
                       >
                         <ChevronRight className="w-4 h-4 mt-0.5 text-indigo-600 dark:text-indigo-400 flex-shrink-0" />
                         <span>{action}</span>
                       </motion.li>
                     ))}
-                  </ul>
+                  </motion.ul>
                 </div>
                 
                 {/* TypeMate統合アドバイス */}
@@ -286,22 +383,26 @@ export function DailyGuidanceWidget({
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-                className="space-y-3"
+                transition={{ duration: 0.4 }}
               >
-                {guidance.affirmations.map((affirmation, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="bg-gradient-to-r from-rose-100 to-pink-100 dark:from-rose-900/50 dark:to-pink-900/50 rounded-lg p-4"
-                  >
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 text-center contrast-more:text-black dark:contrast-more:text-white">
-                      ✨ {affirmation}
-                    </p>
-                  </motion.div>
-                ))}
+                <motion.div
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="visible"
+                  className="space-y-3"
+                >
+                  {guidance.affirmations.map((affirmation, index) => (
+                    <motion.div
+                      key={index}
+                      variants={cardVariants}
+                      className="bg-gradient-to-r from-rose-100 to-pink-100 dark:from-rose-900/50 dark:to-pink-900/50 rounded-lg p-4"
+                    >
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100 text-center contrast-more:text-black dark:contrast-more:text-white">
+                        ✨ {affirmation}
+                      </p>
+                    </motion.div>
+                  ))}
+                </motion.div>
               </motion.div>
             )}
             
