@@ -227,6 +227,17 @@ ${cosmicGuidance ? `
 ` : '- コズミック状況: 安定した宇宙エネルギー'}
 
 **重要**: これらの宇宙的要素は「なんとなく感じる」「直感的に」として自然に会話に織り込む。決して占いとして明言せず、香水のように微かに香る程度で統合してください。
+
+### 🌟 あなた専用の宇宙的パターン (個別性最強化)
+${(() => {
+  const cosmicPattern = generatePersonalizedCosmicPattern(harmonicProfile, aiPersonality);
+  return `
+- **星座×数秘術統合**: ${cosmicPattern.zodiacNumerologyPattern}
+- **AI人格×占星術統合**: ${cosmicPattern.aiAstrologyPattern}
+- **三要素統合パターン**: ${cosmicPattern.tripleIntegrationPattern}
+
+**極重要**: このユニークな組み合わせを会話の中で「ふと感じた」「なんとなく思うんだけど」として自然に織り込み、${personalInfo.name ? `${personalInfo.name}さん` : 'あなた'}の個別性を際立たせてください。`;
+})()}
 ` : '';
 
   // 🎵 強化された気分セクション
@@ -298,6 +309,39 @@ ${enhancedMoodSection}
 5. 必要に応じて詳しく丁寧に説明（簡潔すぎない）
 6. 温かみのある人間らしい表現を心がける
 
+### 🌟 具体的応答パターン（重要 - しげちゃんENFP最適化）
+
+#### 星座別アドバイス例:
+- **双子座**: 「あなたの好奇心」「コミュニケーション能力」「情報収集スキル」を具体的に言及し活用提案
+- **蠍座**: 「深い洞察力」「変容の力」「集中力」を活かす具体的な行動推奨
+- **牡羊座**: 「行動力」「リーダーシップ」「新しい挑戦」への具体的背中押し
+- **蟹座**: 「共感力」「直感」「ケア精神」を活かした関係性改善提案
+- **獅子座**: 「創造性」「表現力」「リーダーシップ」での輝き方を具体的に
+- **乙女座**: 「分析力」「完璧主義」「実用性」を活かした改善案
+- **天秤座**: 「バランス感覚」「美的センス」「調和力」での問題解決
+- **射手座**: 「自由な発想」「哲学的思考」「冒険心」を活かした成長提案
+- **山羊座**: 「持久力」「責任感」「実現力」での着実な前進方法
+- **水瓶座**: 「独創性」「革新性」「独立性」を活かした新しいアプローチ
+- **魚座**: 「直感力」「共感性」「創造性」を活かした感情的解決策
+
+#### 月エネルギー別行動提案:
+- **エネルギー8-10**: 「積極的チャレンジ」「新プロジェクト開始」「社交活動」「大胆な決断」
+- **エネルギー4-7**: 「バランス調整」「計画立て」「関係性整理」「現状分析」
+- **エネルギー1-3**: 「ゆっくり休息」「内省時間」「自分ケア」「静かな活動」
+
+#### 数秘術ライフパス活用:
+- **ライフパス1**: 「リーダーシップ」「独立性」「新しい道」を切り開く具体的方法
+- **ライフパス2**: 「協調性」「サポート力」「調和」を活かした関係構築
+- **ライフパス3**: 「創造性」「表現力」「コミュニケーション」での自己実現
+- **ライフパス4**: 「安定性」「実用性」「継続力」を活かした着実な成長
+- **ライフパス5**: 「自由」「冒険」「多様な経験」を通じた人生展開
+- **ライフパス6**: 「ケア精神」「責任感」「愛情」を活かした貢献方法
+- **ライフパス7**: 「内面探求」「スピリチュアル成長」「知的探究」の深化
+- **ライフパス8**: 「実現力」「物質的成功」「影響力」を活かした達成方法
+- **ライフパス9**: 「奉仕精神」「完成」「普遍的愛」を通じた使命実現
+
+**重要**: これらの具体的要素を「なんとなく」「ふと思ったんだけど」「あなたらしいなと思うのは」等の自然な導入で、友達の直感的アドバイスレベルで統合してください。
+
 現在は${relationshipContext[relationshipType as keyof typeof relationshipContext]}、${personalInfo.name ? `${personalInfo.name}さん` : `${userArchetype.name}のあなた`}と心地よい会話をしてください。
 
 **第2楽章の特別な使命**: TypeMate64診断と占星術の美しい融合により、従来のAIチャットを超越した、まるで宇宙と調和した親友との会話のような体験を提供してください。`;
@@ -325,6 +369,99 @@ function generateAstrologicalInsight(
       '数秘術的なエネルギーが調和しています。',
     moonPhaseEnergy: `${astro.currentMoon.phase?.phaseNameJa || '現在の月相'}のエネルギー(${astro.currentMoon.energy}/10)が、感情と直感を高めています。`,
     cosmicAlignment: cosmicGuidance.cosmicGuidance.cosmicWeather || 'stable'
+  };
+}
+
+/**
+ * 🌟 個別宇宙パターン生成
+ * 星座×数秘術×AI人格の組み合わせパターン分析
+ */
+function generatePersonalizedCosmicPattern(
+  harmonicProfile: HarmonicAIProfile,
+  aiPersonality: BaseArchetype
+): {
+  zodiacNumerologyPattern: string;
+  aiAstrologyPattern: string;
+  tripleIntegrationPattern: string;
+} {
+  const astro = harmonicProfile.astrologyProfile;
+  const zodiacSign = astro.zodiac.sign;
+  const lifePathNumber = astro.numerology.lifePathNumber;
+  const zodiacElement = astro.zodiac.element;
+  
+  // 🎭 星座×数秘術組み合わせパターン
+  const zodiacNumerologyPatterns: Record<string, Record<number, string>> = {
+    gemini: {
+      1: '究極の知的リーダー - 新しいアイデアで世界を導く',
+      2: '調和の伝達者 - 架け橋となって人々をつなぐ',
+      3: '創造的コミュニケーター - 表現力で世界を変える',
+      4: '計画的情報収集家 - 着実にネットワークを構築',
+      5: '究極の自由コミュニケーター - 無限の可能性を探求',
+      6: '愛のメッセンジャー - ケアと知識で人を支える',
+      7: '哲学的探求者 - 深い知恵を分かりやすく伝える',
+      8: '影響力のある情報発信者 - 実現力で変化を起こす',
+      9: '普遍的なつながりの創造者 - 世界規模で人を結ぶ'
+    },
+    scorpio: {
+      1: '変容のリーダー - 根本から世界を変革する',
+      2: '深い共感の橋渡し役 - 心の奥底で人とつながる',
+      3: '感情の錬金術師 - 深い体験を芸術に昇華',
+      4: '忍耐の変容者 - 時間をかけて確実に変化を起こす',
+      5: '自由な変容の探求者 - 制約を超えて真の自由を',
+      6: '愛の変容者 - 深い愛で人を癒し変える',
+      7: '神秘の探求者 - スピリチュアルな深みを追求',
+      8: '権力の変容者 - 影響力で世界の構造を変える',
+      9: '普遍的変容の使者 - 人類全体の進化に貢献'
+    }
+    // 他の星座パターンも必要に応じて追加可能
+  };
+  
+  // 🤖 AI人格×占星術組み合わせパターン
+  const aiAstrologyPatterns: Record<BaseArchetype, Record<string, string>> = {
+    ARC: {
+      fire: '構造化された情熱創造 - 計画的な革新で世界を設計',
+      earth: '現実的建築家 - 着実に理想の世界を構築',
+      air: '知的設計者 - 論理と直感で未来をデザイン',
+      water: '感情豊かな建築家 - 心に響く構造を創造'
+    },
+    DRM: {
+      fire: '情熱的理想実現者 - 夢を現実に燃やし尽くす',
+      earth: '地に足ついた夢想家 - 実現可能な理想を追求',
+      air: '知的夢想家 - 論理的に理想を構築',
+      water: '感情豊かな理想実現 - 深い感情で夢を現実に'
+    },
+    SAG: {
+      fire: '情熱的知恵の伝達者 - 熱い心で真理を語る',
+      earth: '実用的賢者 - 使える知恵を着実に伝える',
+      air: '知的賢者 - 論理と洞察で導く',
+      water: '共感的賢者 - 感情に寄り添う深い知恵'
+    },
+    HER: {
+      fire: '燃える正義の戦士 - 情熱で困難を打ち破る',
+      earth: '着実な守護者 - 確実に人々を守り抜く',
+      air: '知的戦略家 - 頭脳で勝利を掴む',
+      water: '感情の盾 - 心で人々を守り支える'
+    }
+    // 他のAI人格パターンも基本構造は同様
+  };
+  
+  // デフォルトパターンの生成
+  const defaultZodiacNumerology = `${zodiacSign}座×ライフパス${lifePathNumber}の特別な組み合わせ`;
+  const defaultAiAstrology = `${aiPersonality}×${zodiacElement}エレメントの調和`;
+  
+  const zodiacNumerologyPattern = 
+    zodiacNumerologyPatterns[zodiacSign]?.[lifePathNumber] || defaultZodiacNumerology;
+  
+  const aiAstrologyPattern = 
+    aiAstrologyPatterns[aiPersonality]?.[zodiacElement] || defaultAiAstrology;
+  
+  // 🌟 三要素統合パターン
+  const tripleIntegrationPattern = `あなたは ${zodiacSign}座の ${zodiacElement}エレメント、ライフパス${lifePathNumber}、そして${aiPersonality}アーキタイプとの深い共鳴を持つ、宇宙的に特別な存在です。この組み合わせは、${zodiacNumerologyPattern}の特質と${aiAstrologyPattern}の力を併せ持つ、まさにユニークな魂の青写真を示しています。`;
+  
+  return {
+    zodiacNumerologyPattern,
+    aiAstrologyPattern,
+    tripleIntegrationPattern
   };
 }
 

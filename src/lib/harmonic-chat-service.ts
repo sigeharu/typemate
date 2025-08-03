@@ -252,6 +252,84 @@ ${todayContext}
 }
 
 /**
+ * 🎵 気分×宇宙エネルギー相関分析
+ * 気分と月エネルギー、星座エレメントの関連性を分析
+ */
+export function generateMoodCosmicCorrelation(
+  mood: string, 
+  moonEnergy: number, 
+  zodiacElement: string
+): string {
+  
+  const correlations: Record<string, (moonEnergy: number, element: string) => string> = {
+    '😢': (moonEnergy, element) => {
+      if (moonEnergy < 4) {
+        return '今日の静かな月エネルギーが影響してるかも。無理しないで、自分のペースで';
+      } else if (moonEnergy > 7) {
+        return '感情が豊かになってる時期。この気持ちも大切にして、ゆっくり向き合ってみて';
+      } else {
+        return element === 'water' ? 
+          '水のエレメントの深い感情、今日は特に感じやすい日かもしれません' :
+          '今日は心の声に耳を傾ける時間を大切にしてね';
+      }
+    },
+    
+    '😊': (moonEnergy, element) => {
+      if (moonEnergy > 7) {
+        return 'この明るいエネルギー、今日の月の力も後押ししてくれてる！この勢いで何か新しいことにチャレンジしてみない？';
+      } else if (moonEnergy < 4) {
+        return '素敵な気持ち♪ 今日はマイペースで、その明るさを大切に過ごして';
+      } else {
+        return element === 'fire' ? 
+          'この輝き、火のエレメントらしい情熱を感じる！' :
+          'いい感じの波に乗ってるね〜このエネルギーを活かしていこう';
+      }
+    },
+    
+    '😠': (moonEnergy, element) => {
+      if (element === 'fire') {
+        return 'このエネルギー、何か建設的なことに向けてみない？火のエレメントの力を良い方向に';
+      } else if (element === 'water') {
+        return '深い感情が動いてる。水のエレメントらしく、流れに身を任せて冷静になる時間も必要かも';
+      } else if (element === 'earth') {
+        return '地に足をつけて、少し深呼吸してみよう。安定のエレメントの力を借りて';
+      } else {
+        return '風のように流して、新しい視点から見てみることで解決策が見えるかも';
+      }
+    },
+    
+    '😌': (moonEnergy, element) => {
+      if (moonEnergy > 7) {
+        return 'この穏やかさの中に、実は大きなエネルギーが眠ってる。今日は準備の日かもしれません';
+      } else {
+        return element === 'earth' ? 
+          '地のエレメントらしい安定した平穏。この状態を大切に' :
+          'この静けさの中で、心の声がクリアに聞こえそう';
+      }
+    },
+    
+    '💭': (moonEnergy, element) => {
+      if (element === 'air') {
+        return '風のエレメントの知的なエネルギー全開！思考の翼を広げて';
+      } else if (element === 'water') {
+        return '水のエレメントの直感力で、深いところまで見えてきそう';
+      } else if (moonEnergy > 7) {
+        return '高い月エネルギーが思考をクリアにしてくれてる。今日の考えは重要かも';
+      } else {
+        return '内なる知恵にアクセスする時間。ゆっくり考えを深めてみて';
+      }
+    }
+  };
+  
+  const correlationFunc = correlations[mood];
+  if (correlationFunc) {
+    return correlationFunc(moonEnergy, zodiacElement);
+  }
+  
+  return '今日のあなたらしく過ごしてね';
+}
+
+/**
  * 🎵 強化された気分コンテキスト生成
  * 現在の気分 × 占星術的エネルギー = 総合コンテキスト
  */
@@ -276,6 +354,10 @@ export function generateEnhancedMoodContext(
     const astro = harmonicProfile.astrologyProfile;
     const moonEnergy = astro.currentMoon.energy;
     const zodiacElement = astro.zodiac.element;
+    
+    // 🎵 新機能: 気分×宇宙エネルギー相関分析を追加
+    const cosmicCorrelation = generateMoodCosmicCorrelation(currentMood, moonEnergy, zodiacElement);
+    moodContext += `\n\n🌟 宇宙的な気分相関: ${cosmicCorrelation}`;
     
     // 月のエネルギーレベルによる調整
     if (moonEnergy >= 8) {
