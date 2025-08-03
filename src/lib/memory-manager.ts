@@ -74,6 +74,13 @@ export class MemoryManager {
       return null;
     }
 
+    // 🛡️ UUID形式の検証（PostgreSQLエラー防止）
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(userId)) {
+      console.error('❌ Invalid userId format for memory save:', userId);
+      return null;
+    }
+
     try {
       console.log('🎵 Attempting to save memory:', {
         userId,
@@ -116,6 +123,17 @@ export class MemoryManager {
     if (!userId) {
       console.error('❌ Memory fetch failed: userId is required for authenticated users');
       return { memories: [], totalCount: 0, lastUpdated: new Date().toISOString() };
+    }
+
+    // 🛡️ UUID形式の検証（PostgreSQLエラー防止）
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(userId)) {
+      console.warn('⚠️ Invalid userId format, returning empty memories:', userId);
+      return { memories: [], totalCount: 0, lastUpdated: new Date().toISOString() };
+    }
+    if (conversationId && !uuidRegex.test(conversationId)) {
+      console.warn('⚠️ Invalid conversationId format, ignoring filter:', conversationId);
+      conversationId = undefined; // フィルターを無効化
     }
 
     try {
@@ -480,6 +498,13 @@ export class MemoryManager {
       return null;
     }
 
+    // 🛡️ UUID形式の検証（PostgreSQLエラー防止）
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(userId)) {
+      console.warn('⚠️ Invalid userId format for getLatestConversation:', userId);
+      return null;
+    }
+
     try {
       const { data, error } = await supabase
         .from('typemate_memory')
@@ -506,6 +531,17 @@ export class MemoryManager {
   async getConversationMessages(conversationId: string, userId: string): Promise<any[]> {
     if (!userId || !conversationId) {
       console.error('❌ getConversationMessages: userId and conversationId are required');
+      return [];
+    }
+
+    // 🛡️ UUID形式の検証（PostgreSQLエラー防止）
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(conversationId)) {
+      console.warn('⚠️ Invalid conversationId format, skipping database query:', conversationId);
+      return [];
+    }
+    if (!uuidRegex.test(userId)) {
+      console.warn('⚠️ Invalid userId format, skipping database query:', userId);
       return [];
     }
 
@@ -569,6 +605,17 @@ export class MemoryManager {
   async repairSequenceNumbers(conversationId: string, userId: string): Promise<boolean> {
     if (!userId || !conversationId) {
       console.error('❌ repairSequenceNumbers: userId and conversationId are required');
+      return false;
+    }
+
+    // 🛡️ UUID形式の検証（PostgreSQLエラー防止）
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(conversationId)) {
+      console.warn('⚠️ Invalid conversationId format for repairSequenceNumbers:', conversationId);
+      return false;
+    }
+    if (!uuidRegex.test(userId)) {
+      console.warn('⚠️ Invalid userId format for repairSequenceNumbers:', userId);
       return false;
     }
 

@@ -24,6 +24,75 @@
 
 /* 基本タイポグラフィ - typemate-core.cssで定義済み */
 
+/* 🚀 CLS改善 - レイアウト安定性向上 */
+img, video, iframe {
+  /* 画像・動画の縦横比を保持してCLSを防止 */
+  height: auto;
+  max-width: 100%;
+  /* 画像読み込み前の最小サイズ確保 */
+  min-height: 40px;
+  background-color: #f3f4f6;
+}
+
+/* フォント読み込み中のレイアウトシフト防止 */
+body {
+  font-display: swap;
+  /* システムフォント使用でフォント読み込み時間短縮 */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* 動的コンテンツの事前スペース確保 */
+.dynamic-content-placeholder {
+  min-height: 100px;
+  transition: min-height 0.3s ease;
+}
+
+/* スケルトンローディング用スタイル */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* 🎯 チャットメッセージの固定サイズ確保（CLS防止） */
+.chat-message-container {
+  min-height: 60px; /* 最小メッセージ高さ確保 */
+  contain: layout; /* レイアウト含有でパフォーマンス向上 */
+}
+
+/* 🎯 アバターサイズ固定（CLS防止） */
+.avatar-container {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background-color: #e5e7eb;
+}
+
+/* 🎯 ヘッダー高さ固定（CLS防止） */
+.chat-header {
+  min-height: 80px;
+  contain: layout;
+}
+
+/* 🎯 フッター高さ固定（CLS防止） */
+.chat-footer {
+  min-height: 80px;
+  contain: layout;
+}
+
+/* 🎯 ボタンサイズ固定（CLS防止） */
+.touch-button {
+  min-height: 44px;
+  min-width: 44px;
+  contain: layout size;
+}
+
 /* 🎵 気分ボタン微細アニメーション */
 @keyframes mood-subtle-glow {
   0%, 100% { 

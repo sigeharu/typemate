@@ -110,7 +110,7 @@ export default function ChatPage() {
   const chatState = useUnifiedChat({
     userType: userType as any || 'ARC-AS',
     aiPersonality: aiPersonality?.archetype || 'DRM',
-    userId: userId || 'temp',
+    userId: userId || '550e8400-e29b-41d4-a716-446655440000', // テスト用有効UUID
     autoSave: true,
     enableEncryption: true
   });
@@ -126,36 +126,59 @@ export default function ChatPage() {
   useEffect(() => {
     const initializeChat = async () => {
       try {
-        // 🔐 認証チェック（必須）
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-          console.log('❌ 未認証ユーザー - ログインページへリダイレクト');
-          router.push('/auth/signin?redirect=/chat');
-          return;
+        // 🧪 テストモード時の認証バイパス（開発環境のみ）
+        const urlParams = new URLSearchParams(window.location.search);
+        const isTestMode = urlParams.get('test_mode') === 'true' && process.env.NODE_ENV === 'development';
+        
+        let userId: string;
+        
+        if (isTestMode) {
+          console.log('🧪 テストモード: 認証をバイパス');
+          userId = '550e8400-e29b-41d4-a716-446655440000'; // テスト用UUID
+        } else {
+          // 🔐 認証チェック（必須）
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) {
+            console.log('❌ 未認証ユーザー - ログインページへリダイレクト');
+            router.push('/auth/signin?redirect=/chat');
+            return;
+          }
+          console.log('✅ 認証済みユーザー:', user.id);
+          userId = user.id;
         }
         
-        console.log('✅ 認証済みユーザー:', user.id);
-        setUserId(user.id);
+        setUserId(userId);
 
         // 🔬 診断状況を確認してルーティング決定（リトライ機能付き）
         console.log('🔍 チャットページ: 診断状況確認開始');
         let diagnosisStatus = null;
-        let retryCount = 0;
-        const maxRetries = 3;
         
-        while (retryCount < maxRetries) {
-          diagnosisStatus = await diagnosisService.getDiagnosisStatus(user.id);
-          console.log(`🔍 チャットページ診断状況結果 (試行${retryCount + 1}/${maxRetries}):`, diagnosisStatus);
+        if (isTestMode) {
+          // テストモード用モック診断データ
+          diagnosisStatus = {
+            hasDiagnosis: true,
+            userType: 'ARC-AS',
+            aiPersonality: 'DRM'
+          };
+          console.log('🧪 テストモード: モック診断データを使用', diagnosisStatus);
+        } else {
+          let retryCount = 0;
+          const maxRetries = 3;
           
-          if (diagnosisStatus.hasDiagnosis) {
-            break;
+          while (retryCount < maxRetries) {
+            diagnosisStatus = await diagnosisService.getDiagnosisStatus(userId);
+            console.log(`🔍 チャットページ診断状況結果 (試行${retryCount + 1}/${maxRetries}):`, diagnosisStatus);
+            
+            if (diagnosisStatus.hasDiagnosis) {
+              break;
+            }
+            
+            if (retryCount < maxRetries - 1) {
+              console.log(`⏱️ 診断結果未取得 - ${1000}ms後にリトライ`);
+              await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            retryCount++;
           }
-          
-          if (retryCount < maxRetries - 1) {
-            console.log(`⏱️ 診断結果未取得 - ${1000}ms後にリトライ`);
-            await new Promise(resolve => setTimeout(resolve, 1000));
-          }
-          retryCount++;
         }
         
         if (!diagnosisStatus?.hasDiagnosis) {
@@ -452,7 +475,7 @@ export default function ChatPage() {
                 <Button 
                   variant="ghost" 
                   onClick={handleShowHistory} 
-                  className="h-10 w-10 p-0 hover:bg-slate-100 active:scale-95 transition-all duration-150"
+                  className="min-h-[44px] min-w-[44px] h-11 w-11 p-0 hover:bg-slate-100 active:scale-95 transition-all duration-150"
                   title="チャット履歴"
                 >
                   <History size={18} />
@@ -460,7 +483,7 @@ export default function ChatPage() {
                 <Button 
                   variant="ghost" 
                   onClick={() => setShowMemories(!showMemories)}
-                  className="h-10 w-10 p-0 hover:bg-pink-100 active:scale-95 transition-all duration-150 text-pink-600 hover:text-pink-700"
+                  className="min-h-[44px] min-w-[44px] h-11 w-11 p-0 hover:bg-pink-100 active:scale-95 transition-all duration-150 text-pink-600 hover:text-pink-700"
                   title="思い出"
                 >
                   <Heart size={18} />
@@ -468,7 +491,7 @@ export default function ChatPage() {
                 <Button 
                   variant="ghost" 
                   onClick={handleShowProfile} 
-                  className="h-10 w-10 p-0 hover:bg-slate-100 active:scale-95 transition-all duration-150"
+                  className="min-h-[44px] min-w-[44px] h-11 w-11 p-0 hover:bg-slate-100 active:scale-95 transition-all duration-150"
                   title="設定"
                 >
                   <Settings size={18} />

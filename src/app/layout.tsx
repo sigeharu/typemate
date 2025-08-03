@@ -66,14 +66,37 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="//api.supabase.co" />
         <link rel="dns-prefetch" href="//api.anthropic.com" />
         
-        {/* 🎵 リソース Preload（重要なリソースの先読み） */}
-        <link 
-          rel="preload" 
-          href="/fonts/inter-var.woff2" 
-          as="font" 
-          type="font/woff2" 
-          crossOrigin="anonymous" 
-        />
+        {/* 🎯 重要リソースのプリロード（CLS改善） */}
+        <link rel="preload" href="/_next/static/css/app/globals.css" as="style" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        
+        {/* 🚀 重要なスタイルの早期適用（CLS防止） */}
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            /* Critical CSS for layout stability */
+            html { scroll-behavior: smooth; }
+            body { 
+              margin: 0; 
+              padding: 0; 
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+              background: #ffffff;
+              color: #1f2937;
+            }
+            .avatar-container { 
+              width: 40px; 
+              height: 40px; 
+              border-radius: 50%; 
+              background: #e5e7eb; 
+              flex-shrink: 0; 
+            }
+            .touch-button { 
+              min-height: 44px; 
+              min-width: 44px; 
+            }
+          `
+        }} />
+        
+        {/* 🎵 フォントはGoogle Fonts（next/font/google）で最適化済み */}
         
         {/* 🚀 Critical CSS（将来実装用） */}
         {/* <style dangerouslySetInnerHTML={{ __html: criticalCss }} /> */}
