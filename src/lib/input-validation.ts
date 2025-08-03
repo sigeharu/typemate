@@ -287,6 +287,7 @@ export function validateProductionSecurity(request: Request): { isValid: boolean
     const allowedOrigins = [
       'https://typemate.vercel.app',
       'https://typemate-miyamotoseiyou.vercel.app',
+      'https://typemate-zeta.vercel.app', // 🚨 緊急追加: 現在の本番URL
       process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null
     ].filter(Boolean);
 
