@@ -75,6 +75,8 @@ export const PageHeader = ({
 
   return (
     <motion.header
+      role="banner"
+      aria-label="ページヘッダー"
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
@@ -84,114 +86,129 @@ export const PageHeader = ({
         className
       )}
     >
-      <div className="container mx-auto flex items-center justify-between">
-        {/* Left Section */}
-        <div className="flex items-center gap-4">
-          {showBackButton && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={handleBack}
-              className="hover:bg-slate-100"
-            >
-              <ArrowLeft size={18} />
-            </Button>
-          )}
-          
-          {(title || description) && (
-            <div className="hidden sm:block">
-              {title && (
-                <h1 className="text-lg font-semibold text-slate-900">
-                  {title}
-                </h1>
-              )}
-              {description && (
-                <p className="text-sm text-slate-600">
-                  {description}
-                </p>
-              )}
+      <nav 
+        role="navigation" 
+        aria-label="メインナビゲーション"
+        className="container mx-auto"
+      >
+        <div className="flex items-center justify-between">
+          {/* Left Section */}
+          <div className="flex items-center gap-4">
+            {showBackButton && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleBack}
+                className="hover:bg-slate-100 min-h-[44px] min-w-[44px]"
+                aria-label="前のページに戻る"
+              >
+                <ArrowLeft size={18} />
+              </Button>
+            )}
+            
+            {(title || description) && (
+              <div className="hidden sm:block">
+                {title && (
+                  <h1 className="text-lg font-semibold text-slate-900">
+                    {title}
+                  </h1>
+                )}
+                {description && (
+                  <p className="text-sm text-slate-600">
+                    {description}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Center Section - Title for mobile */}
+          {title && (
+            <div className="sm:hidden">
+              <h1 className="text-lg font-semibold text-slate-900 truncate">
+                {title}
+              </h1>
             </div>
           )}
-        </div>
 
-        {/* Center Section - Title for mobile */}
-        {title && (
-          <div className="sm:hidden">
-            <h1 className="text-lg font-semibold text-slate-900 truncate">
-              {title}
-            </h1>
-          </div>
-        )}
+          {/* Right Section - Main Navigation Actions */}
+          <div className="flex items-center gap-2" role="toolbar" aria-label="ユーザーアクション">
+            {/* Custom Actions */}
+            {customActions}
 
-        {/* Right Section */}
-        <div className="flex items-center gap-2">
-          {/* Custom Actions */}
-          {customActions}
-
-          {/* Auth Section */}
-          {showAuth && !loading && (
-            <div className="flex items-center gap-2">
-              {user ? (
-                <>
-                  {/* User Info - Hidden on mobile */}
-                  <span className="hidden md:block text-sm text-slate-600 truncate max-w-32">
-                    {user.user_metadata?.display_name || user.email}
-                  </span>
-                  
-                  {/* Settings Button */}
-                  {showSettings && (
+            {/* Auth Section */}
+            {showAuth && !loading && (
+              <div className="flex items-center gap-2">
+                {user ? (
+                  <>
+                    {/* User Info - Hidden on mobile */}
+                    <span className="hidden md:block text-sm text-slate-600 truncate max-w-32">
+                      {user.user_metadata?.display_name || user.email}
+                    </span>
+                    
+                    {/* Settings Button */}
+                    {showSettings && (
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={handleProfile}
+                        title="プロファイル"
+                        className="min-h-[44px] min-w-[44px]"
+                        aria-label="プロファイル設定"
+                      >
+                        <User size={16} className="md:mr-1" />
+                        <span className="hidden md:inline">プロファイル</span>
+                      </Button>
+                    )}
+                    
+                    {/* Sign Out Button */}
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={handleSignOut}
+                      className="hidden sm:flex min-h-[44px]"
+                      aria-label="ログアウト"
+                    >
+                      ログアウト
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    {/* Sign In Button */}
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      onClick={handleProfile}
-                      title="プロファイル"
+                      onClick={() => router.push('/auth/signin')}
+                      className="min-h-[44px]"
+                      aria-label="ログイン"
                     >
-                      <User size={16} className="md:mr-1" />
-                      <span className="hidden md:inline">プロファイル</span>
+                      <LogIn size={16} className="mr-1" />
+                      <span className="hidden sm:inline">ログイン</span>
                     </Button>
-                  )}
-                  
-                  {/* Sign Out Button */}
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={handleSignOut}
-                    className="hidden sm:flex"
-                  >
-                    ログアウト
-                  </Button>
-                </>
-              ) : (
-                <>
-                  {/* Sign In Button */}
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => router.push('/auth/signin')}
-                  >
-                    <LogIn size={16} className="mr-1" />
-                    <span className="hidden sm:inline">ログイン</span>
-                  </Button>
-                  
-                  {/* Sign Up Button */}
-                  <Button 
-                    size="sm" 
-                    onClick={() => router.push('/auth/signup')}
-                    className="bg-gradient-to-r from-blue-600 to-purple-600"
-                  >
-                    <span className="hidden sm:inline">無料登録</span>
-                    <span className="sm:hidden">登録</span>
-                  </Button>
-                </>
-              )}
-            </div>
-          )}
+                    
+                    {/* Sign Up Button */}
+                    <Button 
+                      size="sm" 
+                      onClick={() => router.push('/auth/signup')}
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 min-h-[44px]"
+                      aria-label="無料会員登録"
+                    >
+                      <span className="hidden sm:inline">無料登録</span>
+                      <span className="sm:hidden">登録</span>
+                    </Button>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      </nav>
 
       {/* Mobile Menu for signed-in users */}
       {user && (
-        <motion.div
+        <motion.nav
+          role="navigation"
+          aria-label="モバイルユーザーメニュー"
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
           className="sm:hidden mt-4 pt-4 border-t border-slate-200"
@@ -204,11 +221,13 @@ export const PageHeader = ({
               variant="outline" 
               size="sm" 
               onClick={handleSignOut}
+              className="min-h-[44px]"
+              aria-label="ログアウト"
             >
               ログアウト
             </Button>
           </div>
-        </motion.div>
+        </motion.nav>
       )}
     </motion.header>
   );

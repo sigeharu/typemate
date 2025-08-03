@@ -1,0 +1,110 @@
+{
+  "timestamp": "2025-08-03T15:08:55.413Z",
+  "environment": "production",
+  "tests": [
+    {
+      "name": "Authentication Flow",
+      "status": "passed",
+      "issues": [],
+      "startTime": 1754233736493,
+      "message": "Authentication bypass successful for testing",
+      "duration": 2440
+    },
+    {
+      "name": "Chat Function",
+      "status": "passed",
+      "issues": [],
+      "startTime": 1754233738933,
+      "message": "Chat function working - 4 messages found",
+      "duration": 8540
+    },
+    {
+      "name": "Settings Page",
+      "status": "passed",
+      "issues": [],
+      "startTime": 1754233747473,
+      "message": "Settings page loaded successfully - 9 headings, 6 setting items found",
+      "duration": 5372
+    }
+  ],
+  "criticalIssues": [
+    {
+      "type": "console_error",
+      "message": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "timestamp": "2025-08-03T15:08:56.625Z"
+    },
+    {
+      "type": "console_error",
+      "message": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "timestamp": "2025-08-03T15:08:59.024Z"
+    },
+    {
+      "type": "console_error",
+      "message": "Failed to load resource: the server responded with a status of 400 ()",
+      "timestamp": "2025-08-03T15:08:59.443Z"
+    },
+    {
+      "type": "console_error",
+      "message": "❌ Conversation messages fetch error: {code: 22P02, details: null, hint: null, message: invalid input syntax for type uuid: \"temp\"}",
+      "timestamp": "2025-08-03T15:08:59.444Z"
+    },
+    {
+      "type": "console_error",
+      "message": "Failed to load resource: the server responded with a status of 400 ()",
+      "timestamp": "2025-08-03T15:08:59.492Z"
+    },
+    {
+      "type": "console_error",
+      "message": "❌ Conversation messages fetch error: {code: 22P02, details: null, hint: null, message: invalid input syntax for type uuid: \"temp\"}",
+      "timestamp": "2025-08-03T15:08:59.493Z"
+    },
+    {
+      "type": "console_error",
+      "message": "Failed to load resource: the server responded with a status of 406 ()",
+      "timestamp": "2025-08-03T15:09:05.535Z"
+    },
+    {
+      "type": "console_error",
+      "message": "❌ [ERROR] Performance Error: Poor CLS: 0.29 ",
+      "timestamp": "2025-08-03T15:09:07.499Z"
+    },
+    {
+      "type": "console_error",
+      "message": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "timestamp": "2025-08-03T15:09:07.550Z"
+    },
+    {
+      "type": "console_error",
+      "message": "Failed to load resource: the server responded with a status of 400 ()",
+      "timestamp": "2025-08-03T15:09:07.891Z"
+    },
+    {
+      "type": "console_error",
+      "message": "Failed to load resource: the server responded with a status of 400 ()",
+      "timestamp": "2025-08-03T15:09:07.957Z"
+    },
+    {
+      "type": "console_error",
+      "message": "Failed to load resource: the server responded with a status of 400 ()",
+      "timestamp": "2025-08-03T15:09:08.001Z"
+    },
+    {
+      "type": "console_error",
+      "message": "Failed to load resource: the server responded with a status of 400 ()",
+      "timestamp": "2025-08-03T15:09:08.064Z"
+    },
+    {
+      "type": "console_error",
+      "message": "Failed to load resource: the server responded with a status of 400 ()",
+      "timestamp": "2025-08-03T15:09:08.123Z"
+    }
+  ],
+  "summary": {
+    "totalTests": 3,
+    "passedTests": 3,
+    "failedTests": 0,
+    "successRate": 100,
+    "criticalIssuesCount": 14,
+    "status": "PASS"
+  }
+}

@@ -112,7 +112,7 @@ export default function ChatPage() {
     aiPersonality: aiPersonality?.archetype || 'DRM',
     userId: userId || '550e8400-e29b-41d4-a716-446655440000', // テスト用有効UUID
     autoSave: true,
-    enableEncryption: true
+    enableEncryption: false // 🚨 緊急修正: 暗号化を完全無効化
   });
   
   // 🎵 Phase 1: 記憶システム統合（認証ユーザー必須）

@@ -1,0 +1,51 @@
+{
+  "timestamp": "2025-08-03T14:28:07.731Z",
+  "environment": "static_site",
+  "totalIssues": 6,
+  "issues": [
+    {
+      "type": "network_error",
+      "message": "http://localhost:3002/ - net::ERR_CONNECTION_REFUSED",
+      "location": "network"
+    },
+    {
+      "type": "page_load_error",
+      "message": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3002/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3002/\", waiting until \"load\"\u001b[22m\n",
+      "location": "home_page"
+    },
+    {
+      "type": "network_error",
+      "message": "http://localhost:3002/chat - net::ERR_CONNECTION_REFUSED",
+      "location": "network"
+    },
+    {
+      "type": "page_load_error",
+      "message": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3002/chat\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3002/chat\", waiting until \"load\"\u001b[22m\n",
+      "location": "chat_page"
+    },
+    {
+      "type": "network_error",
+      "message": "http://localhost:3002/settings - net::ERR_CONNECTION_REFUSED",
+      "location": "network"
+    },
+    {
+      "type": "page_load_error",
+      "message": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3002/settings\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3002/settings\", waiting until \"load\"\u001b[22m\n",
+      "location": "settings_page"
+    }
+  ],
+  "rootCauseAnalysis": {
+    "hydrationIssues": false,
+    "authenticationProblems": false,
+    "apiConnectionFailure": true,
+    "buildProblems": false,
+    "staticVsDynamicIssues": false
+  },
+  "recommendations": [
+    {
+      "priority": "MEDIUM",
+      "issue": "API Connection Failures",
+      "solution": "Check API endpoints, environment variables, and CORS settings."
+    }
+  ]
+}

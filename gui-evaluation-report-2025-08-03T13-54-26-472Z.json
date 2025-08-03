@@ -1,0 +1,75 @@
+{
+  "accessibility": {
+    "score": 100,
+    "issues": [],
+    "recommendations": []
+  },
+  "usability": {
+    "score": 84,
+    "issues": [
+      "Small button: Log Environment Variables (230x40)",
+      "No navigation landmark found"
+    ],
+    "recommendations": [
+      "Increase button sizes to minimum 44x44px for touch accessibility",
+      "Add semantic navigation structure with proper landmarks"
+    ]
+  },
+  "performance": {
+    "score": 100,
+    "metrics": {
+      "domContentLoaded": 0,
+      "loadComplete": 0,
+      "firstContentfulPaint": 948,
+      "firstPaint": 948,
+      "resourceCount": 18
+    },
+    "recommendations": []
+  },
+  "design": {
+    "score": 100,
+    "issues": [],
+    "recommendations": [
+      "Establish a typography system with consistent font usage"
+    ]
+  },
+  "responsiveness": {
+    "score": 85,
+    "breakpoints": {
+      "mobile": {
+        "issues": [
+          "Horizontal scrollbar present"
+        ],
+        "viewportUsage": 0.9689922480620154
+      },
+      "tablet": {
+        "issues": [],
+        "viewportUsage": 1
+      },
+      "desktop": {
+        "issues": [],
+        "viewportUsage": 1
+      }
+    },
+    "issues": [
+      "Horizontal scrollbar present"
+    ]
+  },
+  "authentication": {
+    "bypassSuccess": true,
+    "method": "debug_page",
+    "issues": []
+  },
+  "overall": {
+    "totalScore": 94,
+    "grade": "A",
+    "criticalIssues": [],
+    "quickWins": [
+      "Add semantic navigation structure with proper landmarks"
+    ],
+    "longTermImprovements": [
+      "Increase button sizes to minimum 44x44px for touch accessibility",
+      "Establish a typography system with consistent font usage"
+    ]
+  }
+}

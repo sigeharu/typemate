@@ -189,7 +189,7 @@ export const ChatInputClaude = ({
                           onMoodChange(mood.emoji);
                           setShowMoodSelectorMobile(false);
                         }}
-                        className="h-8 w-8 p-0 hover:bg-gray-100 hover:scale-110 transition-all duration-150 flex-shrink-0"
+                        className="min-h-[44px] min-w-[44px] h-11 w-11 p-0 hover:bg-gray-100 hover:scale-110 transition-all duration-150 flex-shrink-0"
                         title={mood.name}
                       >
                         <span className="text-base">{mood.emoji}</span>
@@ -205,7 +205,7 @@ export const ChatInputClaude = ({
               type="submit"
               onClick={handleSubmit}
               disabled={!message.trim() || disabled}
-              className="h-9 w-9 bg-blue-500 hover:bg-blue-600 active:scale-95 transition-all duration-150 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              className="min-h-[44px] min-w-[44px] h-11 w-11 bg-blue-500 hover:bg-blue-600 active:scale-95 transition-all duration-150 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Send size={16} />
             </Button>
@@ -275,7 +275,7 @@ export const ChatInputClaude = ({
                             onMoodChange(mood.emoji);
                             setShowMoodSelectorDesktop(false);
                           }}
-                          className="h-10 w-10 p-0 hover:bg-gray-100 hover:scale-110 transition-all duration-150 flex-shrink-0"
+                          className="min-h-[44px] min-w-[44px] h-11 w-11 p-0 hover:bg-gray-100 hover:scale-110 transition-all duration-150 flex-shrink-0"
                           title={mood.name}
                         >
                           <span className="text-lg">{mood.emoji}</span>

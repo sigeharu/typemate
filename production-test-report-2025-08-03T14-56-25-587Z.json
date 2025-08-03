@@ -1,0 +1,107 @@
+{
+  "timestamp": "2025-08-03T14:56:11.775Z",
+  "environment": "production",
+  "tests": [
+    {
+      "name": "Authentication Flow",
+      "status": "passed",
+      "issues": [],
+      "startTime": 1754232972883,
+      "message": "Authentication bypass successful for testing",
+      "duration": 3150
+    },
+    {
+      "name": "Chat Function",
+      "status": "failed",
+      "issues": [
+        "Chat input field not visible",
+        "Chat function failed: Chat input field not found"
+      ],
+      "startTime": 1754232976034,
+      "duration": 4047
+    },
+    {
+      "name": "Settings Page",
+      "status": "passed",
+      "issues": [],
+      "startTime": 1754232980081,
+      "message": "Settings page loaded successfully - 9 headings, 6 setting items found",
+      "duration": 5506
+    }
+  ],
+  "criticalIssues": [
+    {
+      "type": "console_error",
+      "message": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "timestamp": "2025-08-03T14:56:13.691Z"
+    },
+    {
+      "type": "console_error",
+      "message": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "timestamp": "2025-08-03T14:56:16.757Z"
+    },
+    {
+      "type": "console_error",
+      "message": "Failed to load resource: the server responded with a status of 400 ()",
+      "timestamp": "2025-08-03T14:56:17.578Z"
+    },
+    {
+      "type": "console_error",
+      "message": "❌ Conversation messages fetch error: {code: 22P02, details: null, hint: null, message: invalid input syntax for type uuid: \"temp\"}",
+      "timestamp": "2025-08-03T14:56:17.578Z"
+    },
+    {
+      "type": "console_error",
+      "message": "Failed to load resource: the server responded with a status of 400 ()",
+      "timestamp": "2025-08-03T14:56:17.644Z"
+    },
+    {
+      "type": "console_error",
+      "message": "❌ Conversation messages fetch error: {code: 22P02, details: null, hint: null, message: invalid input syntax for type uuid: \"temp\"}",
+      "timestamp": "2025-08-03T14:56:17.647Z"
+    },
+    {
+      "type": "chat_functionality_failure",
+      "message": "Chat input field not found",
+      "test": "Chat Function"
+    },
+    {
+      "type": "console_error",
+      "message": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "timestamp": "2025-08-03T14:56:20.262Z"
+    },
+    {
+      "type": "console_error",
+      "message": "Failed to load resource: the server responded with a status of 400 ()",
+      "timestamp": "2025-08-03T14:56:20.642Z"
+    },
+    {
+      "type": "console_error",
+      "message": "Failed to load resource: the server responded with a status of 400 ()",
+      "timestamp": "2025-08-03T14:56:20.704Z"
+    },
+    {
+      "type": "console_error",
+      "message": "Failed to load resource: the server responded with a status of 400 ()",
+      "timestamp": "2025-08-03T14:56:20.792Z"
+    },
+    {
+      "type": "console_error",
+      "message": "Failed to load resource: the server responded with a status of 400 ()",
+      "timestamp": "2025-08-03T14:56:20.866Z"
+    },
+    {
+      "type": "console_error",
+      "message": "Failed to load resource: the server responded with a status of 400 ()",
+      "timestamp": "2025-08-03T14:56:20.938Z"
+    }
+  ],
+  "summary": {
+    "totalTests": 3,
+    "passedTests": 2,
+    "failedTests": 1,
+    "successRate": 67,
+    "criticalIssuesCount": 13,
+    "status": "FAIL"
+  }
+}
