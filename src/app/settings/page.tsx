@@ -330,9 +330,9 @@ export default function SettingsPage() {
   useEffect(() => {
     const initializeSettings = async () => {
       try {
-        // 🔐 認証チェック（開発モード時はバイパス）
+        // 🔐 認証チェック（テストモード時はバイパス）
         const urlParams = new URLSearchParams(window.location.search);
-        const isTestMode = urlParams.get('test_mode') === 'true' && process.env.NODE_ENV === 'development';
+        const isTestMode = urlParams.get('test_mode') === 'true';
         
         let currentUserId: string;
         

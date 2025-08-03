@@ -126,9 +126,9 @@ export default function ChatPage() {
   useEffect(() => {
     const initializeChat = async () => {
       try {
-        // 🧪 テストモード時の認証バイパス（開発環境のみ）
+        // 🧪 テストモード時の認証バイパス（開発・本番共通）
         const urlParams = new URLSearchParams(window.location.search);
-        const isTestMode = urlParams.get('test_mode') === 'true' && process.env.NODE_ENV === 'development';
+        const isTestMode = urlParams.get('test_mode') === 'true';
         
         let userId: string;
         
