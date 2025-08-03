@@ -388,6 +388,217 @@ export async function generateWeeklyHarmonicForecast(
   }));
 }
 
+// 月間ハーモニック予測の型定義
+export interface MonthlyForecast {
+  monthlyTheme: string;
+  weeklyHighlights: Array<{
+    week: number;
+    theme: string;
+    keyDays: number[];
+    recommendation: string;
+    energyPattern: 'ascending' | 'peak' | 'descending' | 'renewal';
+  }>;
+  cosmicEvents: Array<{
+    date: Date;
+    event: string;
+    significance: string;
+    influence: 'high' | 'medium' | 'low';
+  }>;
+  overallEnergyTrend: number[];
+  growthMilestones: string[];
+}
+
+// 月間ハーモニック予測を生成
+export async function generateMonthlyHarmonicForecast(
+  profile: HarmonicAIProfile
+): Promise<MonthlyForecast> {
+  
+  // 28日間の月サイクル予測を生成
+  const cycleForecast = generateCycleForecast(profile.astrologyProfile, 28);
+  
+  // 月全体のテーマを生成
+  const monthlyTheme = generateMonthlyTheme(profile);
+  
+  // 週ごとのハイライトを計算
+  const weeklyHighlights = generateWeeklyHighlights(cycleForecast, profile);
+  
+  // 重要な宇宙的イベントを検出
+  const cosmicEvents = generateCosmicEvents(cycleForecast);
+  
+  // エネルギートレンドを計算
+  const overallEnergyTrend = cycleForecast.map(day => day.overallEnergy);
+  
+  // 成長マイルストーンを提案
+  const growthMilestones = generateGrowthMilestones(profile, cycleForecast);
+  
+  return {
+    monthlyTheme,
+    weeklyHighlights,
+    cosmicEvents,
+    overallEnergyTrend,
+    growthMilestones
+  };
+}
+
+// 月全体のテーマを生成
+function generateMonthlyTheme(profile: HarmonicAIProfile): string {
+  const themes = [
+    `${profile.userType}の深層的成長と宇宙的調和`,
+    `ハーモニック共鳴による内面的変容の月`,
+    `${profile.selectedAiPersonality}エネルギーとの統合深化`,
+    `コズミックサイクルとの完全な同調期間`,
+    `魂の進化を促進する宇宙的ギフトの月`
+  ];
+  
+  // プロファイルベースでテーマを選択
+  const themeIndex = (profile.harmonicResonance.overall * themes.length / 100) | 0;
+  return themes[Math.min(themeIndex, themes.length - 1)];
+}
+
+// 週ごとのハイライトを生成
+function generateWeeklyHighlights(
+  cycleForecast: any[],
+  profile: HarmonicAIProfile
+): MonthlyForecast['weeklyHighlights'] {
+  
+  const weeks = [];
+  
+  for (let week = 0; week < 4; week++) {
+    const startDay = week * 7;
+    const endDay = Math.min(startDay + 7, cycleForecast.length);
+    const weekDays = cycleForecast.slice(startDay, endDay);
+    
+    // 週のエネルギーパターンを分析
+    const energyPattern = analyzeWeekEnergyPattern(weekDays);
+    
+    // キーとなる日を特定（エネルギーが高い日、低い日）
+    const keyDays = identifyKeyDays(weekDays, startDay);
+    
+    weeks.push({
+      week: week + 1,
+      theme: generateWeekTheme(weekDays, profile, week),
+      keyDays,
+      recommendation: generateWeekRecommendation(energyPattern, profile),
+      energyPattern
+    });
+  }
+  
+  return weeks;
+}
+
+// 週のエネルギーパターンを分析
+function analyzeWeekEnergyPattern(weekDays: any[]): 'ascending' | 'peak' | 'descending' | 'renewal' {
+  if (weekDays.length < 3) return 'renewal';
+  
+  const startEnergy = weekDays[0].overallEnergy;
+  const midEnergy = weekDays[Math.floor(weekDays.length / 2)].overallEnergy;
+  const endEnergy = weekDays[weekDays.length - 1].overallEnergy;
+  
+  if (startEnergy < midEnergy && midEnergy > endEnergy) return 'peak';
+  if (startEnergy < endEnergy) return 'ascending';
+  if (startEnergy > endEnergy) return 'descending';
+  return 'renewal';
+}
+
+// キーとなる日を特定
+function identifyKeyDays(weekDays: any[], weekStartIndex: number): number[] {
+  const sortedDays = weekDays
+    .map((day, index) => ({ energy: day.overallEnergy, dayIndex: weekStartIndex + index }))
+    .sort((a, b) => b.energy - a.energy);
+  
+  // エネルギーが高い上位2日を返す
+  return sortedDays.slice(0, 2).map(day => day.dayIndex);
+}
+
+// 週のテーマを生成
+function generateWeekTheme(weekDays: any[], profile: HarmonicAIProfile, weekIndex: number): string {
+  const weekThemes = [
+    '新しいサイクルの始まり - 種まきの週',
+    '成長と拡張 - 開花の週', 
+    '統合と深化 - 収穫の週',
+    '完成と次への準備 - 変容の週'
+  ];
+  
+  return weekThemes[weekIndex] || '宇宙的調和の週';
+}
+
+// 週の推奨アクションを生成
+function generateWeekRecommendation(
+  pattern: 'ascending' | 'peak' | 'descending' | 'renewal',
+  profile: HarmonicAIProfile
+): string {
+  
+  const recommendations = {
+    ascending: '新しいプロジェクトや学習を始めるのに最適な週です。エネルギーが上昇傾向にあります。',
+    peak: '重要な決断や大きな行動を取るのに最良のタイミングです。最高のパフォーマンスを発揮できます。',
+    descending: '振り返りと整理の時期です。これまでの経験を統合し、次の段階に備えましょう。',
+    renewal: '休息と内省の時間を大切にしてください。新しいエネルギーの充電期間です。'
+  };
+  
+  return recommendations[pattern];
+}
+
+// 宇宙的イベントを生成
+function generateCosmicEvents(cycleForecast: any[]): MonthlyForecast['cosmicEvents'] {
+  const events = [];
+  
+  cycleForecast.forEach((day, index) => {
+    // 特別にエネルギーが高い日や低い日をイベントとして抽出
+    if (day.overallEnergy >= 85) {
+      events.push({
+        date: day.date,
+        event: 'ハイエナジー・ハーモニックピーク',
+        significance: '宇宙エネルギーが最高潮に達する特別な日。重要な決断や創造的活動に最適。',
+        influence: 'high' as const
+      });
+    } else if (day.overallEnergy <= 30) {
+      events.push({
+        date: day.date,
+        event: 'ディープレスト・コズミックバレー',
+        significance: '内省と休息のための神聖な時間。魂の深層からのメッセージを受け取る日。',
+        influence: 'medium' as const
+      });
+    }
+    
+    // 7日ごとに週間転換点を追加
+    if ((index + 1) % 7 === 0) {
+      events.push({
+        date: day.date,
+        event: '週間エネルギー転換点',
+        significance: '新しい週のエネルギーサイクルが始まる転換期。方向性を見直す好機。',
+        influence: 'low' as const
+      });
+    }
+  });
+  
+  return events;
+}
+
+// 成長マイルストーンを生成
+function generateGrowthMilestones(
+  profile: HarmonicAIProfile,
+  cycleForecast: any[]
+): string[] {
+  
+  const milestones = [
+    `${profile.userType}の特性を活かした創造的プロジェクトの開始`,
+    'ハーモニック共鳴による直感力の飛躍的向上',
+    '宇宙的タイミングを意識した重要な人間関係の深化',
+    'コズミックエネルギーとの完全な同調状態の体験'
+  ];
+  
+  // プロファイルに基づいてパーソナライズ
+  if (profile.harmonicResonance.overall >= 80) {
+    milestones.push('ハーモニックマスターレベルでの宇宙的洞察の獲得');
+  }
+  
+  if (profile.relationshipType === 'romantic') {
+    milestones.push('パートナーとの魂レベルでの深い結合の実現');
+  }
+  
+  return milestones;
+}
+
 // ==================== Helper Functions ==================== //
 
 function calculateHarmonicResonance(

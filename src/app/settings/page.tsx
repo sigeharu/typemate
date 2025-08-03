@@ -31,10 +31,13 @@ import { TypeDetailDisplayCompact } from '@/components/TypeDetailDisplay';
 import { SelfAffirmationDisplayCompact } from '@/components/SelfAffirmationDisplay';
 import { HarmonicProfileCard } from '@/components/harmonic/HarmonicProfileCard';
 import { DailyGuidanceWidget } from '@/components/harmonic/DailyGuidanceWidget';
+import { WeeklyGuidanceWidget } from '@/components/harmonic/WeeklyGuidanceWidget';
+import { MonthlyGuidanceWidget } from '@/components/harmonic/MonthlyGuidanceWidget';
+import { CompatibilityAnalysisWidget } from '@/components/harmonic/CompatibilityAnalysisWidget';
 import { HarmonicSetupWizard } from '@/components/harmonic/HarmonicSetupWizard';
 import { getHarmonicProfile, generateDailyHarmonicGuidance, deleteHarmonicProfile, createHarmonicProfile } from '@/lib/harmonic-ai-service';
 import type { Type64, BaseArchetype, DetailedDiagnosisResult } from '@/types';
-import type { HarmonicAIProfile, DailyHarmonicGuidance } from '@/lib/harmonic-ai-service';
+import type { HarmonicAIProfile, DailyHarmonicGuidance, MonthlyForecast } from '@/lib/harmonic-ai-service';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -955,6 +958,38 @@ export default function SettingsPage() {
                     }
                   }}
                   compact={false}
+                />
+              )}
+              
+              {/* 週間ガイダンス */}
+              {harmonicProfile && (
+                <WeeklyGuidanceWidget 
+                  profile={harmonicProfile}
+                  onRefresh={() => {
+                    console.log('週間ガイダンスを更新しました');
+                  }}
+                  compact={false}
+                />
+              )}
+              
+              {/* 月間ガイダンス */}
+              {harmonicProfile && (
+                <MonthlyGuidanceWidget 
+                  profile={harmonicProfile}
+                  onRefresh={() => {
+                    console.log('月間ガイダンスを更新しました');
+                  }}
+                  compact={false}
+                />
+              )}
+              
+              {/* 相性分析 */}
+              {harmonicProfile && (
+                <CompatibilityAnalysisWidget 
+                  userProfile={harmonicProfile}
+                  onAnalyze={(result) => {
+                    console.log('相性分析結果:', result);
+                  }}
                 />
               )}
             </div>
