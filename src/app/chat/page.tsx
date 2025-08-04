@@ -274,7 +274,7 @@ export default function ChatPage() {
           const { data: profiles, error } = await supabase
             .from('user_profiles')
             .select('selected_ai_personality, relationship_type, updated_at')
-            .eq('user_id', currentUserId)
+            .eq('user_id', userId)
             .order('updated_at', { ascending: false })
             .limit(1);
           
@@ -330,13 +330,13 @@ export default function ChatPage() {
         let personalData = { name: '', birthDate: null };
         
         try {
-          const harmonicProfile = await getHarmonicProfile(currentUserId);
+          const harmonicProfile = await getHarmonicProfile(userId);
           if (harmonicProfile) {
             // データベースから名前を直接取得
             const { data: nameData } = await supabase
               .from('user_profiles')
               .select('display_name')
-              .eq('user_id', currentUserId)
+              .eq('user_id', userId)
               .order('updated_at', { ascending: false })
               .limit(1);
             
@@ -375,7 +375,7 @@ export default function ChatPage() {
 
         // 🌟 ハーモニックAI日別ガイダンス読み込み
         try {
-          const harmonicProfile = await getHarmonicProfile(currentUserId);
+          const harmonicProfile = await getHarmonicProfile(userId);
           if (harmonicProfile) {
             const guidance = await generateDailyHarmonicGuidance(harmonicProfile);
             setDailyGuidance(guidance);

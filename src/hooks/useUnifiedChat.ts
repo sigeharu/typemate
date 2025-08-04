@@ -201,89 +201,9 @@ export function useUnifiedChat({
     if (userType && aiPersonality && userId) {
       initializeChat();
     }
-  }, []);
+  }, [userType, aiPersonality, userId, sessionId]);
 
-  // 🔧 パラメータ変更時の再初期化（必要最小限）
-  useEffect(() => {
-    if (userType && aiPersonality && userId) {
-      console.log('🎵 UnifiedChat parameters changed, reinitializing...');
-      
-      const initializeWithParams = async () => {
-        setState(prev => ({ 
-          ...prev, 
-          loadingStates: { ...prev.loadingStates, loading: true },
-          error: null 
-        }));
-
-        try {
-          // localStorageからセッション一覧を読み込み
-          const allSessions = storage.getAllChatSessions();
-          console.log('📋 localStorage sessions loaded:', allSessions.length);
-
-          // 既存セッションまたは最新セッションを特定
-          let targetSessionId = state.currentSessionId;
-          let targetSession: ChatSession | null = null;
-
-          if (targetSessionId) {
-            targetSession = storage.getChatSession(targetSessionId);
-          } else {
-            // 最新のセッションを取得
-            const latestSession = storage.getLatestChatSession(userType, aiPersonality);
-            if (latestSession) {
-              targetSessionId = latestSession.id;
-              targetSession = latestSession;
-            }
-          }
-
-          // Supabaseからメッセージを読み込み（最優先）
-          let messages: Message[] = [];
-          if (targetSessionId) {
-            try {
-              const supabaseMessages = await memoryManager.getConversationMessages(targetSessionId, userId);
-              console.log('💾 Supabase messages loaded:', supabaseMessages.length);
-              messages = supabaseMessages;
-            } catch (supabaseError) {
-              console.warn('⚠️ Supabase読み込み失敗、localStorageを使用:', supabaseError);
-              messages = targetSession?.messages || [];
-            }
-          }
-
-          // 次のシーケンス番号を計算
-          const maxSequence = messages.length > 0 
-            ? Math.max(...messages.map(m => m.sequenceNumber ?? 0))
-            : 0;
-
-          // 状態を更新
-          setState(prev => ({
-            ...prev,
-            sessions: allSessions,
-            currentSessionId: targetSessionId || '',
-            messages,
-            nextSequenceNumber: maxSequence + 1,
-            loadingStates: { ...prev.loadingStates, loading: false },
-            error: null
-          }));
-
-          console.log('✅ UnifiedChat再初期化完了:', {
-            sessionId: targetSessionId,
-            messagesCount: messages.length,
-            nextSequenceNumber: maxSequence + 1
-          });
-
-        } catch (error) {
-          console.error('❌ UnifiedChat再初期化エラー:', error);
-          setState(prev => ({
-            ...prev,
-            loadingStates: { ...prev.loadingStates, loading: false },
-            error: `再初期化エラー: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            networkError: true
-          }));
-        }
-      };
-
-      initializeWithParams();
-    }
-  }, [userType, aiPersonality, userId]);
+  // 🔧 パラメータ変更は上記のuseEffectで処理されるため、このuseEffectは削除
 
   // 🔄 新規セッション作成（内部用）
   const createNewSessionInternal = async (): Promise<string> => {
