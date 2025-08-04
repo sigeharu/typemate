@@ -1,7 +1,7 @@
 // 🔬 TypeMate段階的情報収集システム
 // 目的: チャット内容から名前・誕生日を自動抽出し、AI理解度を段階的に向上
 
-import { supabase } from './supabase';
+import { supabase } from './supabase-simple';
 
 export interface PersonalInfo {
   user_name?: string;

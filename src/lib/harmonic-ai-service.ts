@@ -186,7 +186,7 @@ export async function getHarmonicProfile(userId: string): Promise<HarmonicAIProf
     
     const { data, error } = await supabase
       .from('user_profiles')
-      .select('*')
+      .select('id, user_id, user_type, selected_ai_personality, relationship_type, birth_date, astrology_privacy, created_at, updated_at')
       .eq('user_id', userId)
       .order('updated_at', { ascending: false })
       .limit(1);

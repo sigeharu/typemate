@@ -4,6 +4,7 @@
 import { supabase } from './supabase-simple';
 import type { Type64, BaseArchetype } from '@/types';
 import type { Database } from '@/types/database';
+import { dbLogger, validateUUID, safeDbOperation } from './db-logger';
 
 // 相性スコア定義
 export interface CompatibilityScore {
@@ -291,7 +292,7 @@ class DiagnosisService {
       // 最新の診断結果を取得
       const { data: diagnostic, error } = await supabase
         .from('diagnostic_results')
-        .select('*')
+        .select('user_type, ai_personality, created_at')
         .eq('user_id', targetUserId)
         .order('created_at', { ascending: false })
         .limit(1)

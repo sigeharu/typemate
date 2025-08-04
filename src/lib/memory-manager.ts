@@ -6,6 +6,7 @@ import type { Database } from '@/types/database';
 import { type EmotionData as EmotionAnalysisData } from './emotion-analyzer';
 import { PrivacyEngine, createEncryptedMessage, type EncryptedMessage } from './privacy-encryption';
 import { SecureMemoryManager } from './SecureMemoryManager';
+import { dbLogger, validateUUID, safeDbOperation, safeBatchOperation } from './db-logger';
 
 // 🔒 真のエンドツーエンド暗号化対応
 
@@ -70,27 +71,24 @@ export class MemoryManager {
   // Phase 1: 基本記憶保存（認証ユーザー必須）
   async saveMemory(memory: Omit<MemoryInsert, 'id' | 'created_at'>, userId: string): Promise<BasicMemory | null> {
     if (!userId) {
-      console.error('❌ Memory save failed: userId is required for authenticated users');
+      dbLogger.error('saveMemory', new Error('userId is required for authenticated users'));
       return null;
     }
 
-    // 🛡️ UUID形式の検証（PostgreSQLエラー防止）
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(userId)) {
-      console.error('❌ Invalid userId format for memory save:', userId);
+    if (!validateUUID(userId, 'userId')) {
       return null;
     }
 
-    try {
-      console.log('🎵 Attempting to save memory:', {
-        userId,
-        archetype: memory.archetype,
-        role: memory.message_role,
-        hasContent: !!memory.message_content,
-        conversationId: memory.conversation_id
-      });
+    dbLogger.info('saveMemory', 'Attempting to save memory', {
+      userId,
+      archetype: memory.archetype,
+      role: memory.message_role,
+      hasContent: !!memory.message_content,
+      conversationId: memory.conversation_id
+    });
 
-      const { data, error } = await supabase
+    const result = await safeDbOperation('saveMemory', async () => {
+      return await supabase
         .from('typemate_memory')
         .insert({
           ...memory,
@@ -98,50 +96,39 @@ export class MemoryManager {
         })
         .select()
         .single();
+    });
 
-      if (error) {
-        console.error('❌ Memory save error:', {
-          code: error.code,
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          userId
-        });
-        return null;
-      }
-
-      console.log('✅ Memory saved successfully:', data.id);
-      return this.transformRowToMemory(data, userId);
-    } catch (error) {
-      console.error('💥 Memory save exception:', error);
+    if (result.error || !result.data) {
       return null;
     }
+
+    return this.transformRowToMemory(result.data, userId);
   }
 
   // Phase 1: 短期記憶取得（認証ユーザー必須）
   async getShortTermMemory(userId: string, conversationId?: string): Promise<ShortTermMemory> {
+    const emptyResult = { memories: [], totalCount: 0, lastUpdated: new Date().toISOString() };
+    
     if (!userId) {
-      console.error('❌ Memory fetch failed: userId is required for authenticated users');
-      return { memories: [], totalCount: 0, lastUpdated: new Date().toISOString() };
+      dbLogger.error('getShortTermMemory', new Error('userId is required for authenticated users'));
+      return emptyResult;
     }
 
-    // 🛡️ UUID形式の検証（PostgreSQLエラー防止）
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(userId)) {
-      console.warn('⚠️ Invalid userId format, returning empty memories:', userId);
-      return { memories: [], totalCount: 0, lastUpdated: new Date().toISOString() };
-    }
-    if (conversationId && !uuidRegex.test(conversationId)) {
-      console.warn('⚠️ Invalid conversationId format, ignoring filter:', conversationId);
-      conversationId = undefined; // フィルターを無効化
+    if (!validateUUID(userId, 'userId')) {
+      return emptyResult;
     }
 
-    try {
-      console.log('🎵 Loading short-term memory:', { userId, conversationId });
-      
+    if (conversationId && !validateUUID(conversationId, 'conversationId')) {
+      dbLogger.warn('getShortTermMemory', 'Invalid conversationId format, ignoring filter', { conversationId });
+      conversationId = undefined;
+    }
+
+    dbLogger.info('getShortTermMemory', 'Loading short-term memory', { userId, conversationId });
+
+    const result = await safeDbOperation('getShortTermMemory', async () => {
       let query = supabase
         .from('typemate_memory')
-        .select('*')
+        .select('id, user_id, archetype, relationship_level, user_name, message_content, message_role, conversation_id, created_at')
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
         .limit(10);
@@ -150,104 +137,87 @@ export class MemoryManager {
         query = query.eq('conversation_id', conversationId);
       }
 
-      const { data, error } = await query;
+      return await query;
+    });
 
-      if (error) {
-        console.error('❌ Short-term memory fetch error:', error);
-        return { memories: [], totalCount: 0, lastUpdated: new Date().toISOString() };
-      }
-
-      const memories = data?.map(row => this.transformRowToMemory(row, userId)) || [];
-      console.log('✅ Loaded memories:', memories.length, 'items');
-
-      return {
-        memories,
-        totalCount: memories.length,
-        lastUpdated: new Date().toISOString()
-      };
-    } catch (error) {
-      console.error('Short-term memory fetch exception:', error);
-      return { memories: [], totalCount: 0, lastUpdated: new Date().toISOString() };
+    if (result.error || !result.data) {
+      return emptyResult;
     }
+
+    const memories = result.data.map(row => this.transformRowToMemory(row, userId));
+    dbLogger.success('getShortTermMemory', `Loaded ${memories.length} memories`);
+
+    return {
+      memories,
+      totalCount: memories.length,
+      lastUpdated: new Date().toISOString()
+    };
   }
 
   // Phase 1: 段階的情報収集状態チェック（認証ユーザー必須）
   async getMemoryProgress(userId: string): Promise<MemoryProgressState> {
+    const defaultResult = {
+      hasUserName: false,
+      relationshipLevel: 1,
+      conversationCount: 0,
+      lastInteraction: new Date().toISOString()
+    };
+
     if (!userId) {
-      console.error('❌ Memory progress fetch failed: userId is required');
-      return {
-        hasUserName: false,
-        relationshipLevel: 1,
-        conversationCount: 0,
-        lastInteraction: new Date().toISOString()
-      };
+      dbLogger.error('getMemoryProgress', new Error('userId is required'));
+      return defaultResult;
     }
 
-    try {
-      const { data, error } = await supabase
+    if (!validateUUID(userId, 'userId')) {
+      return defaultResult;
+    }
+
+    const result = await safeDbOperation('getMemoryProgress', async () => {
+      return await supabase
         .from('typemate_memory')
         .select('user_name, relationship_level, created_at')
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
+    });
 
-      if (error) {
-        console.error('Memory progress fetch error:', error);
-        return {
-          hasUserName: false,
-          relationshipLevel: 1,
-          conversationCount: 0,
-          lastInteraction: new Date().toISOString()
-        };
-      }
-
-      const memories = data || [];
-      const hasName = memories.some(m => m.user_name);
-      const maxLevel = Math.max(...memories.map(m => m.relationship_level || 1), 1);
-      const lastInteraction = memories[0]?.created_at || new Date().toISOString();
-
-      return {
-        hasUserName: hasName,
-        relationshipLevel: maxLevel,
-        conversationCount: memories.length,
-        lastInteraction
-      };
-    } catch (error) {
-      console.error('Memory progress fetch exception:', error);
-      return {
-        hasUserName: false,
-        relationshipLevel: 1,
-        conversationCount: 0,
-        lastInteraction: new Date().toISOString()
-      };
+    if (result.error || !result.data) {
+      return defaultResult;
     }
+
+    const memories = result.data;
+    const hasName = memories.some(m => m.user_name);
+    const maxLevel = Math.max(...memories.map(m => m.relationship_level || 1), 1);
+    const lastInteraction = memories[0]?.created_at || new Date().toISOString();
+
+    return {
+      hasUserName: hasName,
+      relationshipLevel: maxLevel,
+      conversationCount: memories.length,
+      lastInteraction
+    };
   }
 
   // Phase 1: ユーザー名更新（認証ユーザー必須）
   async updateUserName(userId: string, userName: string): Promise<boolean> {
     if (!userId) {
-      console.error('❌ User name update failed: userId is required');
+      dbLogger.error('updateUserName', new Error('userId is required'));
       return false;
     }
 
-    try {
-      console.log('🎵 Updating user name:', { userId, userName });
-      
-      const { error } = await supabase
+    if (!validateUUID(userId, 'userId')) {
+      return false;
+    }
+
+    dbLogger.info('updateUserName', 'Updating user name', { userId, userName });
+
+    const result = await safeDbOperation('updateUserName', async () => {
+      return await supabase
         .from('typemate_memory')
         .update({ user_name: userName })
         .eq('user_id', userId);
+    });
 
-      if (error) {
-        console.error('❌ User name update error:', error);
-        return false;
-      }
-
-      console.log('✅ User name updated successfully');
-      return true;
-    } catch (error) {
-      console.error('💥 User name update exception:', error);
-      return false;
-    }
+    return !result.error;
   }
 
   // Phase 1: 関係性レベル更新（認証ユーザー必須）
@@ -616,26 +586,25 @@ export class MemoryManager {
         sequence_number: index + 1
       }));
 
-      console.log(`🔧 Updating ${updates.length} messages with sequence numbers`);
+      dbLogger.info('repairSequenceNumbers', `Updating ${updates.length} messages with sequence numbers`);
 
-      // より効率的なバッチ更新実行（Promise.allSettled使用）
-      const updatePromises = updates.map(update =>
-        supabase
+      // バッチ処理で効率的に更新実行
+      const updateOperations = updates.map(update => 
+        () => supabase
           .from('typemate_memory')
           .update({ sequence_number: update.sequence_number })
           .eq('id', update.id)
       );
 
-      const results = await Promise.allSettled(updatePromises);
-      const failedUpdates = results.filter(result => result.status === 'rejected' || result.value.error);
+      const batchResult = await safeBatchOperation('repairSequenceNumbers', updateOperations, 5);
 
-      if (failedUpdates.length > 0) {
-        console.error(`❌ ${failedUpdates.length}/${updates.length} sequence number updates failed`);
+      if (batchResult.errors.length > 0) {
+        dbLogger.warn('repairSequenceNumbers', `${batchResult.errors.length}/${batchResult.totalCount} updates failed`);
         // 部分的な失敗でもtrueを返す（完全失敗でない限り）
-        return failedUpdates.length < updates.length;
+        return batchResult.successes.length > 0;
       }
 
-      console.log('✅ Successfully repaired sequence numbers');
+      dbLogger.success('repairSequenceNumbers', 'Successfully repaired all sequence numbers');
       return true;
     } catch (error) {
       console.error('💥 repairSequenceNumbers exception:', error);

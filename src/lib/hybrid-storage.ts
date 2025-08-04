@@ -1,11 +1,12 @@
 // 🎵 TypeMate Hybrid Storage System
 // ローカルストレージ ↔ Supabase の段階的移行システム
 
-import { supabase } from './supabase';
+import { supabase } from './supabase-simple';
 import { storage as localStorage } from './storage';
 import type { ChatSession, UserProfile } from './storage';
 import type { Database } from '@/types/database';
 import type { User } from '@supabase/supabase-js';
+import { dbLogger, validateUUID, safeDbOperation } from './db-logger';
 
 type DbChatSession = Database['public']['Tables']['chat_sessions']['Row'];
 type DbMessage = Database['public']['Tables']['messages']['Row'];
@@ -64,20 +65,26 @@ class HybridStorage {
   // === ユーザープロファイル管理 ===
   async getUserProfile(): Promise<UserProfile | null> {
     if (this.useCloudStorage()) {
-      try {
-        const { data, error } = await supabase
+      if (!this.user?.id || !validateUUID(this.user.id, 'user_id')) {
+        dbLogger.warn('getUserProfile', 'Invalid user ID, falling back to local storage');
+        return localStorage.getUserProfile();
+      }
+
+      const result = await safeDbOperation('getUserProfile', async () => {
+        return await supabase
           .from('user_profiles')
-          .select('*')
+          .select('id, user_id, user_type, selected_ai_personality, relationship_type, preferences, created_at, updated_at')
           .eq('user_id', this.user!.id)
           .single();
+      });
 
-        if (error && error.code !== 'PGRST116') throw error; // PGRST116 = not found
-        
-        if (data) {
-          return this.dbProfileToLocal(data);
-        }
-      } catch (error) {
-        console.warn('Failed to fetch cloud profile, falling back to local:', error);
+      if (result.error && result.error.code !== 'PGRST116') {
+        dbLogger.warn('getUserProfile', 'Failed to fetch cloud profile, falling back to local', { error: result.error });
+        return localStorage.getUserProfile();
+      }
+      
+      if (result.data) {
+        return this.dbProfileToLocal(result.data);
       }
     }
     
@@ -89,21 +96,25 @@ class HybridStorage {
     localStorage.saveUserProfile(profile);
     
     if (this.useCloudStorage()) {
-      try {
-        const dbProfile = this.localProfileToDb(profile);
-        
-        const { error } = await supabase
+      if (!this.user?.id || !validateUUID(this.user.id, 'user_id')) {
+        dbLogger.warn('saveUserProfile', 'Invalid user ID, skipping cloud save');
+        return;
+      }
+
+      const dbProfile = this.localProfileToDb(profile);
+      
+      const result = await safeDbOperation('saveUserProfile', async () => {
+        return await supabase
           .from('user_profiles')
           .upsert({
             ...dbProfile,
             user_id: this.user!.id,
             updated_at: new Date().toISOString()
           });
-          
-        if (error) throw error;
-      } catch (error) {
-        console.warn('Failed to save profile to cloud:', error);
-        // ローカルには保存済みなので、同期待ちキューに追加
+      });
+
+      if (result.error) {
+        dbLogger.warn('saveUserProfile', 'Failed to save profile to cloud, adding to sync queue');
         this.addToPendingSync('profile', profile);
       }
     }
@@ -112,21 +123,29 @@ class HybridStorage {
   // === チャットセッション管理 ===
   async getAllChatSessions(): Promise<ChatSession[]> {
     if (this.useCloudStorage()) {
-      try {
-        const { data: sessions, error: sessionsError } = await supabase
+      if (!this.user?.id || !validateUUID(this.user.id, 'user_id')) {
+        dbLogger.warn('getAllChatSessions', 'Invalid user ID, falling back to local storage');
+        return localStorage.getAllChatSessions();
+      }
+
+      const result = await safeDbOperation('getAllChatSessions', async () => {
+        return await supabase
           .from('chat_sessions')
           .select(`
-            *,
-            messages (*)
+            id, user_id, user_type, ai_personality, title, is_guest, created_at, updated_at,
+            messages (id, session_id, content, sender, archetype_type, emotion, created_at)
           `)
           .eq('user_id', this.user!.id)
           .order('updated_at', { ascending: false });
+      });
 
-        if (sessionsError) throw sessionsError;
+      if (result.error) {
+        dbLogger.warn('getAllChatSessions', 'Failed to fetch cloud sessions, falling back to local');
+        return localStorage.getAllChatSessions();
+      }
 
-        return sessions.map(session => this.dbSessionToLocal(session));
-      } catch (error) {
-        console.warn('Failed to fetch cloud sessions, falling back to local:', error);
+      if (result.data) {
+        return result.data.map(session => this.dbSessionToLocal(session));
       }
     }
     
