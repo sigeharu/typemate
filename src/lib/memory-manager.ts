@@ -7,6 +7,7 @@ import { type EmotionData as EmotionAnalysisData } from './emotion-analyzer';
 import { PrivacyEngine, createEncryptedMessage, type EncryptedMessage } from './privacy-encryption';
 import { SecureMemoryManager } from './SecureMemoryManager';
 import { dbLogger, validateUUID, safeDbOperation, safeBatchOperation } from './db-logger';
+import { vectorMemoryService, type VectorizedMemory, type SimilarMemorySearchResult } from './vector-memory-service';
 
 // 🔒 真のエンドツーエンド暗号化対応
 
@@ -295,6 +296,11 @@ export class MemoryManager {
             isSpecial: emotionData.isSpecialMoment
           });
         }
+
+        // 🔍 Phase 3: ベクトル化を非同期で実行（エラー時も通常保存は継続）
+        this.asyncVectorizeMemory(memory.id, messageContent).catch(error => {
+          console.warn('⚠️ ベクトル化に失敗しましたが、記憶保存は正常に完了しました:', error);
+        });
       }
 
       return memory;
@@ -538,6 +544,117 @@ export class MemoryManager {
       console.error('❌ getConversationMessages error:', error);
       return [];
     }
+  }
+
+  // 🔍 Phase 3: 非同期ベクトル化（既存保存処理を妨げない）
+  private async asyncVectorizeMemory(memoryId: string, content: string): Promise<void> {
+    try {
+      if (!content || content.trim().length === 0) {
+        console.log('ℹ️ Empty content, skipping vectorization');
+        return;
+      }
+
+      console.log('🔄 Starting async vectorization for memory:', {
+        memoryId: memoryId.substring(0, 8) + '...',
+        contentLength: content.length
+      });
+
+      const success = await vectorMemoryService.addEmbeddingToMemory(memoryId, content);
+      if (success) {
+        console.log('✅ Async vectorization completed successfully');
+      } else {
+        console.warn('⚠️ Async vectorization failed but memory was saved');
+      }
+    } catch (error) {
+      console.error('❌ Async vectorization error:', error);
+      // エラーが発生してもthrowしない（メイン処理に影響させない）
+    }
+  }
+
+  // 🔍 Phase 3: 類似記憶検索（意味的検索）
+  async searchSimilarMemories(
+    query: string,
+    userId: string,
+    options: {
+      limit?: number;
+      similarityThreshold?: number;
+      specialOnly?: boolean;
+    } = {}
+  ): Promise<SimilarMemorySearchResult> {
+    if (!userId) {
+      console.error('❌ searchSimilarMemories: userId is required');
+      return {
+        memories: [],
+        query,
+        searchedAt: new Date().toISOString(),
+        totalFound: 0
+      };
+    }
+
+    if (!validateUUID(userId, 'userId')) {
+      return {
+        memories: [],
+        query,
+        searchedAt: new Date().toISOString(),
+        totalFound: 0
+      };
+    }
+
+    try {
+      console.log('🔍 Searching similar memories:', {
+        query: query.substring(0, 50) + '...',
+        userId: userId.substring(0, 8) + '...',
+        options
+      });
+
+      const result = await vectorMemoryService.searchSimilarMemories(query, userId, options);
+      
+      dbLogger.success('searchSimilarMemories', `Found ${result.totalFound} similar memories`);
+      return result;
+    } catch (error) {
+      console.error('❌ searchSimilarMemories error:', error);
+      return {
+        memories: [],
+        query,
+        searchedAt: new Date().toISOString(),
+        totalFound: 0
+      };
+    }
+  }
+
+  // 🔍 Phase 3: 既存記憶のベクトル化（バッチ処理）
+  async vectorizeExistingMemories(
+    userId: string,
+    batchSize: number = 10
+  ): Promise<{ processed: number; success: number; failed: number }> {
+    if (!userId) {
+      console.error('❌ vectorizeExistingMemories: userId is required');
+      return { processed: 0, success: 0, failed: 0 };
+    }
+
+    if (!validateUUID(userId, 'userId')) {
+      return { processed: 0, success: 0, failed: 0 };
+    }
+
+    try {
+      console.log('🔄 Starting batch vectorization for user:', {
+        userId: userId.substring(0, 8) + '...',
+        batchSize
+      });
+
+      const result = await vectorMemoryService.vectorizeExistingMemories(userId, batchSize);
+      
+      dbLogger.info('vectorizeExistingMemories', 'Batch vectorization completed', result);
+      return result;
+    } catch (error) {
+      console.error('❌ vectorizeExistingMemories error:', error);
+      return { processed: 0, success: 0, failed: 0 };
+    }
+  }
+
+  // 🔍 Phase 3: ベクトルサービスの状態確認
+  getVectorServiceStatus(): { initialized: boolean; hasOpenAI: boolean } {
+    return vectorMemoryService.getServiceStatus();
   }
 
   // 🔄 既存データ復旧: sequence番号を created_at 順で自動採番
