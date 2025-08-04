@@ -520,16 +520,38 @@ export class MemoryManager {
         return [];
       }
 
-      // 🔓 緊急修正: 暗号化データの復号化を一時無効化（平文データをそのまま返す）
+      // 🔄 暗号化データの自動移行処理
       return data?.map(memory => {
-        // 🚨 緊急修正: 暗号化チェックを無効化し、データをそのまま使用
-        const content = memory.message_content || '';
+        let content = memory.message_content || '';
         
-        console.log('💾 Loading conversation message (plain text):', {
+        // 暗号化されたデータかチェック
+        if (this.isEncryptedData(content)) {
+          console.log('🔐 Detected encrypted message, attempting to decrypt:', {
+            messageId: memory.id,
+            role: memory.message_role,
+            encryptedPreview: content.substring(0, 20) + '...'
+          });
+          
+          try {
+            // Base64デコードを試行
+            const decoded = atob(content);
+            // デコード結果が日本語やASCII文字として読める場合は使用
+            if (/[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf\u3400-\u4dbf]|[a-zA-Z0-9\s,.!?]/.test(decoded)) {
+              content = decoded;
+              console.log('✅ Successfully decoded message');
+            } else {
+              console.warn('⚠️ Decoded content appears to be binary, keeping original');
+            }
+          } catch (e) {
+            console.warn('⚠️ Failed to decode message, using original content:', e);
+          }
+        }
+        
+        console.log('💾 Loading conversation message:', {
           messageId: memory.id,
           role: memory.message_role,
           preview: content.substring(0, 20) + '...',
-          isLikelyEncrypted: this.isEncryptedData(content)
+          wasEncrypted: this.isEncryptedData(memory.message_content)
         });
 
         return {
