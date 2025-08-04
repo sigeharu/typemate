@@ -122,6 +122,71 @@ export default function ChatPage() {
     userId // 認証ユーザー必須
   );
 
+  // 🎯 AI設定変更の検出用
+  const [lastSettingsCheck, setLastSettingsCheck] = useState<Date>(new Date());
+
+  // 🔄 設定変更検出のためのポーリング
+  useEffect(() => {
+    const checkForSettingsUpdate = async () => {
+      if (!userId) return;
+      
+      try {
+        const { data: profiles, error } = await supabase
+          .from('user_profiles')
+          .select('selected_ai_personality, relationship_type, updated_at')
+          .eq('user_id', userId)
+          .order('updated_at', { ascending: false })
+          .limit(1);
+        
+        if (!error && profiles?.[0]) {
+          const profile = profiles[0];
+          const updateTime = new Date(profile.updated_at);
+          
+          // 設定が更新されていて、現在のAI設定と異なる場合
+          if (updateTime > lastSettingsCheck && 
+              profile.selected_ai_personality !== aiPersonality?.archetype) {
+            console.log('🔄 AI設定変更を検出、再読み込み中...', {
+              old: aiPersonality?.archetype,
+              new: profile.selected_ai_personality,
+              updateTime: updateTime.toISOString()
+            });
+            
+            // AI設定を更新
+            const newAiArchetypeData = ARCHETYPE_DATA[profile.selected_ai_personality as keyof typeof ARCHETYPE_DATA];
+            if (newAiArchetypeData) {
+              setAiPersonality({
+                archetype: profile.selected_ai_personality,
+                name: newAiArchetypeData.name,
+                personality: newAiArchetypeData.description
+              });
+              setRelationshipType(profile.relationship_type || 'friend');
+              setLastSettingsCheck(new Date());
+            }
+          }
+        }
+      } catch (error) {
+        console.warn('⚠️ 設定変更検出エラー:', error);
+      }
+    };
+
+    // ページが表示されたときに設定をチェック
+    const handleVisibilityChange = () => {
+      if (!document.hidden && userId) {
+        checkForSettingsUpdate();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // 定期的にチェック（30秒間隔）
+    const interval = setInterval(checkForSettingsUpdate, 30000);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      clearInterval(interval);
+    };
+  }, [userId, aiPersonality?.archetype, lastSettingsCheck]);
+
   // Initialize
   useEffect(() => {
     const initializeChat = async () => {
@@ -209,7 +274,7 @@ export default function ChatPage() {
           const { data: profiles, error } = await supabase
             .from('user_profiles')
             .select('selected_ai_personality, relationship_type, updated_at')
-            .eq('user_id', user.id)
+            .eq('user_id', currentUserId)
             .order('updated_at', { ascending: false })
             .limit(1);
           
@@ -265,13 +330,13 @@ export default function ChatPage() {
         let personalData = { name: '', birthDate: null };
         
         try {
-          const harmonicProfile = await getHarmonicProfile(user.id);
+          const harmonicProfile = await getHarmonicProfile(currentUserId);
           if (harmonicProfile) {
             // データベースから名前を直接取得
             const { data: nameData } = await supabase
               .from('user_profiles')
               .select('display_name')
-              .eq('user_id', user.id)
+              .eq('user_id', currentUserId)
               .order('updated_at', { ascending: false })
               .limit(1);
             
@@ -310,7 +375,7 @@ export default function ChatPage() {
 
         // 🌟 ハーモニックAI日別ガイダンス読み込み
         try {
-          const harmonicProfile = await getHarmonicProfile(user.id);
+          const harmonicProfile = await getHarmonicProfile(currentUserId);
           if (harmonicProfile) {
             const guidance = await generateDailyHarmonicGuidance(harmonicProfile);
             setDailyGuidance(guidance);

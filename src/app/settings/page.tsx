@@ -544,10 +544,10 @@ export default function SettingsPage() {
         console.log('🔍 保存後検証成功:', verifyData);
         
         // UI状態とデータベース状態の整合性確認
-        if (verifyData.selected_ai_personality === selectedAiPersonality && 
+        if (verifyData && verifyData.selected_ai_personality === selectedAiPersonality && 
             verifyData.relationship_type === relationshipType) {
           console.log('✅ UI状態とDB状態が一致しています');
-        } else {
+        } else if (verifyData) {
           console.warn('⚠️ UI状態とDB状態が不一致:', {
             ui: { selectedAiPersonality, relationshipType },
             db: { 
@@ -555,6 +555,8 @@ export default function SettingsPage() {
               relationshipType: verifyData.relationship_type 
             }
           });
+        } else {
+          console.warn('⚠️ 保存後の検証データが見つかりません');
         }
       }
       
