@@ -500,7 +500,7 @@ function generateAstrologicalInsight(
   return {
     zodiacInfluence: `${astro.zodiac.details?.nameJa || astro.zodiac.sign}座の${astro.zodiac.element}エレメントが、今のあなたに${astro.zodiac.details?.traits?.[0] || '特別な力'}を与えています。`,
     numerologyGuidance: astro.numerology.info ? 
-      `ライフパスナンバー${astro.numerology.lifePathNumber}「${astro.numerology.info.name}」として、${astro.numerology.info.soulPurpose || '自分らしい道'}を歩む時期です。` : 
+      `ライフパスナンバー${astro.numerology.lifePathNumber}「${astro.numerology.info?.name || 'エクスプローラー'}」として、${astro.numerology.info?.soulPurpose || '自分らしい道'}を歩む時期です。` : 
       '数秘術的なエネルギーが調和しています。',
     moonPhaseEnergy: `${astro.currentMoon.phase?.phaseNameJa || '現在の月相'}のエネルギー(${astro.currentMoon.energy}/10)が、感情と直感を高めています。`,
     cosmicAlignment: cosmicGuidance.cosmicGuidance.cosmicWeather || 'stable'
