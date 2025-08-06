@@ -10,6 +10,7 @@ import type { HarmonicAIProfile } from '@/lib/harmonic-ai-service';
 import type { DailyHarmonicGuidance } from '@/lib/harmonic-ai-service-server';
 import { validateChatRequest, checkRateLimit, validateProductionSecurity } from '@/lib/input-validation';
 import { securityLog, secureLog } from '@/lib/secure-logger';
+import { unifiedMemorySystem, type ContextType } from '@/lib/unified-memory-system';
 
 const anthropic = new Anthropic({
   apiKey: process.env.CLAUDE_API_KEY!,
@@ -62,7 +63,10 @@ export async function POST(request: NextRequest) {
       chatCount = 0,
       // ハーモニックチャットサービスから送信される可能性のある追加フィールド
       astrologicalContext,
-      harmonicEnhancement
+      harmonicEnhancement,
+      // 統合記憶システム用フィールド
+      sessionId,
+      conversationId
     } = body;
 
     // 🛡️ 基本的な入力検証
@@ -136,10 +140,65 @@ export async function POST(request: NextRequest) {
     // 5. 強化感情分析
     const enhancedEmotion = analyzeEnhancedEmotion(messageValidation.sanitized, harmonicProfile);
 
-    // 6. 会話履歴構築
-    const conversationHistory = buildConversationHistory(messageHistory);
+    // 6. 統合記憶システム - コンテキスト理解と記憶検索
+    let memoryContext = '';
+    let contextualResponse = '';
+    const currentSessionId = sessionId || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const currentConversationId = conversationId || `conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    try {
+      // コンテキストタイプ分析（"それって何？" "前に言った" など）
+      const contextType: ContextType = await unifiedMemorySystem.analyzeContext(
+        messageValidation.sanitized,
+        [] // 短期記憶は検索時に取得
+      );
 
-    // 7. Claude API呼び出し（強化プロンプト使用）
+      // 統合記憶検索
+      const memoryResult = await unifiedMemorySystem.searchMemories(
+        userId,
+        messageValidation.sanitized,
+        currentSessionId,
+        {
+          includeShortTerm: true,
+          includeMediumTerm: true,
+          includeVectorSearch: true,
+          maxResults: 5,
+          contextType
+        }
+      );
+
+      contextualResponse = memoryResult.context.contextualResponse;
+      
+      // 記憶から会話コンテキストを構築
+      if (memoryResult.shortTerm.length > 0) {
+        const recentMessages = memoryResult.shortTerm.slice(-3).map(msg => 
+          `${msg.role === 'user' ? 'ユーザー' : 'AI'}: ${msg.content}`
+        ).join('\n');
+        memoryContext += `\n## 直近の会話:\n${recentMessages}\n`;
+      }
+
+      if (memoryResult.vectorSearch && memoryResult.vectorSearch.memories.length > 0) {
+        const similarMemories = memoryResult.vectorSearch.memories.slice(0, 2).map(mem => 
+          `- ${mem.message_content} (類似度: ${mem.similarity})`
+        ).join('\n');
+        memoryContext += `\n## 関連する記憶:\n${similarMemories}\n`;
+      }
+
+      secureLog.info('Memory context generated', {
+        contextType,
+        shortTermCount: memoryResult.shortTerm.length,
+        vectorSearchCount: memoryResult.vectorSearch?.totalFound || 0,
+        hasContext: memoryContext.length > 0
+      });
+    } catch (error) {
+      secureLog.error('Memory context generation failed', error);
+      // メモリエラーでも会話は継続
+    }
+
+    // 7. 会話履歴構築（メモリコンテキスト統合）
+    const conversationHistory = buildConversationHistory(messageHistory, memoryContext);
+
+    // 8. Claude API呼び出し（強化プロンプト使用）
     const response = await anthropic.messages.create({
       model: 'claude-3-5-haiku-20241022',
       max_tokens: 2000,
@@ -157,7 +216,46 @@ export async function POST(request: NextRequest) {
       throw new Error('No response from Claude');
     }
 
-    // 8. 強化レスポンス構築
+    // 9. 統合記憶システムに会話を保存（非同期実行）
+    const saveMemoryPromises = [];
+    
+    // ユーザーメッセージを保存
+    saveMemoryPromises.push(
+      unifiedMemorySystem.saveMessage(userId, currentSessionId, {
+        content: messageValidation.sanitized,
+        role: 'user',
+        emotion: enhancedEmotion.emotion,
+        intensity: enhancedEmotion.intensity,
+        archetype: userType,
+        userName: personalInfo.name,
+        conversationId: currentConversationId
+      })
+    );
+
+    // AIレスポンスを保存
+    saveMemoryPromises.push(
+      unifiedMemorySystem.saveMessage(userId, currentSessionId, {
+        content: aiResponse,
+        role: 'ai',
+        archetype: aiPersonality,
+        userName: personalInfo.name,
+        conversationId: currentConversationId
+      })
+    );
+
+    // 非同期でメモリ保存実行（レスポンス速度に影響させない）
+    Promise.all(saveMemoryPromises).then(results => {
+      secureLog.info('Memory save completed', {
+        userMessageSaved: results[0]?.shortTermSaved && results[0]?.mediumTermSaved,
+        aiMessageSaved: results[1]?.shortTermSaved && results[1]?.mediumTermSaved,
+        sessionId: currentSessionId,
+        conversationId: currentConversationId
+      });
+    }).catch(error => {
+      secureLog.error('Memory save failed', error);
+    });
+
+    // 10. 強化レスポンス構築
     const enhancedResponse = {
       content: aiResponse,
       emotion: enhancedEmotion.emotion,
@@ -172,7 +270,14 @@ export async function POST(request: NextRequest) {
       },
       harmonicEnhancement: !!harmonicProfile,
       cosmicAlignment: cosmicGuidance?.cosmicGuidance?.cosmicWeather || 'stable',
-      tokens_used: response.usage?.input_tokens + response.usage?.output_tokens || 0
+      tokens_used: response.usage?.input_tokens + response.usage?.output_tokens || 0,
+      // 統合記憶システム情報
+      memoryContext: {
+        contextualResponse,
+        sessionId: currentSessionId,
+        conversationId: currentConversationId,
+        hasMemoryContext: memoryContext.length > 0
+      }
     };
 
     secureLog.info('Enhanced Chat Response generated', {
@@ -604,10 +709,18 @@ function analyzeEnhancedEmotion(
 }
 
 /**
- * 📖 会話履歴構築
+ * 📖 会話履歴構築（統合記憶システム対応）
  */
-function buildConversationHistory(messageHistory: string[]) {
+function buildConversationHistory(messageHistory: string[], memoryContext?: string) {
   const history: Array<{ role: 'user' | 'assistant'; content: string }> = [];
+  
+  // メモリコンテキストがある場合は最初に挿入
+  if (memoryContext && memoryContext.trim()) {
+    history.push({ 
+      role: 'user', 
+      content: `[記憶コンテキスト]${memoryContext}[/記憶コンテキスト]\n\n現在のメッセージ:` 
+    });
+  }
   
   // 最新の6メッセージまでを履歴として含める
   const recentHistory = messageHistory.slice(-6);
