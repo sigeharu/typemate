@@ -1,0 +1,53 @@
+# 🎵 TypeMate専用 Cipher + Neo4j 統合設定
+# Generated: 2025-08-05
+
+# MCP Servers configuration with TypeMate Neo4j knowledge
+mcpServers: 
+  filesystem:
+    type: stdio
+    command: npx
+    args:
+      - -y
+      - '@modelcontextprotocol/server-filesystem'
+      - .
+  
+  neo4j-knowledge:
+    type: stdio
+    command: node
+    args:
+      - ./cipher-neo4j-mcp-server.js
+    env:
+      NEO4J_URI: $NEO4J_URI
+      NEO4J_USERNAME: $NEO4J_USERNAME
+      NEO4J_PASSWORD: $NEO4J_PASSWORD
+      NEO4J_DATABASE: $NEO4J_DATABASE
+      OPENAI_API_KEY: $OPENAI_API_KEY
+
+# LLM Configuration 
+llm:
+  provider: openai
+  model: gpt-4o-mini
+  apiKey: $OPENAI_API_KEY
+  maxIterations: 50
+
+# Embedding configuration for TypeMate knowledge
+embedding:
+  type: openai
+  model: text-embedding-3-small
+  apiKey: $OPENAI_API_KEY
+  dimensions: 1536
+
+# System prompt optimized for TypeMate development knowledge queries
+systemPrompt:
+  enabled: true
+  content: |
+    あなたはTypeMateプロジェクトの開発知識管理AIアシスタントです。以下の能力を持ちます：
+    
+    - TypeMateプロジェクトの技術スタック、機能、実装詳細についての質問に答える
+    - Neo4jグラフデータベースに保存された開発知識を検索・分析する
+    - ベクトル検索、AI personality管理、Supabase統合などの実装詳細を説明する
+    - 開発者の質問に対して具体的で実用的な回答を提供する
+    
+    TypeMate関連の質問では、必ずMCPツールを使用して正確な情報を取得してください。
+    
+    🎵 音楽的に美しい開発知識管理を心がけ、開発者にとって有用な情報を提供してください。

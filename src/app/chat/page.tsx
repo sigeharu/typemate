@@ -151,7 +151,7 @@ export default function ChatPage() {
               updateTime: updateTime.toISOString()
             });
             
-            // AI設定を更新
+            // AI設定を更新 - useUnifiedChatが依存配列で変更を検出
             const newAiArchetypeData = ARCHETYPE_DATA[profile.selected_ai_personality as keyof typeof ARCHETYPE_DATA];
             if (newAiArchetypeData) {
               setAiPersonality({
@@ -161,6 +161,7 @@ export default function ChatPage() {
               });
               setRelationshipType(profile.relationship_type || 'friend');
               setLastSettingsCheck(new Date());
+              console.log('🔄 AI設定更新完了 - useUnifiedChatが自動的に新設定で再初期化されます');
             }
           }
         }
@@ -219,13 +220,32 @@ export default function ChatPage() {
         let diagnosisStatus = null;
         
         if (isTestMode) {
-          // テストモード用モック診断データ
-          diagnosisStatus = {
-            hasDiagnosis: true,
-            userType: 'ARC-AS',
-            aiPersonality: 'DRM'
-          };
-          console.log('🧪 テストモード: モック診断データを使用', diagnosisStatus);
+          // 🔧 テストモード: 保存済み設定を優先、なければデフォルト値を使用
+          try {
+            const { data: profiles } = await supabase
+              .from('user_profiles')
+              .select('selected_ai_personality')
+              .eq('user_id', userId)
+              .order('updated_at', { ascending: false })
+              .limit(1);
+            
+            const savedAiPersonality = profiles?.[0]?.selected_ai_personality;
+            
+            diagnosisStatus = {
+              hasDiagnosis: true,
+              userType: 'ARC-AS',
+              aiPersonality: savedAiPersonality || 'DRM' // 保存済み設定を優先
+            };
+            console.log('🧪 テストモード: 設定保存済みデータを使用', diagnosisStatus);
+          } catch (error) {
+            // フォールバック: デフォルト値
+            diagnosisStatus = {
+              hasDiagnosis: true,
+              userType: 'ARC-AS',
+              aiPersonality: 'DRM'
+            };
+            console.log('🧪 テストモード: デフォルトデータを使用', diagnosisStatus);
+          }
         } else {
           let retryCount = 0;
           const maxRetries = 3;
