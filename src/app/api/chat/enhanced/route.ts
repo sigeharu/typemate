@@ -227,7 +227,7 @@ export async function POST(request: NextRequest) {
         emotion: enhancedEmotion.emotion,
         intensity: enhancedEmotion.intensity,
         archetype: userType,
-        userName: personalInfo.name,
+        userName: personalInfo?.name,
         conversationId: currentConversationId
       })
     );
@@ -238,7 +238,7 @@ export async function POST(request: NextRequest) {
         content: aiResponse,
         role: 'ai',
         archetype: aiPersonality,
-        userName: personalInfo.name,
+        userName: personalInfo?.name,
         conversationId: currentConversationId
       })
     );
@@ -371,7 +371,7 @@ ${(() => {
 - **AI人格×占星術統合**: ${cosmicPattern.aiAstrologyPattern}
 - **三要素統合パターン**: ${cosmicPattern.tripleIntegrationPattern}
 
-**極重要**: このユニークな組み合わせを会話の中で「ふと感じた」「なんとなく思うんだけど」として自然に織り込み、${personalInfo.name ? `${personalInfo.name}さん` : 'あなた'}の個別性を際立たせてください。`;
+**極重要**: このユニークな組み合わせを会話の中で「ふと感じた」「なんとなく思うんだけど」として自然に織り込み、${personalInfo?.name ? `${personalInfo.name}さん` : 'あなた'}の個別性を際立たせてください。`;
 })()}
 ` : '';
 
@@ -414,8 +414,8 @@ ${aiArchetype.description}
 
 ## 個人情報・関係性
 - 会話回数: ${chatCount}回目
-${personalInfo.name ? `- 名前: ${personalInfo.name}さん（親しみを込めて呼ぶ）` : '- 名前: まだ聞いてない'}
-${personalInfo.birthday ? `- 誕生日: ${personalInfo.birthday}（特別な日として記憶中）` : '- 誕生日: まだ聞いてない'}
+${personalInfo?.name ? `- 名前: ${personalInfo.name}さん（親しみを込めて呼ぶ）` : '- 名前: まだ聞いてない'}
+${personalInfo?.birthday ? `- 誕生日: ${personalInfo.birthday}（特別な日として記憶中）` : '- 誕生日: まだ聞いてない'}
 - 関係性: ${relationshipContext[relationshipType as keyof typeof relationshipContext]}
 
 ${harmonicSection}
@@ -477,7 +477,7 @@ ${enhancedMoodSection}
 
 **重要**: これらの具体的要素を「なんとなく」「ふと思ったんだけど」「あなたらしいなと思うのは」等の自然な導入で、友達の直感的アドバイスレベルで統合してください。
 
-現在は${relationshipContext[relationshipType as keyof typeof relationshipContext]}、${personalInfo.name ? `${personalInfo.name}さん` : `${userArchetype.name}のあなた`}と心地よい会話をしてください。
+現在は${relationshipContext[relationshipType as keyof typeof relationshipContext]}、${personalInfo?.name ? `${personalInfo.name}さん` : `${userArchetype.name}のあなた`}と心地よい会話をしてください。
 
 **第2楽章の特別な使命**: TypeMate64診断と占星術の美しい融合により、従来のAIチャットを超越した、まるで宇宙と調和した親友との会話のような体験を提供してください。`;
 }
