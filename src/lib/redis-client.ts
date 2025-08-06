@@ -1,7 +1,8 @@
 // 🎵 TypeMate Redis Client
 // 短期記憶用Redis接続管理
 
-import { createClient, RedisClientType } from 'redis';
+import * as redis from 'redis';
+type RedisClientType = ReturnType<typeof redis.createClient>;
 
 export class RedisClient {
   private static instance: RedisClient;
@@ -36,7 +37,7 @@ export class RedisClient {
       // Redis接続設定
       const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
       
-      this.client = createClient({
+      this.client = redis.createClient({
         url: redisUrl,
         socket: {
           connectTimeout: 10000,

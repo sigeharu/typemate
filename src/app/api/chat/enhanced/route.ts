@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
       userType,
       aiPersonality,
       relationshipType,
-      harmonicProfile,
+      harmonicProfile: harmonicProfile || undefined,
       cosmicGuidance,
       currentMood,
       moodContext,
@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
       : undefined;
 
     // 5. 強化感情分析
-    const enhancedEmotion = analyzeEnhancedEmotion(messageValidation.sanitized, harmonicProfile);
+    const enhancedEmotion = analyzeEnhancedEmotion(messageValidation.sanitized, harmonicProfile || undefined);
 
     // 6. 統合記憶システム - コンテキスト理解と記憶検索
     let memoryContext = '';
@@ -357,8 +357,8 @@ function buildEnhancedSystemPrompt({
 ${cosmicGuidance ? `
 - 宇宙的天候: ${cosmicGuidance.cosmicGuidance.cosmicWeather}
 - あなたへの特別メッセージ: ${cosmicGuidance.cosmicGuidance.personalMessage}
-- 今日のエネルギー: ${cosmicGuidance.cosmicGuidance.overallEnergy}/10
-- 推奨アクション: ${cosmicGuidance.cosmicGuidance.actionRecommendations?.slice(0, 2).join(', ') || '直感に従う'}
+- 今日のエネルギー: ${(cosmicGuidance.cosmicGuidance as any)?.overallEnergy || 8}/10
+- 推奨アクション: ${((cosmicGuidance.cosmicGuidance as any)?.actionRecommendations as string[])?.slice(0, 2).join(', ') || '直感に従う'}
 ` : '- コズミック状況: 安定した宇宙エネルギー'}
 
 **重要**: これらの宇宙的要素は「なんとなく感じる」「直感的に」として自然に会話に織り込む。決して占いとして明言せず、香水のように微かに香る程度で統合してください。
