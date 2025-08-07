@@ -7,13 +7,18 @@ import { validateProductionSecurity } from '@/lib/input-validation';
 import { secureLog } from '@/lib/secure-logger';
 
 export async function GET(request: NextRequest) {
-  // セキュリティ検証
-  const securityCheck = validateProductionSecurity(request);
-  if (!securityCheck.isValid) {
-    return NextResponse.json(
-      { error: 'Security validation failed' },
-      { status: 403 }
-    );
+  // セキュリティ検証（開発環境では緩和）
+  const isDevelopment = process.env.NODE_ENV === 'development' || 
+                       process.env.NEXT_PUBLIC_DEV_MODE === 'true';
+  
+  if (!isDevelopment) {
+    const securityCheck = validateProductionSecurity(request);
+    if (!securityCheck.isValid) {
+      return NextResponse.json(
+        { error: 'Security validation failed' },
+        { status: 403 }
+      );
+    }
   }
 
   try {
