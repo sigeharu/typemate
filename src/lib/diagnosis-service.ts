@@ -99,7 +99,7 @@ class DiagnosisService {
         .from('user_profiles')
         .select('id')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle(); // single()の代わりにmaybeSingle()を使用
 
       let upsertResult, profileError;
 
@@ -190,14 +190,16 @@ class DiagnosisService {
           // user_profilesからsaved AI personalityを取得
           let savedAiPersonality = null;
           try {
-            const { data: profiles } = await supabase
+            const { data: profiles, error } = await supabase
               .from('user_profiles')
               .select('selected_ai_personality')
               .eq('user_id', targetUserId)
-              .single();
+              .maybeSingle(); // single()の代わりにmaybeSingle()を使用
             
-            savedAiPersonality = profiles?.selected_ai_personality;
-            console.log('🔍 user_profilesから保存済みAI人格取得:', savedAiPersonality);
+            if (!error && profiles) {
+              savedAiPersonality = profiles.selected_ai_personality;
+              console.log('🔍 user_profilesから保存済みAI人格取得:', savedAiPersonality);
+            }
           } catch (error) {
             console.warn('⚠️ user_profiles AI人格取得エラー:', error);
           }
