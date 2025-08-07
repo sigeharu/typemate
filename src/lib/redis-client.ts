@@ -34,15 +34,35 @@ export class RedisClient {
 
   private async _connect(): Promise<void> {
     try {
-      // Redis接続設定
-      const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+      // Redis Cloud用の接続設定
+      const redisHost = process.env.REDIS_HOST || 'localhost';
+      const redisPort = parseInt(process.env.REDIS_PORT || '6379');
+      const redisUsername = process.env.REDIS_USERNAME || 'default';
+      const redisPassword = process.env.REDIS_PASSWORD || '';
+      const useSSL = process.env.REDIS_SSL === 'true' || process.env.REDIS_TLS === 'true';
       
+      console.log('🔄 Connecting to Redis:', { host: redisHost, port: redisPort, ssl: useSSL });
+      
+      // Redis Cloudとの互換性のため個別パラメータを使用
       this.client = redis.createClient({
-        url: redisUrl,
         socket: {
+          host: redisHost,
+          port: redisPort,
           connectTimeout: 10000,
-          lazyConnect: true,
-        }
+          reconnectStrategy: (retries) => {
+            if (retries > 3) return new Error('Max retries reached');
+            return Math.min(retries * 100, 3000);
+          },
+          ...(useSSL && {
+            tls: {
+              rejectUnauthorized: false,
+              servername: redisHost,
+              minVersion: 'TLSv1.2'
+            }
+          })
+        },
+        username: redisUsername,
+        password: redisPassword
       });
 
       // エラーハンドリング
