@@ -75,7 +75,7 @@ class HybridStorage {
           .from('user_profiles')
           .select('id, user_id, user_type, selected_ai_personality, relationship_type, preferences, created_at, updated_at')
           .eq('user_id', this.user!.id)
-          .single();
+          .maybeSingle(); // single()の代わりにmaybeSingle()を使用
       });
 
       if (result.error && result.error.code !== 'PGRST116') {

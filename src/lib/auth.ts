@@ -129,7 +129,7 @@ export async function getUserDiagnosisStatus(userId?: string): Promise<{
       .from('user_profiles')
       .select('user_type, created_at')
       .eq('user_id', targetUserId)
-      .single()
+      .maybeSingle() // single()の代わりにmaybeSingle()を使用
 
     if (error && error.code !== 'PGRST116') { // PGRST116 = not found
       console.warn('診断状況確認エラー:', error)

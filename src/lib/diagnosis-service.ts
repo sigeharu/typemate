@@ -673,7 +673,7 @@ class DiagnosisService {
         .from('user_profiles')
         .select('preferences')
         .eq('user_id', targetUserId)
-        .single();
+        .maybeSingle(); // single()の代わりにmaybeSingle()を使用
 
       if (error || !profile) {
         console.log('⚠️ user_profiles詳細結果なし:', error?.message);

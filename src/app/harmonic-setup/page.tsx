@@ -71,7 +71,7 @@ export default function HarmonicSetupPage() {
           .from('user_profiles')
           .select('user_type, selected_ai_personality, relationship_type')
           .eq('user_id', user.id)
-          .single();
+          .maybeSingle(); // single()の代わりにmaybeSingle()を使用
         
         if (profileData) {
           setUserType(profileData.user_type);
