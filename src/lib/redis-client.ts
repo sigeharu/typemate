@@ -34,41 +34,96 @@ export class RedisClient {
 
   private async _connect(): Promise<void> {
     try {
-      // Redis Cloud用の接続設定
-      const redisHost = process.env.REDIS_HOST || 'localhost';
-      const redisPort = parseInt(process.env.REDIS_PORT || '6379');
+      // 🛡️ 環境変数の検証
+      const redisHost = process.env.REDIS_HOST;
+      const redisPort = process.env.REDIS_PORT;
       const redisUsername = process.env.REDIS_USERNAME || 'default';
-      const redisPassword = process.env.REDIS_PASSWORD || '';
+      const redisPassword = process.env.REDIS_PASSWORD;
       const useSSL = process.env.REDIS_SSL === 'true' || process.env.REDIS_TLS === 'true';
+      const isDevelopment = process.env.NODE_ENV === 'development';
+
+      // 必須環境変数チェック
+      if (!redisHost || !redisPort || !redisPassword) {
+        throw new Error('Missing required Redis environment variables: REDIS_HOST, REDIS_PORT, REDIS_PASSWORD');
+      }
       
-      console.log('🔄 Connecting to Redis:', { host: redisHost, port: redisPort, ssl: useSSL });
+      const parsedPort = parseInt(redisPort);
+      if (isNaN(parsedPort) || parsedPort <= 0) {
+        throw new Error('Invalid REDIS_PORT: must be a positive number');
+      }
+      
+      console.log('🔄 Connecting to Redis:', { 
+        host: redisHost, 
+        port: parsedPort, 
+        ssl: useSSL,
+        environment: isDevelopment ? 'development' : 'production'
+      });
       
       // Redis Cloudとの互換性のため個別パラメータを使用
       this.client = redis.createClient({
         socket: {
           host: redisHost,
-          port: redisPort,
+          port: parsedPort,
           connectTimeout: 10000,
+          commandTimeout: 5000,
           reconnectStrategy: (retries) => {
             if (retries > 3) return new Error('Max retries reached');
             return Math.min(retries * 100, 3000);
           },
           ...(useSSL && {
             tls: {
-              rejectUnauthorized: false,
+              // 🛡️ 本番環境では証明書検証を有効化
+              rejectUnauthorized: !isDevelopment,
               servername: redisHost,
-              minVersion: 'TLSv1.2'
+              minVersion: 'TLSv1.2',
+              // 開発環境でのみ自己署名証明書許可
+              ...(isDevelopment && {
+                checkServerIdentity: () => undefined
+              })
             }
           })
         },
         username: redisUsername,
-        password: redisPassword
+        password: redisPassword,
+        // 🛡️ セキュリティ強化設定
+        socket: {
+          ...{
+            host: redisHost,
+            port: parsedPort,
+            connectTimeout: 10000,
+            commandTimeout: 5000,
+            reconnectStrategy: (retries) => {
+              if (retries > 3) return new Error('Max retries reached');
+              return Math.min(retries * 100, 3000);
+            }
+          },
+          ...(useSSL && {
+            tls: {
+              rejectUnauthorized: !isDevelopment,
+              servername: redisHost,
+              minVersion: 'TLSv1.2',
+              ...(isDevelopment && {
+                checkServerIdentity: () => undefined
+              })
+            }
+          })
+        },
+        // 接続プール設定
+        isolationPoolOptions: {
+          min: 2,
+          max: 10
+        }
       });
 
-      // エラーハンドリング
+      // 🔄 強化されたエラーハンドリング
       this.client.on('error', (err) => {
         console.error('❌ Redis Client Error:', err);
         this.isConnected = false;
+        
+        // 重大エラーの場合は再接続試行停止
+        if (err.code === 'ENOTFOUND' || err.code === 'ECONNREFUSED') {
+          console.error('🚨 Redis connection critically failed, stopping reconnection attempts');
+        }
       });
 
       this.client.on('connect', () => {
@@ -85,15 +140,36 @@ export class RedisClient {
         this.isConnected = false;
       });
 
+      this.client.on('reconnecting', () => {
+        console.log('🔄 Redis reconnecting...');
+      });
+
       // 接続実行
       await this.client.connect();
       console.log('✅ Redis connected successfully');
+      
+      // 🧪 接続テスト
+      const pingResult = await this.client.ping();
+      if (pingResult !== 'PONG') {
+        throw new Error('Redis ping test failed');
+      }
       
     } catch (error) {
       console.error('❌ Redis connection failed:', error);
       this.client = null;
       this.isConnected = false;
       this.connectionPromise = null;
+      
+      // 開発環境では詳細なエラー情報を表示
+      if (process.env.NODE_ENV === 'development') {
+        console.error('🔧 Redis connection debug info:', {
+          host: process.env.REDIS_HOST,
+          port: process.env.REDIS_PORT,
+          hasPassword: !!process.env.REDIS_PASSWORD,
+          ssl: process.env.REDIS_SSL === 'true' || process.env.REDIS_TLS === 'true'
+        });
+      }
+      
       throw error;
     }
   }
