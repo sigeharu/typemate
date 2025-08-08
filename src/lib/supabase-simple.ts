@@ -3,12 +3,10 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-// 🛡️ 環境変数フォールバック実装（本番環境での確実な動作を保証）
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 
-  'https://ypwvkihattwxushbwsig.supabase.co';
+// 🚨 DNS問題緊急修正: 完全ハードコード（正しいURL強制）
+const supabaseUrl = 'https://ypwvkihattwxushbwsig.supabase.co';
 
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlwd3ZraWhhdHR3eHVzaGJ3c2lnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI5ODM0MzUsImV4cCI6MjA2ODU1OTQzNX0.i6RCPWQLpWg_LwSTWZKkodf5DbLPTo2kbRIREIKtUGc';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlwd3ZraWhhdHR3eHVzaGJ3c2lnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI5ODM0MzUsImV4cCI6MjA2ODU1OTQzNX0.i6RCPWQLpWg_LwSTWZKkodf5DbLPTo2kbRIREIKtUGc';
 
 // 🚨 DNS問題デバッグ用：どのURLが使用されているか確認
 if (typeof window !== 'undefined') {
