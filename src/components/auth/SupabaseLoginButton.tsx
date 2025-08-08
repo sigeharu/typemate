@@ -36,6 +36,14 @@ export const SupabaseLoginButton = ({
     
     try {
       setIsSigningIn(true)
+      
+      // 🚨 DNS問題デバッグ: OAuth前にSupabaseクライアントの設定確認
+      console.log('🔍 OAuth開始前のSupabaseクライアント確認:', {
+        supabaseUrl: supabase.supabaseUrl,
+        correctUrl: supabase.supabaseUrl.includes('ypwvkihattwxushbwsig'),
+        wrongUrl: supabase.supabaseUrl.includes('ypwvkhattwxushbwsig')
+      });
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -45,6 +53,10 @@ export const SupabaseLoginButton = ({
       
       if (error) {
         console.error('Sign in error:', error)
+        console.error('🚨 Error details:', {
+          message: error.message,
+          status: error.status
+        });
         setIsSigningIn(false)
       }
     } catch (error) {
