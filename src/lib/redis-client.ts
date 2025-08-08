@@ -34,27 +34,48 @@ export class RedisClient {
 
   private async _connect(): Promise<void> {
     try {
-      // 🛡️ 環境変数の検証
-      const redisHost = process.env.REDIS_HOST;
-      const redisPort = process.env.REDIS_PORT;
-      const redisUsername = process.env.REDIS_USERNAME || 'default';
-      const redisPassword = process.env.REDIS_PASSWORD;
-      const useSSL = process.env.REDIS_SSL === 'true' || process.env.REDIS_TLS === 'true';
       const isDevelopment = process.env.NODE_ENV === 'development';
+      
+      // 🛡️ 環境変数の検証：REDIS_URL優先、個別設定をフォールバック
+      let redisHost: string;
+      let redisPort: number;
+      let redisUsername: string;
+      let redisPassword: string;
+      let useSSL: boolean;
 
-      // 必須環境変数チェック
-      if (!redisHost || !redisPort || !redisPassword) {
-        throw new Error('Missing required Redis environment variables: REDIS_HOST, REDIS_PORT, REDIS_PASSWORD');
+      // REDIS_URLが設定されている場合はそれを優先
+      if (process.env.REDIS_URL) {
+        const redisUrl = new URL(process.env.REDIS_URL);
+        redisHost = redisUrl.hostname;
+        redisPort = parseInt(redisUrl.port);
+        redisUsername = redisUrl.username || 'default';
+        redisPassword = redisUrl.password || '';
+        useSSL = redisUrl.protocol === 'rediss:';
+        
+        console.log('🔗 Using REDIS_URL configuration');
+      } else {
+        // 個別環境変数を使用（従来の方法）
+        redisHost = process.env.REDIS_HOST || '';
+        redisPort = parseInt(process.env.REDIS_PORT || '6379');
+        redisUsername = process.env.REDIS_USERNAME || 'default';
+        redisPassword = process.env.REDIS_PASSWORD || '';
+        useSSL = process.env.REDIS_SSL === 'true' || process.env.REDIS_TLS === 'true';
+        
+        console.log('🔧 Using individual Redis environment variables');
+      }
+
+      // 必須パラメータチェック
+      if (!redisHost || !redisPassword) {
+        throw new Error('Missing required Redis configuration: host and password are required');
       }
       
-      const parsedPort = parseInt(redisPort);
-      if (isNaN(parsedPort) || parsedPort <= 0) {
-        throw new Error('Invalid REDIS_PORT: must be a positive number');
+      if (isNaN(redisPort) || redisPort <= 0) {
+        throw new Error('Invalid Redis port: must be a positive number');
       }
       
       console.log('🔄 Connecting to Redis:', { 
         host: redisHost, 
-        port: parsedPort, 
+        port: redisPort, 
         ssl: useSSL,
         environment: isDevelopment ? 'development' : 'production'
       });
@@ -63,7 +84,7 @@ export class RedisClient {
       this.client = redis.createClient({
         socket: {
           host: redisHost,
-          port: parsedPort,
+          port: redisPort,
           connectTimeout: 10000,
           commandTimeout: 5000,
           reconnectStrategy: (retries) => {
@@ -89,7 +110,7 @@ export class RedisClient {
         socket: {
           ...{
             host: redisHost,
-            port: parsedPort,
+            port: redisPort,
             connectTimeout: 10000,
             commandTimeout: 5000,
             reconnectStrategy: (retries) => {
