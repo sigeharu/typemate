@@ -37,12 +37,14 @@ export const SupabaseLoginButton = ({
     try {
       setIsSigningIn(true)
       
-      // 🚨 DNS問題デバッグ: OAuth前にSupabaseクライアントの設定確認
-      console.log('🔍 OAuth開始前のSupabaseクライアント確認:', {
-        supabaseUrl: supabase.supabaseUrl,
-        correctUrl: supabase.supabaseUrl.includes('ypwvkihattwxushbwsig'),
-        wrongUrl: supabase.supabaseUrl.includes('ypwvkhattwxushbwsig')
-      });
+      // 🛡️ 開発環境でのみOAuth設定確認
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔍 OAuth実行前の設定確認:', {
+          supabaseUrl: supabase.supabaseUrl,
+          isValidDomain: supabase.supabaseUrl.includes('ypwvkihattwxushbwsig'),
+          redirectTo: `${window.location.origin}/auth/callback`
+        });
+      }
       
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
